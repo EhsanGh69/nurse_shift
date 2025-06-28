@@ -2,8 +2,6 @@ const fs = require("fs");
 const fsPromise = require("fs").promises;
 const path = require("path");
 
-const postModel = require("../post/post.model");
-
 
 exports.removePrevAvatar = async (req, res, next) => {
     const user = req.user;
@@ -18,26 +16,5 @@ exports.removePrevAvatar = async (req, res, next) => {
                 throw error;
         }
     }
-    next();
-}
-
-exports.removePrevPostImage = async (req, res, next) => {
-    const slug = req.params.slug;
-    const postImagesPath = path.join(__dirname, '..', 'public', 'images', 'posts')
-
-    fs.readdir(postImagesPath, (err, files) => {
-        if(err) throw err;
-
-        files.forEach(file => {
-            if(file.startsWith(slug)){
-                fs.unlink(path.join(postImagesPath, file), (err) => {
-                    if(err) {
-                        console.log("Error in remove file: ", file);
-                        throw err;
-                    }
-                })
-            }
-        })
-    })
     next();
 }

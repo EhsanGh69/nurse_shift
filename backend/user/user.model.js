@@ -3,19 +3,10 @@ const gravatar = require("gravatar");
 const bcrypt = require("bcrypt");
 
 const userSchema = new mongoose.Schema({
-    username: {
+    inviteCode: {
         type: String,
         required: true,
-        unique: true,
-        trim: true,
-        maxLength: 150
-    },
-    email: {
-        type: String,
-        required: true,
-        unique: true,
-        trim: true,
-        maxLength: 254
+        trim: true
     },
     password: {
         type: String,
@@ -23,27 +14,31 @@ const userSchema = new mongoose.Schema({
     },
     firstName: {
         type: String,
-        required: false,
-        default: '',
-        maxLength: 150
+        required: true,
+        maxLength: 150,
+        minLength: 3
     },
     lastName: {
         type: String,
-        required: false,
-        default: '',
-        maxLength: 150
+        required: true,
+        maxLength: 150,
+        minLength: 3
     },
-    isActive: {
-        type: Boolean,
-        default: true
+    mobile: {
+        type: String,
+        required: true
     },
-    isStaff: {
-        type: Boolean,
-        default: false
+    nationalCode: {
+        type: String,
+        required: true
     },
-    isSuperuser: {
-        type: Boolean,
-        default: false
+    province: {
+        type: String,
+        required: true
+    },
+    county: {
+        type: String,
+        required: true
     },
     dateJoined: {
         type: Date,

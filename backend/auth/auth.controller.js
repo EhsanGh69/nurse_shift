@@ -2,13 +2,9 @@ const jwt = require("jsonwebtoken");
 
 const userModel = require('../user/user.model');
 const blockUserModel = require("../user/blockUser.model");
-const activationCodeModel = require('./activationCode.model')
-const registerValidation = require('../validators/register');
-const loginValidation = require('../validators/login');
 const { generateAccessToken, generateRefreshToken } = require('../utils/token');
-const { activateValidation, resendValidation } = require("../validators/activation")
-const generateActivationCode = require("../utils/activationCode")
-const { resetPasswordValidator } = require("../validators/changePassword");
+
+
 
 
 const clearCookieOptions = {
@@ -19,19 +15,7 @@ const clearCookieOptions = {
 
 
 exports.register = async (req, res) => {
-    const validationResult = registerValidation(req.body)
-    if (validationResult !== true) {
-        return res.status(422).json(validationResult)
-    }
-
-    const { username, email, password, firstName, lastName } = req.body;
-
-    const userExist = await userModel.findOne({
-        $or: [{ username }, { email }]
-    })
-    if (userExist) {
-        return res.status(409).json({ message: "username or email already exist" })
-    }
+    // validation
 
     const usersCount = await userModel.countDocuments()
 
@@ -51,95 +35,9 @@ exports.register = async (req, res) => {
 
 }
 
-exports.activateAndForgotCode = async (req, res) => {
-    let messageKeyWord = ''
-    if (req.url.includes("forgot_code")) messageKeyWord = 'Reset password'
-    else messageKeyWord = 'Activation'
-        
-    const validationResult = activateValidation(req.body)
-    if (validationResult !== true) {
-        return res.status(422).json(validationResult);
-    }
-
-    const userEmail = req.cookies["user-email"]
-    if (!userEmail) {
-        return res.status(400).json({ message: `${messageKeyWord} failed!` })
-    }
-
-    const user = await userModel.findOne({ email: userEmail })
-    if(!user) return res.status(404).json({ message: "User not found!" });
-
-    const { code } = req.body
-
-    const activationCode = await activationCodeModel.findOne({ userId: user._id, code })
-    if (!activationCode) {
-        return res.status(400).json({ message: `${messageKeyWord} code is not valid!` })
-    }
-
-    const now = new Date()
-    if ((activationCode.expiresAt < now)) {
-        await activationCode.deleteOne()
-        res.clearCookie("user-email", clearCookieOptions)
-        return res.status(400).json({ message: `Your ${messageKeyWord} code has been expired!` })
-    }
-    
-    await activationCode.deleteOne()
-
-    if (req.url.includes("forgot_code")) {
-        return res.status(301).json({ message: "Redirect to reset password" })
-    } else {
-        res.clearCookie("user-email", clearCookieOptions)
-        user.isActive = true;
-        await user.save()
-        return res.json({ message: "Your account activated successfully" })
-    }
-}
-
-exports.resendActivationAndForgotPassword = async (req, res) => {
-    const validationResult = resendValidation(req.body)
-    if (validationResult !== true) {
-        return res.status(422).json(validationResult);
-    }
-
-    const { email } = req.body
-    const user = await userModel.findOne({ email })
-    if (!user) {
-        return res.status(404).json({ message: "There is no user with this email!" })
-    }
-
-    await activationCodeModel.deleteMany({ userId: user._id })
-
-    if (req.url.includes("forgot_password")) {
-        const checkBlock = await blockUserModel.findOne({ user: user._id })
-        if(checkBlock) return res.status(403).json({ message: "Your account is blocked by admin" });
-
-        const refreshToken = req.cookies["refresh-token"]
-        if (refreshToken) {
-            return res.status(400).json({ message: "You already logged in!" })
-        }
-        
-        await generateActivationCode(user, res, 'forgot')
-        return res.json({ message: 'Forgot password code sent to your email' })
-    } else {
-        if (user.isActive) {
-            return res.status(400).json({ message: "Your account has already been activated" })
-        }
-
-        await generateActivationCode(user, res, 'activate')
-        return res.json({ message: 'New activation code sent to your email' })
-    }
-}
 
 exports.resetPassword = async (req, res) => {
-    const validationResult = resetPasswordValidator(req.body)
-    if (validationResult !== true) {
-        return res.status(422).json(validationResult);
-    }
-
-    const userEmail = req.cookies["user-email"]
-    if (!userEmail) {
-        return res.status(400).json({ message: 'Reset password failed!' })
-    }
+    // validation
 
     const { newPassword } = req.body;
 
@@ -157,17 +55,12 @@ exports.resetPassword = async (req, res) => {
 
 
 exports.login = async (req, res) => {
-    const validationResult = loginValidation(req.body)
-    if (validationResult !== true) {
-        return res.status(422).json(validationResult)
-    }
+    // validation
 
-    const { identifier, password } = req.body;
+    const { nationalCode } = req.body;
     let verifyPassword = false;
 
-    const user = await userModel.findOne({
-        $or: [{ email: identifier }, { username: identifier }]
-    })
+    const user = await userModel.findOne({ nationalCode })
 
     if (user) {
         if (!user.isActive) return res.status(400).json({ message: "Your account is not active" });
@@ -210,7 +103,7 @@ exports.logout = async (req, res) => {
 
     return res.json({ message: "You logged out successfully!" })
 }
-
+ 
 exports.refreshToken = async (req, res) => {
     const refreshToken = req.cookies["refresh-token"]
     if (!refreshToken) {
