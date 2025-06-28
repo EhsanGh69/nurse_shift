@@ -2,8 +2,12 @@ import * as Yup from 'yup';
 
 
 export const registerSchema = Yup.object({
-    firstName: Yup.string().required("لطفا نام خود را وارد نمایید"),
-    lastName: Yup.string().required("لطفا نام خانوادگی خود را وارد نمایید"),
+    firstName: Yup.string()
+        .max(150, "طول نام باید کمتر از 150 کاراکتر باشد").min(3, "طول نام باید بیشتر از 3 کاراکتر باشد")
+        .required("لطفا نام خود را وارد نمایید"),
+    lastName: Yup.string()
+        .max(150, "طول نام خانوادگی باید کمتر از 150 کاراکتر باشد").min(3, "طول نام خانوادگی باید بیشتر از 3 کاراکتر باشد")
+        .required("لطفا نام خانوادگی خود را وارد نمایید"),
     inviteCode: Yup.string().required("لطفا کد دعوت خود را وارد نمایید"),
     nationalCode: Yup.string()
         .matches(/^(?!^(\d)\1{9}$)\d{10}$/, "کد ملی وارد شده معتبر نمی باشد").required("لطفا کد ملی خود را وارد نمایید"),
@@ -18,5 +22,5 @@ export const registerSchema = Yup.object({
 
 export const loginSchema = Yup.object({
     nationalCode: Yup.string().required("لطفا کد ملی خود را وارد نمایید"),
-    password: Yup.string().required("لطفا رمز عبور خود را تعیین نمایید"),  
+    password: Yup.string().required("لطفا رمز عبور خود را تعیین نمایید"),
 })
