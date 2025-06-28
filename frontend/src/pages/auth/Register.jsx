@@ -9,10 +9,7 @@ import { centerBox } from '../../styles/globalStyles'
 export default function Register() {
     return (
         <MainLayout title="ثبت نام">
-            <Stack direction='column' justifyContent='center'
-                // sx={{ maxWidth: 400, height: '100vh', mx: 'auto' }}
-                sx={centerBox}
-            >
+            <Stack direction='column' sx={centerBox}>
                 <Typography variant='h4' align='center' gutterBottom>
                     ثبت نام عضو جدید
                 </Typography>

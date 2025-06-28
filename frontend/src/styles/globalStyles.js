@@ -1,14 +1,16 @@
 
 
 export const centerBox = {
-    // minHeight: '100vh',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     marginX: 'auto',
-    marginY: 8,
+    marginY: 5,
     p: 2,
-    width: 400, height: 800, border: '1px solid black'
+    width: 400, 
+    height: 800, 
+    border: '1px solid black',
+    overflowY: 'auto'
 }
 
 export const clickBox = {
