@@ -14,7 +14,7 @@ export const registerSchema = Yup.object({
     mobile: Yup.string()
         .matches(/^09\d{9}$/, "شماره موبایل وارد شده معتبر نمی باشد").required("لطفا شماره موبایل خود را وارد نمایید"),
     password: Yup.string()
-        .matches(/^(?=.*[a-zA-Z0-9]).{8,}$/, "رمز عبور وارد شده معتبر نمی باشد")
+        .matches(/^(?=.*[a-zA-Z0-9]).{8,}$/, "رمز عبور باید حداقل 8 کاراکتر و شامل حروف یا اعداد انگلیسی باشد")
         .required("لطفا رمز عبور خود را تعیین نمایید"),
     province: Yup.string().required("لطفا استان را انتخاب نمایید"),
     county: Yup.string().required("لطفا شهرستان را انتخاب نمایید")

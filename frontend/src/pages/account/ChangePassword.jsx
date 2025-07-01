@@ -5,20 +5,21 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 import MainLayout from '../../mui/MainLayout';
-import { loginSchema } from '../../validations/authValidation'
+import AppHeader from '../../components/AppHeader';
+import { changePasswordSchema } from '../../validations/accountValidation';
 import { centerBox } from '../../styles/globalStyles'
 import SnackAlert from '../../components/SnackAlert';
-import { userNavigate } from '../../utils/services'
+import { refreshToken } from '../../utils/services';
 
 
-export default function Login() {
+export default function ChangePassword() {
     const navigate = useNavigate()
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
 
     const handleSubmit = async (values, { setSubmitting, resetForm }) => {
         try {
-            await axios.post('/auth/login', values, {withCredentials: true})
-            setSnackbar({ open: true, message: 'با موفقیت وارد شدید', severity: 'success' })
+            await axios.post('/account/change_password', values, { withCredentials: true })
+            setSnackbar({ open: true, message: 'رمز عبور شما با موفقیت تغییر یافت', severity: 'success' })
             setTimeout(() => navigate('/nurse'), 1000)
             resetForm()
         } catch (error) {
@@ -31,46 +32,45 @@ export default function Login() {
     }
 
     useEffect(() => {
-        userNavigate(navigate)
+        refreshToken(navigate)
     }, [])
 
     return (
-        <MainLayout title="ورود">
-            <Stack direction='column' justifyContent='center' sx={centerBox}>
-                <Typography variant='h4' align='center' gutterBottom>
-                    ورود اعضاء
-                </Typography>
+        <MainLayout title="تغییر رمز عبور">
+            <Stack direction='column' sx={centerBox}>
+                <AppHeader />
 
                 <Formik
                     initialValues={{
-                        nationalCode: "", password: ""
+                        oldPassword: "", newPassword: ""
                     }}
-                    validationSchema={loginSchema}
+                    validationSchema={changePasswordSchema}
                     onSubmit={handleSubmit}
                 >
                     {({ values, handleChange, handleBlur, errors, touched }) => (
                         <Form>
                             <TextField
                                 fullWidth
-                                label="کد ملی"
-                                name='nationalCode'
-                                value={values.nationalCode}
+                                label="رمز عبور کنونی"
+                                name='oldPassword'
+                                type='password'
+                                value={values.oldPassword}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
-                                error={touched.nationalCode && Boolean(errors.nationalCode)}
-                                helperText={touched.nationalCode && errors.nationalCode}
+                                error={touched.oldPassword && Boolean(errors.oldPassword)}
+                                helperText={touched.oldPassword && errors.oldPassword}
                                 sx={{ mb: 2 }}
                             />
                             <TextField
                                 fullWidth
-                                label="رمز عبور"
-                                name='password'
+                                label="رمز عبور جدید"
+                                name='newPassword'
                                 type='password'
-                                value={values.password}
+                                value={values.newPassword}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
-                                error={touched.password && Boolean(errors.password)}
-                                helperText={touched.password && errors.password}
+                                error={touched.newPassword && Boolean(errors.newPassword)}
+                                helperText={touched.newPassword && errors.newPassword}
                                 sx={{ mb: 2 }}
                             />
                             <Button
@@ -80,7 +80,7 @@ export default function Login() {
                                 type='submit'
                                 sx={{ mb: 2, fontSize: 20 }}
                             >
-                                ورود
+                                تغییر رمز عبور
                             </Button>
                         </Form>
                     )}
@@ -92,7 +92,7 @@ export default function Login() {
                     color='secondary'
                     type='button'
                     component={Link}
-                    to="/"
+                    to="/nurse"
                     sx={{ fontSize: 20 }}
                 >
                     بازگشت

@@ -3,22 +3,30 @@ const jwt = require("jsonwebtoken");
 const userModel = require("../user/user.model");
 
 
+const cookieOptions = {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    path: '/'
+}
+
 module.exports = async (req, res, next) => {
     const authHeader = req.headers["authorization"]
     const token = authHeader && authHeader.split(" ")[1];
 
-    if(token){
+    if (token) {
         try {
             const accessTokenPayload = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
             const user = await userModel.findById(accessTokenPayload.id)
-            if(!user) return res.status(404).json({ message: "User not found" })
-            if(!user.isActive) return res.status(403).json({ message: "Your account is not active" })
+            if (!user) return res.status(404).json({ message: "User not found" })
             req.user = user;
             next();
         } catch (error) {
+            res.clearCookie("access-token", cookieOptions)
+            res.clearCookie("refresh-token", cookieOptions)
             return res.status(401).json({ message: "Your token has expired" })
         }
-    }else {
+    } else {
         return res.status(401).json({ message: "You don't have access to this route" })
     }
 }

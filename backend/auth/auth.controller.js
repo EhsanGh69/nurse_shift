@@ -5,34 +5,32 @@ const blockUserModel = require("../user/blockUser.model");
 const { generateAccessToken, generateRefreshToken } = require('../utils/token');
 
 
-
-
-const clearCookieOptions = {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict'
-}
-
-
 exports.register = async (req, res) => {
-    // validation
+    const { inviteCode, password, firstName, lastName,
+        mobile, nationalCode, province, county } = req.body;
+
+    const userExist = await userModel.findOne({
+        $or: [{ mobile }, { nationalCode }]
+    })
+
+    if (userExist)
+        return res.status(409).json({ message: "کاربری با مشخصات وارد شده از قبل وجود دارد" })
 
     const usersCount = await userModel.countDocuments()
 
-    const newUser = await userModel.create({
-        username,
-        email,
+    await userModel.create({
+        inviteCode,
         password,
         firstName,
         lastName,
-        role: usersCount > 0 ? "USER" : "ADMIN",
-        isActive: false
+        mobile,
+        nationalCode,
+        province,
+        county,
+        role: usersCount > 0 ? "NURSE" : "ADMIN"
     })
 
-    await generateActivationCode(newUser, res)
-
-    res.status(201).json({ message: 'You registered successfully. Activation code sent to your email' })
-
+    res.status(201).json({ message: 'You registered successfully' })
 }
 
 
@@ -42,44 +40,45 @@ exports.resetPassword = async (req, res) => {
     const { newPassword } = req.body;
 
     const user = await userModel.findOne({ email: userEmail });
-    if(!user){
+    if (!user) {
         return res.status(404).json({ message: 'User not found!' })
     }
 
     user.password = newPassword;
     await user.save()
 
-    res.json({ message: "Your password reset successfully"})
+    res.json({ message: "Your password reset successfully" })
 
 }
 
+const cookieOptions = {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    path: '/'
+}
 
 exports.login = async (req, res) => {
-    // validation
-
-    const { nationalCode } = req.body;
+    const { nationalCode, password } = req.body;
     let verifyPassword = false;
 
     const user = await userModel.findOne({ nationalCode })
 
     if (user) {
-        if (!user.isActive) return res.status(400).json({ message: "Your account is not active" });
-
         const checkBlock = await blockUserModel.findOne({ user: user._id })
-        if(checkBlock) return res.status(403).json({ message: "Your account is blocked by admin" });
+        if (checkBlock) return res.status(403).json({ message: "حساب کاربری شما مسدود شده است" });
 
         verifyPassword = await user.verifyPassword(password)
     }
 
     if (!user || !verifyPassword) {
-        return res.status(401).json({ message: "Your credentials is not provided" })
+        return res.status(401).json({ message: "کد ملی یا رمز عبور اشتباه وارد شده است" })
     }
-
     const accessToken = generateAccessToken(user._id);
     const refreshToken = generateRefreshToken(user._id);
 
-    res.cookie("access-token", accessToken, { httpOnly: true });
-    res.cookie("refresh-token", refreshToken, { httpOnly: true });
+    res.cookie("access-token", accessToken, { ...cookieOptions, maxAge: 15 * 60 * 1000 });
+    res.cookie("refresh-token", refreshToken, { ...cookieOptions, maxAge: 30 * 24 * 60 * 60 * 1000 });
 
     await userModel.findByIdAndUpdate(user._id, {
         $set: { refreshToken, lastLogin: Date.now() }
@@ -89,6 +88,9 @@ exports.login = async (req, res) => {
 }
 
 exports.logout = async (req, res) => {
+    res.clearCookie("access-token", cookieOptions)
+    res.clearCookie("refresh-token", cookieOptions)
+
     const refreshToken = req.cookies["refresh-token"]
     if (refreshToken) {
         const user = await userModel.findOne({ refreshToken })
@@ -98,32 +100,53 @@ exports.logout = async (req, res) => {
         }
     }
 
-    res.clearCookie("access-token", clearCookieOptions)
-    res.clearCookie("refresh-token", clearCookieOptions)
-
     return res.json({ message: "You logged out successfully!" })
 }
- 
+
 exports.refreshToken = async (req, res) => {
     const refreshToken = req.cookies["refresh-token"]
     if (!refreshToken) {
         return res.status(401).json({ message: "You don't have refresh token" })
     }
 
-    const user = await userModel.findOne({ refreshToken })
-    if (!user) {
-        return res.status(403).json({ message: "Your access has been blocked!" })
-    }
+    try {
+        jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET)
+        const user = await userModel.findOne({ refreshToken })
+        if (!user) {
+            return res.status(403).json({ message: "Your access has been blocked!" })
+        }
 
-    const checkBlock = await blockUserModel.findOne({ user: user._id })
-    if(checkBlock) return res.status(403).json({ message: "Your account is blocked by admin" });
+        const checkBlock = await blockUserModel.findOne({ user: user._id })
+        if (checkBlock) return res.status(403).json({ message: "Your account is blocked by admin" });
+
+        const newAccessToken = generateAccessToken(user._id)
+        res.cookie("access-token", newAccessToken, { ...cookieOptions, maxAge: 15 * 60 * 1000 })
+        return res.json({ accessToken: newAccessToken })
+    } catch (error) {
+        res.clearCookie("access-token", cookieOptions)
+        res.clearCookie("refresh-token", cookieOptions)
+        return res.status(401).json({ message: "Your refresh token has expired!" })
+    }
+}
+
+exports.getMe = async (req, res) => {
+    const refreshToken = req.cookies["refresh-token"]
+    if (!refreshToken) {
+        return res.status(401).json({ message: "You don't have refresh token" })
+    }
 
     try {
         jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET)
-        const newAccessToken = generateAccessToken(user._id)
-        res.cookie("access-token", newAccessToken, { httpOnly: true })
-        return res.json({ accessToken: newAccessToken })
+        const user = await userModel.findOne({ refreshToken })
+            .select("avatar firstName lastName mobile role nationalCode county province")
+
+        if (!user)
+            return res.status(403).json({ message: "Your access has been blocked!" })
+
+        return res.json(user)
     } catch (error) {
+        res.clearCookie("access-token", cookieOptions)
+        res.clearCookie("refresh-token", cookieOptions)
         return res.status(401).json({ message: "Your refresh token has expired!" })
     }
 }

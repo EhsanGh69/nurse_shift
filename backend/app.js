@@ -6,18 +6,20 @@ const cors = require('cors')
 require("dotenv").config();
 
 const authRouter = require("./auth/auth.router");
+const accountRouter = require("./account/account.router");
 
 
 const app = express();
 
+app.use(cors({ origin: "http://localhost:8000", credentials: true }))
+app.use(cookieParser("ghgnkjiredrsedfxhbfdbrserseok"))
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(morgan('dev'))
-app.use(cors())
-app.use(cookieParser("ghgnkjiredrserserseok"))
 app.use('/images/avatars', express.static(path.join(__dirname, "public", "images", "avatars")))
 
 app.use('/auth', authRouter)
+app.use('/account', accountRouter)
 
 
 // app.get('/test', (req, res) => {

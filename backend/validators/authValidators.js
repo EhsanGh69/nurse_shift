@@ -1,6 +1,6 @@
 const Joi = require('joi');
 
-const registerSchema = Joi.object({
+exports.registerSchema = Joi.object({
     firstName: Joi.string().min(3).max(150).required(),
     lastName: Joi.string().min(3).max(150).required(),
     inviteCode: Joi.string().required(),
@@ -10,3 +10,9 @@ const registerSchema = Joi.object({
     province: Joi.string().required(),
     county: Joi.string().required()
 })
+
+exports.loginSchema = Joi.object({
+    nationalCode: Joi.string().required(),
+    password: Joi.string().required()
+})
+

@@ -1,12 +1,39 @@
+import { useState, useEffect } from 'react';
 import { Stack, Button, TextField, Typography, MenuItem } from '@mui/material';
 import { Formik, Form } from 'formik';
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import axios from 'axios';
 
 import { registerSchema } from '../../validations/authValidation'
 import MainLayout from '../../mui/MainLayout';
-import { centerBox } from '../../styles/globalStyles'
+import { centerBox } from '../../styles/globalStyles';
+import { registerFields } from '../../constants/fields';
+import SnackAlert from '../../components/SnackAlert';
+import { userNavigate } from '../../utils/services'
+
 
 export default function Register() {
+    const navigate = useNavigate()
+    const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
+
+    const handleSubmit = async (values, { setSubmitting, resetForm }) => {
+        try {
+            await axios.post('/auth/register', values)
+            setSnackbar({ open: true, message: 'ثبت نام با موفقیت انجام شد', severity: 'success' })
+            setTimeout(() => navigate('/login'), 1500)
+            resetForm()
+        } catch (error) {
+            const msg = error.response?.data?.message || 'خطایی رخ داد';
+            setSnackbar({ open: true, message: msg, severity: 'error' })
+        } finally {
+            setSubmitting(false)
+        }
+    }
+
+    useEffect(() => {
+        userNavigate(navigate)
+    }, [])
+
     return (
         <MainLayout title="ثبت نام">
             <Stack direction='column' sx={centerBox}>
@@ -22,79 +49,26 @@ export default function Register() {
                         province: "", county: ""
                     }}
                     validationSchema={registerSchema}
-                    onSubmit={(values) => {
-                        console.log(values)
-                    }}
+                    onSubmit={handleSubmit}
                 >
                     {({ values, handleChange, handleBlur, errors, touched }) => (
                         <Form>
-                            <TextField
-                                fullWidth
-                                label="کد دعوت"
-                                name='inviteCode'
-                                value={values.inviteCode}
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                error={touched.inviteCode && Boolean(errors.inviteCode)}
-                                helperText={touched.inviteCode && errors.inviteCode}
-                                sx={{ mb: 2 }}
-                            />
-                            <TextField
-                                fullWidth
-                                label="نام"
-                                name='firstName'
-                                value={values.firstName}
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                error={touched.firstName && Boolean(errors.firstName)}
-                                helperText={touched.firstName && errors.firstName}
-                                sx={{ mb: 2 }}
-                            />
-                            <TextField
-                                fullWidth
-                                label="نام خانوادگی"
-                                name='lastName'
-                                value={values.lastName}
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                error={touched.lastName && Boolean(errors.lastName)}
-                                helperText={touched.lastName && errors.lastName}
-                                sx={{ mb: 2 }}
-                            />
-                            <TextField
-                                fullWidth
-                                label="کد ملی"
-                                name='nationalCode'
-                                value={values.nationalCode}
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                error={touched.nationalCode && Boolean(errors.nationalCode)}
-                                helperText={touched.nationalCode && errors.nationalCode}
-                                sx={{ mb: 2 }}
-                            />
-                            <TextField
-                                fullWidth
-                                label="رمز عبور"
-                                name='password'
-                                type='password'
-                                value={values.password}
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                error={touched.password && Boolean(errors.password)}
-                                helperText={touched.password && errors.password}
-                                sx={{ mb: 2 }}
-                            />
-                            <TextField
-                                fullWidth
-                                label="موبایل"
-                                name='mobile'
-                                value={values.mobile}
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                error={touched.mobile && Boolean(errors.mobile)}
-                                helperText={touched.mobile && errors.mobile}
-                                sx={{ mb: 2 }}
-                            />
+                            {registerFields.map((field, index) => (
+                                <TextField
+                                    key={index}
+                                    fullWidth
+                                    label={field.label}
+                                    name={field.name}
+                                    type={field.type}
+                                    value={values[field.name]}
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                    error={touched[field.name] && Boolean(errors[field.name])}
+                                    helperText={touched[field.name] && errors[field.name]}
+                                    sx={{ mb: 2 }}
+                                />
+                            ))}
+
                             <TextField
                                 fullWidth
                                 select
@@ -132,7 +106,7 @@ export default function Register() {
                                 variant='contained'
                                 color='primary'
                                 type='submit'
-                                sx={{ mb: 2 }}
+                                sx={{ mb: 2, fontSize: 20 }}
                             >
                                 ثبت اطلاعات
                             </Button>
@@ -147,9 +121,12 @@ export default function Register() {
                     type='button'
                     component={Link}
                     to="/"
+                    sx={{ fontSize: 20 }}
                 >
                     بازگشت
                 </Button>
+
+                <SnackAlert snackbar={snackbar} setSnackbar={setSnackbar} />
             </Stack>
         </MainLayout>
     )

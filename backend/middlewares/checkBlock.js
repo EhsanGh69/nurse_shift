@@ -1,9 +1,10 @@
 const blockUserModel = require("../user/blockUser.model");
 
-const clearCookieOptions = {
+const cookieOptions = {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict'
+    secure: true,
+    sameSite: 'none',
+    path: '/'
 }
 
 module.exports = async (req, res, next) => {
@@ -11,8 +12,8 @@ module.exports = async (req, res, next) => {
 
     const checkBlock = await blockUserModel.findOne({ user: user._id });
     if(checkBlock) {
-        res.clearCookie("access-token", clearCookieOptions)
-        res.clearCookie("refresh-token", clearCookieOptions)
+        res.clearCookie("access-token", cookieOptions)
+        res.clearCookie("refresh-token", cookieOptions)
         return res.status(403).json({ message: "Your account is blocked by admin" })
     }
     next();

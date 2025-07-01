@@ -14,11 +14,12 @@ const items = [
 ]
 
 export default function NurseHome() {
+
     return (
         <MainLayout title="پرستار | خانه">
             <Box sx={centerBox}>
                 <AppHeader />
-                <Grid container spacing={3} justifyContent='center' maxWidth={600}>
+                <Grid container spacing={3} justifyContent='center'>
                     {items.map(item => (
                         <Grid item
                             size={{ xs: 6 }}
