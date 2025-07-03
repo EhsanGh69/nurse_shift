@@ -34,6 +34,11 @@ export default function AppHeader() {
 
     const handleUserData = async () => {
         const data = await getUserData()
+        
+        const isNotNurse = data.role !== 'NURSE' && pathname === '/nurse'
+        const isNurse = data.role === 'NURSE' && pathname === '/matron'
+        if(isNotNurse || isNurse) navigate('/404')
+
         setUserData(data)
     }
 
@@ -60,12 +65,12 @@ export default function AppHeader() {
                     >
                         <Button onClick={handleOpen} size='large'>
                             <Avatar
-                                alt={`${userData.firstName} ${userData.lastName}`}
-                                src={userData.avatar}
+                                alt={`${userData?.firstName} ${userData?.lastName}`}
+                                src={userData?.avatar}
                                 sx={{ width: 50, height: 50, mr: 1, border: '1px solid black' }}
                             />
                             <Typography variant='body2' sx={{ color: '#000' }}>
-                                {`${userData.firstName} ${userData.lastName}`}
+                                {`${userData?.firstName} ${userData?.lastName}`}
                             </Typography>
                         </Button>
 
@@ -91,7 +96,7 @@ export default function AppHeader() {
                 </Grid>
 
                 <Grid item>
-                    {pathname !== '/nurse' && (
+                    {(pathname !== '/nurse' && pathname !== '/matron') && (
                         <Button sx={headerButton} LinkComponent={Link} to="/nurse">
                             <Home sx={{ fontSize: 30 }} color='success' />
                         </Button>

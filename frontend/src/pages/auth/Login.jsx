@@ -17,9 +17,12 @@ export default function Login() {
 
     const handleSubmit = async (values, { setSubmitting, resetForm }) => {
         try {
-            await axios.post('/auth/login', values, {withCredentials: true})
+            const { data } = await axios.post('/auth/login', values, {withCredentials: true})
             setSnackbar({ open: true, message: 'با موفقیت وارد شدید', severity: 'success' })
-            setTimeout(() => navigate('/nurse'), 1000)
+            if(data.role === 'NURSE')
+                setTimeout(() => navigate('/nurse'), 1000)
+            else
+                setTimeout(() => navigate('/matron'), 1000)
             resetForm()
         } catch (error) {
             console.log(error)

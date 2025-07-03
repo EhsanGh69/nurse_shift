@@ -1,5 +1,5 @@
 import { Box, Button, Stack, Typography } from '@mui/material'
-import { Link } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 
 import MainLayout from '../mui/MainLayout'
 import { centerBox } from '../styles/globalStyles'
@@ -7,6 +7,8 @@ import { centerBox } from '../styles/globalStyles'
 
 
 export default function NotFound() {
+    const navigate = useNavigate();
+
     return (
         <MainLayout title="خوش آمدید">
             <Box sx={centerBox}>
@@ -20,8 +22,7 @@ export default function NotFound() {
                     <Button
                         variant='contained'
                         color='secondary'
-                        component={Link}
-                        to="/"
+                        onClick={() => navigate(-2)}
                         sx={{ width: 300, fontSize: 20 }}
                     >
                         بازگشت

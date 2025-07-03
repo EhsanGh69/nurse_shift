@@ -3,13 +3,6 @@ const jwt = require("jsonwebtoken");
 const userModel = require("../user/user.model");
 
 
-const cookieOptions = {
-    httpOnly: true,
-    secure: true,
-    sameSite: 'none',
-    path: '/'
-}
-
 module.exports = async (req, res, next) => {
     const authHeader = req.headers["authorization"]
     const token = authHeader && authHeader.split(" ")[1];
@@ -22,8 +15,6 @@ module.exports = async (req, res, next) => {
             req.user = user;
             next();
         } catch (error) {
-            res.clearCookie("access-token", cookieOptions)
-            res.clearCookie("refresh-token", cookieOptions)
             return res.status(401).json({ message: "Your token has expired" })
         }
     } else {

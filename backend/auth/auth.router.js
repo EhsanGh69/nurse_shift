@@ -2,11 +2,12 @@ const { Router } = require('express');
 
 const authController = require("./auth.controller");
 const validate = require('../middlewares/joiValidator');
-const { registerSchema, loginSchema } = require('../validators/authValidators');
+const { nurseRegisterSchema, matronRegisterSchema, loginSchema } = require('../validators/authValidators');
 
 const authRouter = Router();
 
-authRouter.post('/register', validate(registerSchema), authController.register)
+authRouter.post('/register/nurse', validate(nurseRegisterSchema), authController.nurseRegister)
+authRouter.post('/register/matron', validate(matronRegisterSchema), authController.matronRegister)
 authRouter.post('/login', validate(loginSchema), authController.login)
 authRouter.post('/logout', authController.logout)
 authRouter.post('/refresh_token', authController.refreshToken)

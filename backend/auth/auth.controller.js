@@ -1,13 +1,46 @@
 const jwt = require("jsonwebtoken");
 
 const userModel = require('../user/user.model');
+const groupModel = require('../user/group.model');
 const blockUserModel = require("../user/blockUser.model");
+const inviteCodeModel = require("../matron/inviteCode.model");
 const { generateAccessToken, generateRefreshToken } = require('../utils/token');
 
 
-exports.register = async (req, res) => {
-    const { inviteCode, password, firstName, lastName,
-        mobile, nationalCode, province, county } = req.body;
+exports.nurseRegister = async (req, res) => {
+    const {firstName, lastName, password, mobile, nationalCode, inviteCode} = req.body;
+
+    const userExist = await userModel.findOne({
+        $or: [{ mobile }, { nationalCode }]
+    })
+    if (userExist)
+        return res.status(409).json({ message: "کاربری با مشخصات وارد شده از قبل وجود دارد" })
+
+    const foundInviteCode = await inviteCodeModel.findOne({ mobile, code: inviteCode });
+    if(!foundInviteCode)
+        return res.status(400).json({ message: "کد دعوت وارد شده نادرست است" })
+
+    const nurse = await userModel.create({
+        password,
+        firstName,
+        lastName,
+        mobile,
+        nationalCode,
+        role: "NURSE" 
+    })
+
+    await groupModel.findByIdAndUpdate(foundInviteCode.group, {
+        $push: { members: nurse._id }
+    })
+
+    await foundInviteCode.deleteOne()
+
+    res.status(201).json({ message: 'You registered successfully' })
+}
+
+exports.matronRegister = async (req, res) => {
+    const { password, firstName, lastName, mobile, nationalCode, 
+        province, county, hospital, department} = req.body;
 
     const userExist = await userModel.findOne({
         $or: [{ mobile }, { nationalCode }]
@@ -16,19 +49,16 @@ exports.register = async (req, res) => {
     if (userExist)
         return res.status(409).json({ message: "کاربری با مشخصات وارد شده از قبل وجود دارد" })
 
-    const usersCount = await userModel.countDocuments()
-
-    await userModel.create({
-        inviteCode,
+    const matron = await userModel.create({
         password,
         firstName,
         lastName,
         mobile,
         nationalCode,
-        province,
-        county,
-        role: usersCount > 0 ? "NURSE" : "ADMIN"
+        role: "MATRON"
     })
+
+    await groupModel.create({ matron: matron._id, province, county, hospital, department })
 
     res.status(201).json({ message: 'You registered successfully' })
 }
@@ -84,7 +114,7 @@ exports.login = async (req, res) => {
         $set: { refreshToken, lastLogin: Date.now() }
     })
 
-    return res.json({ message: "You are logged in successfully!" })
+    return res.json({ role: user.role })
 }
 
 exports.logout = async (req, res) => {

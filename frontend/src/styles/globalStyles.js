@@ -8,7 +8,11 @@ export const centerBox = {
     width: 400,
     height: 800,
     border: '1px solid black',
-    overflowY: 'auto'
+    overflowY: 'auto',
+    scrollbarWidth: 'none', // Firefox
+    '&::-webkit-scrollbar': {
+      display: 'none',       // Chrome, Safari
+    }
 }
 
 export const clickBox = {

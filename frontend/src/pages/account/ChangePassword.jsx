@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Stack, Button, TextField, Typography } from '@mui/material';
+import { Stack, Button, TextField } from '@mui/material';
 import { Formik, Form } from 'formik';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 import MainLayout from '../../mui/MainLayout';
@@ -91,8 +91,7 @@ export default function ChangePassword() {
                     variant='contained'
                     color='secondary'
                     type='button'
-                    component={Link}
-                    to="/nurse"
+                    onClick={() => navigate(-2)}
                     sx={{ fontSize: 20 }}
                 >
                     بازگشت

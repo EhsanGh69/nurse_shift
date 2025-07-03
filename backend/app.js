@@ -7,6 +7,7 @@ require("dotenv").config();
 
 const authRouter = require("./auth/auth.router");
 const accountRouter = require("./account/account.router");
+const matronRouter = require("./matron/matron.router");
 
 
 const app = express();
@@ -20,6 +21,7 @@ app.use('/images/avatars', express.static(path.join(__dirname, "public", "images
 
 app.use('/auth', authRouter)
 app.use('/account', accountRouter)
+app.use('/matron', matronRouter)
 
 
 // app.get('/test', (req, res) => {

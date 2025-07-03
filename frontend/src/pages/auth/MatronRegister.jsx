@@ -4,21 +4,21 @@ import { Formik, Form } from 'formik';
 import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios';
 
-import { registerSchema } from '../../validations/authValidation'
+import { matronRegisterSchema } from '../../validations/authValidation'
 import MainLayout from '../../mui/MainLayout';
 import { centerBox } from '../../styles/globalStyles';
-import { registerFields } from '../../constants/fields';
+import { matronRegisterFields } from '../../constants/fields';
 import SnackAlert from '../../components/SnackAlert';
 import { userNavigate } from '../../utils/services'
 
 
-export default function Register() {
+export default function MatronRegister() {
     const navigate = useNavigate()
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
 
     const handleSubmit = async (values, { setSubmitting, resetForm }) => {
         try {
-            await axios.post('/auth/register', values)
+            await axios.post('/auth/register/matron', values)
             setSnackbar({ open: true, message: 'ثبت نام با موفقیت انجام شد', severity: 'success' })
             setTimeout(() => navigate('/login'), 1500)
             resetForm()
@@ -38,22 +38,22 @@ export default function Register() {
         <MainLayout title="ثبت نام">
             <Stack direction='column' sx={centerBox}>
                 <Typography variant='h4' align='center' gutterBottom>
-                    ثبت نام عضو جدید
+                    ثبت نام سرپرستار
                 </Typography>
 
                 <Formik
                     initialValues={{
-                        firstName: "", lastName: "",
-                        inviteCode: "", nationalCode: "",
+                        firstName: "", lastName: "", nationalCode: "",
                         mobile: "", password: "",
-                        province: "", county: ""
+                        province: "", county: "",
+                        hospital: "", department: ""
                     }}
-                    validationSchema={registerSchema}
+                    validationSchema={matronRegisterSchema}
                     onSubmit={handleSubmit}
                 >
                     {({ values, handleChange, handleBlur, errors, touched }) => (
                         <Form>
-                            {registerFields.map((field, index) => (
+                            {matronRegisterFields.map((field, index) => (
                                 <TextField
                                     key={index}
                                     fullWidth
@@ -101,6 +101,29 @@ export default function Register() {
                                     اراک
                                 </MenuItem>
                             </TextField>
+                            <TextField
+                                fullWidth
+                                label="بیمارستان"
+                                name="hospital"
+                                value={values.hospital}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                error={touched.hospital && Boolean(errors.hospital)}
+                                helperText={touched.hospital && errors.hospital}
+                                sx={{ mb: 2 }}
+                            />
+                            <TextField
+                                fullWidth
+                                label="بخش"
+                                name="department"
+                                value={values.department}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                error={touched.department && Boolean(errors.department)}
+                                helperText={touched.department && errors.department}
+                                sx={{ mb: 2 }}
+                            />
+
                             <Button
                                 fullWidth
                                 variant='contained'

@@ -25,11 +25,11 @@ export const getUserData = async () => {
 export const userNavigate = async (navigate) => {
     try {
         const { role } = await getUserData()
-        // if (role === 'ADMIN')
-        //     navigate('/admin')
-        // else if (role === 'MATRON')
-        //     navigate('/matron')
-        // else
+        if (role === 'ADMIN')
+            navigate('/matron')
+        else if (role === 'MATRON')
+            navigate('/matron')
+        else
             navigate('/nurse')
     } catch (error) {}
 }

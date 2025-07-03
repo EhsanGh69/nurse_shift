@@ -1,17 +1,7 @@
 const mongoose = require("mongoose");
-const gravatar = require("gravatar");
 const bcrypt = require("bcrypt");
 
 const userSchema = new mongoose.Schema({
-    inviteCode: {
-        type: String,
-        required: true,
-        trim: true
-    },
-    password: {
-        type: String,
-        required: true
-    },
     firstName: {
         type: String,
         required: true,
@@ -32,13 +22,18 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    province: {
+    password: {
         type: String,
         required: true
     },
-    county: {
+    role: {
         type: String,
-        required: true
+        enum: ["ADMIN", "MATRON", "NURSE"],
+        default: "NURSE"
+    },
+    avatar: {
+        type: String,
+        default: ""
     },
     dateJoined: {
         type: Date,
@@ -48,22 +43,6 @@ const userSchema = new mongoose.Schema({
         type: Date,
         required: false,
         default: null
-    },
-    role: {
-        type: String,
-        enum: ["ADMIN", "MATRON", "NURSE"],
-        default: "NURSE"
-    },
-    avatar: {
-        type: String,
-        default: function () {
-            //`https://s.gravatar.com/avatara/${emailHash}?s={size}&d={default}`
-            return gravatar.url(this.email, {
-                s: '80', // size
-                d: 'identicon', // default: monsterid / identicon
-                r: 'g' // rating
-            }, true) // using https 
-        }
     },
     refreshToken: String
 }, { timestamps: false });
