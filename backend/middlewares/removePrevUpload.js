@@ -5,7 +5,7 @@ const path = require("path");
 
 exports.removePrevAvatar = async (req, res, next) => {
     const user = req.user;
-    if(user.avatar && !user.avatar.includes('gravatar.com')){
+    if(user.avatar && req.file){
         const fileName = path.basename(user.avatar)
         const prevAvatarPath = path.join(__dirname, '..', 'public', 'images', 'avatars', fileName);
         try {

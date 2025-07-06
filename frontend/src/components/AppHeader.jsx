@@ -5,17 +5,17 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 
 import SnackAlert from './SnackAlert';
-import { refreshToken, getUserData } from "../utils/services";
+import { useUserData } from "../context/UserContext"
 import { headerButton } from "../styles/globalStyles";
 
 
 export default function AppHeader() {
-    const [userData, setUserData] = useState({})
     const [anchorEl, setAnchorEl] = useState(null)
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
     const open = Boolean(anchorEl)
     const navigate = useNavigate()
     const { pathname } = useLocation()
+    const { user } = useUserData()
 
     const handleOpen = (event) => setAnchorEl(event.currentTarget)
     const handleClose = () => setAnchorEl(null)
@@ -32,26 +32,18 @@ export default function AppHeader() {
             })
     }
 
-    const handleUserData = async () => {
-        const data = await getUserData()
-        
-        const isNotNurse = data.role !== 'NURSE' && pathname === '/nurse'
-        const isNurse = data.role === 'NURSE' && pathname === '/matron'
-        if(isNotNurse || isNurse) navigate('/404')
-
-        setUserData(data)
-    }
-
     useEffect(() => {
-        refreshToken(navigate)
-        handleUserData()
+        const isNotNurse = user?.role !== 'NURSE' && pathname.includes('/nurse')
+        const isNurse = user?.role === 'NURSE' && pathname.includes('/matron')
+        if (isNotNurse) navigate('/matron')
+        if (isNurse) navigate('/nurse')
     }, [])
 
     return (
 
         <Box mb={5}>
             <Grid container width={400} justifyContent="space-between">
-                <Grid item>
+                <Grid>
                     <Box
                         sx={{
                             backgroundColor: '#f0f0f0',
@@ -63,15 +55,20 @@ export default function AppHeader() {
                             mt: 1
                         }}
                     >
-                        <Button onClick={handleOpen} size='large'>
+                        <Button onClick={handleOpen} size='small'>
                             <Avatar
-                                alt={`${userData?.firstName} ${userData?.lastName}`}
-                                src={userData?.avatar}
-                                sx={{ width: 50, height: 50, mr: 1, border: '1px solid black' }}
+                                alt={`${user?.firstName} ${user?.lastName}`}
+                                src={user?.avatar && `http://127.0.0.1:4000${user?.avatar}`}
+                                sx={{ width: 50, height: 50, mr: 1 }}
                             />
-                            <Typography variant='body2' sx={{ color: '#000' }}>
-                                {`${userData?.firstName} ${userData?.lastName}`}
-                            </Typography>
+                            <Box display="flex" flexDirection="column" alignItems="start">
+                                <Typography variant='body2' sx={{ color: '#000' }}>
+                                    {`${user?.firstName} ${user?.lastName}`}
+                                </Typography>
+                                <Typography variant='subtitle2' sx={{ color: 'info.main' }}>
+                                    {user?.role === 'NURSE' ? 'پرستار' : 'سرپرستار'}
+                                </Typography>
+                            </Box>
                         </Button>
 
                         <Menu
@@ -95,9 +92,13 @@ export default function AppHeader() {
                     </Box>
                 </Grid>
 
-                <Grid item>
+                <Grid>
                     {(pathname !== '/nurse' && pathname !== '/matron') && (
-                        <Button sx={headerButton} LinkComponent={Link} to="/nurse">
+                        <Button
+                            sx={headerButton}
+                            LinkComponent={Link}
+                            to={user?.role === 'NURSE' ? '/nurse' : '/matron'}
+                        >
                             <Home sx={{ fontSize: 30 }} color='success' />
                         </Button>
                     )}

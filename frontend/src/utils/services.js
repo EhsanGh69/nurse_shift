@@ -1,18 +1,27 @@
 import axios from "axios";
 
-const attachAuthHeader = (accessToken) => {
-    axios.interceptors.request.use((config) => {
-        if(accessToken) {
-            config.headers.Authorization = `Bearer ${accessToken}`
-        }
-        return config;
-    })
-}
+let currentAccessToken = null;
 
-export const refreshToken = async (navigate) => {
-    axios.post("/auth/refresh_token", {}, { withCredentials: true })
-        .then(({ data }) => attachAuthHeader(data.accessToken))
-        .catch(() => navigate('/login'))
+axios.interceptors.request.use((config) => {
+    if (currentAccessToken) {
+        config.headers.Authorization = `Bearer ${currentAccessToken}`
+    }
+    return config;
+})
+
+export const refreshToken = async () => {
+    try {
+        const { data } = await axios.post("/auth/refresh_token", {}, { withCredentials: true });
+        currentAccessToken = data.accessToken;
+        return data.accessToken;
+    } catch (error) {
+        if (error.status === 403 || error.status === 401)
+            window.location.href = '/login'
+        else {
+            window.location.href = '/'
+            alert("❌ خطایی رخ داد")
+        }
+    }
 }
 
 export const getUserData = async () => {
@@ -22,14 +31,48 @@ export const getUserData = async () => {
     } catch (error) {}
 }
 
-export const userNavigate = async (navigate) => {
+export const userNavigate = async () => {
     try {
         const { role } = await getUserData()
         if (role === 'ADMIN')
-            navigate('/matron')
+            window.location.href = '/matron'
         else if (role === 'MATRON')
-            navigate('/matron')
+            window.location.href = '/matron'
         else
-            navigate('/nurse')
+            window.location.href = '/nurse'
     } catch (error) {}
+}
+
+export const getMatronGroups = async (setLoading) => {
+    try {
+        setLoading(true)
+        const { data } = await axios.get('/matron/groups', { withCredentials: true })
+        setLoading(false)
+        return data
+    } catch (error) {
+        setLoading(false)
+        if (error.status === 403)
+            userNavigate()
+        else {
+            window.location.href = '/'
+            alert("❌ خطایی رخ داد")
+        }
+    }
+}
+
+export const getMatronGroupDetails = async (groupId, setLoading) => {
+    try {
+        setLoading(true)
+        const { data } = await axios.get(`/matron/groups/${groupId}`, { withCredentials: true })
+        setLoading(false)
+        return data
+    } catch (error) {
+        setLoading(false)
+        if (error.status === 403 || error.status === 404)
+            userNavigate()
+        else {
+            window.location.href = '/'
+            alert("❌ خطایی رخ داد")
+        }
+    }
 }

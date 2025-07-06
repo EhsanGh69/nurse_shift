@@ -1,3 +1,5 @@
+const userModel = require('../user/user.model');
+
 exports.changePassword = async (req, res) => {
     const {oldPassword, newPassword} = req.body;
     
@@ -11,4 +13,19 @@ exports.changePassword = async (req, res) => {
     await user.save()
 
     res.json({ message: "Your password changed successfully" })
+}
+
+exports.editAccount = async (req, res) => {
+    const { firstName, lastName, mobile } =req.body;
+
+    const user = await userModel.findByIdAndUpdate(req.user._id, {
+        firstName, lastName, mobile
+    });
+
+    if(req.file){
+        user.avatar = `/images/avatars/${req.file.filename}`
+        await user.save()
+    }
+
+    return res.json(user)
 }

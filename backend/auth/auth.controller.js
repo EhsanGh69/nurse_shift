@@ -18,7 +18,7 @@ exports.nurseRegister = async (req, res) => {
 
     const foundInviteCode = await inviteCodeModel.findOne({ mobile, code: inviteCode });
     if(!foundInviteCode)
-        return res.status(400).json({ message: "کد دعوت وارد شده نادرست است" })
+        return res.status(400).json({ message: "کد دعوت یا شماره همراه نادرست است" })
 
     const nurse = await userModel.create({
         password,

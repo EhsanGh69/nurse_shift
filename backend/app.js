@@ -3,6 +3,7 @@ const express = require("express");
 const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
 const cors = require('cors')
+const multer = require("multer");
 require("dotenv").config();
 
 const authRouter = require("./auth/auth.router");
@@ -24,9 +25,6 @@ app.use('/account', accountRouter)
 app.use('/matron', matronRouter)
 
 
-// app.get('/test', (req, res) => {
-// })
-
 // 404 handler
 app.use((req, res, next) => {
     return res.status(404).json({
@@ -39,9 +37,14 @@ app.use((req, res, next) => {
 
 // 500 handler
 app.use((err, req, res, next) => {
-    return res.status(500).json({
-        message: err.message || "Server Error !!",
-    });
+  if (err instanceof multer.MulterError) {
+      return res.status(400).json({ error: "حجم فایل بیش از حد مجاز است" });
+    }
+  if (err.message === 'File type is not valid') {
+      return res.status(400).json({ error: "نوع فایل نامعتبر می باشد" });
+    }
+   
+    return res.status(500).json({ error: err.message || 'Server Error' });
 });
 
 

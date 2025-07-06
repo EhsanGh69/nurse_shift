@@ -31,7 +31,7 @@ export default function MatronRegister() {
     }
 
     useEffect(() => {
-        userNavigate(navigate)
+        userNavigate()
     }, [])
 
     return (

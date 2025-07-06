@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Box, Button, Stack } from '@mui/material'
-import { Link, useNavigate } from "react-router-dom"
+import { Link } from "react-router-dom"
 
 import MainLayout from '../mui/MainLayout'
 import { centerBox } from '../styles/globalStyles'
@@ -8,10 +8,8 @@ import { userNavigate } from '../utils/services'
 
 
 export default function Welcome() {
-    const navigate = useNavigate()
-
     useEffect(() => {
-        userNavigate(navigate)
+        userNavigate()
     }, [])
 
     return (

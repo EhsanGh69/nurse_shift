@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Box, Grid, Typography } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { Settings, QuestionAnswer, Poll, Tune } from '@mui/icons-material';
@@ -5,6 +6,7 @@ import { Settings, QuestionAnswer, Poll, Tune } from '@mui/icons-material';
 import { centerBox, clickBox } from '../../styles/globalStyles';
 import MainLayout from '../../mui/MainLayout';
 import AppHeader from '../../components/AppHeader';
+import { refreshToken } from "../../utils/services";
 
 const items = [
     { title: 'ویرایش حساب کاربری', icon: <Settings />, route: '/edit' },
@@ -14,6 +16,9 @@ const items = [
 ]
 
 export default function NurseHome() {
+    useEffect(() => {
+        refreshToken()
+    }, [])
 
     return (
         <MainLayout title="پرستار | خانه">
@@ -21,7 +26,7 @@ export default function NurseHome() {
                 <AppHeader />
                 <Grid container spacing={3} justifyContent='center'>
                     {items.map(item => (
-                        <Grid item
+                        <Grid
                             size={{ xs: 6 }}
                             key={item.route}
                             sx={clickBox}

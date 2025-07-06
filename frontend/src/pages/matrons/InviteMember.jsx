@@ -1,28 +1,27 @@
 import { useState, useEffect } from 'react';
 import { Stack, Button, TextField, Typography } from '@mui/material';
 import { Formik, Form } from 'formik';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 
 import MainLayout from '../../mui/MainLayout';
-import { loginSchema } from '../../validations/authValidation'
+import AppHeader from '../../components/AppHeader';
+import { inviteMemberSchema } from '../../validations/matronsValidation';
 import { centerBox } from '../../styles/globalStyles'
 import SnackAlert from '../../components/SnackAlert';
-import { userNavigate } from '../../utils/services'
+import { refreshToken } from '../../utils/services';
 
 
-export default function Login() {
+export default function InviteMember() {
     const navigate = useNavigate()
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
+    const { groupId } = useParams()
 
     const handleSubmit = async (values, { setSubmitting, resetForm }) => {
         try {
-            const { data } = await axios.post('/auth/login', values, {withCredentials: true})
-            setSnackbar({ open: true, message: 'با موفقیت وارد شدید', severity: 'success' })
-            if(data.role === 'NURSE')
-                setTimeout(() => navigate('/nurse'), 1000)
-            else
-                setTimeout(() => navigate('/matron'), 1000)
+            await axios.post('/matron/groups/invite', values, { withCredentials: true })
+            setSnackbar({ open: true, message: 'کد دعوت با موفقیت ارسال شد', severity: 'success' })
+            setTimeout(() => navigate('/matron'), 1000)
             resetForm()
         } catch (error) {
             console.log(error)
@@ -34,47 +33,43 @@ export default function Login() {
     }
 
     useEffect(() => {
-        userNavigate()
+        refreshToken(navigate)
     }, [])
 
     return (
-        <MainLayout title="ورود">
-            <Stack direction='column' justifyContent='center' sx={centerBox}>
-                <Typography variant='h4' align='center' gutterBottom>
-                    ورود اعضاء
+        <MainLayout title="سرپرستار | دعوت عضو جدید">
+            <Stack direction='column' sx={centerBox}>
+                <AppHeader />
+
+                <Typography variant='h5' align='center' gutterBottom mb={5}>
+                    ارسال کد دعوت عضو جدید
                 </Typography>
 
                 <Formik
                     initialValues={{
-                        nationalCode: "", password: ""
+                        mobile: "", groupId
                     }}
-                    validationSchema={loginSchema}
+                    validationSchema={inviteMemberSchema}
                     onSubmit={handleSubmit}
                 >
                     {({ values, handleChange, handleBlur, errors, touched }) => (
-                        <Form>
+                        <Form style={{ width: "100%" }}>
                             <TextField
                                 fullWidth
-                                label="کد ملی"
-                                name='nationalCode'
-                                value={values.nationalCode}
+                                label="موبایل"
+                                name='mobile'
+                                value={values.mobile}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
-                                error={touched.nationalCode && Boolean(errors.nationalCode)}
-                                helperText={touched.nationalCode && errors.nationalCode}
-                                sx={{ mb: 2 }}
+                                error={touched.mobile && Boolean(errors.mobile)}
+                                helperText={touched.mobile && errors.mobile}
+                                sx={{ mb: 4 }}
                             />
                             <TextField
-                                fullWidth
-                                label="رمز عبور"
-                                name='password'
-                                type='password'
-                                value={values.password}
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                error={touched.password && Boolean(errors.password)}
-                                helperText={touched.password && errors.password}
-                                sx={{ mb: 2 }}
+                                sx={{ display: 'none' }}
+                                name='groupId'
+                                type='hidden'
+                                value={values.groupId}
                             />
                             <Button
                                 fullWidth
@@ -83,7 +78,7 @@ export default function Login() {
                                 type='submit'
                                 sx={{ mb: 2, fontSize: 20 }}
                             >
-                                ورود
+                                ارسال کد
                             </Button>
                         </Form>
                     )}
@@ -94,8 +89,7 @@ export default function Login() {
                     variant='contained'
                     color='secondary'
                     type='button'
-                    component={Link}
-                    to="/"
+                    onClick={() => navigate(-2)}
                     sx={{ fontSize: 20 }}
                 >
                     بازگشت
@@ -106,3 +100,4 @@ export default function Login() {
         </MainLayout>
     )
 }
+
