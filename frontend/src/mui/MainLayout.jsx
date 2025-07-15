@@ -4,6 +4,7 @@ import { HelmetProvider, Helmet } from "react-helmet-async";
 import Grid from '@mui/material/Grid';
 
 import theme, { cacheRtl } from './themes/theme';
+import { centerBox } from '../styles/globalStyles';
 
 
 export default function MainLayout({ title, children }) {
@@ -16,7 +17,13 @@ export default function MainLayout({ title, children }) {
                     </Helmet>
 
                     <Grid container sx={{ backgroundColor: 'lightgray', margin: 0, minHeight: '100vh', }}>
-                        {children}
+                        <Grid 
+                            size={{ xs: 12, lg: 8}} 
+                            sx={centerBox} 
+                            border="2px solid whitesmoke"
+                        >
+                            {children}
+                        </Grid>
                     </Grid>
                 </HelmetProvider>
             </ThemeProvider>

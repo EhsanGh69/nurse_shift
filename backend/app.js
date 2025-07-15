@@ -8,7 +8,8 @@ require("dotenv").config();
 
 const authRouter = require("./auth/auth.router");
 const accountRouter = require("./account/account.router");
-const matronRouter = require("./matron/matron.router");
+const groupRouter = require("./group/group.router");
+const messageRouter = require("./message/message.router");
 
 
 const app = express();
@@ -22,7 +23,8 @@ app.use('/images/avatars', express.static(path.join(__dirname, "public", "images
 
 app.use('/auth', authRouter)
 app.use('/account', accountRouter)
-app.use('/matron', matronRouter)
+app.use('/groups', groupRouter)
+app.use('/messages', messageRouter)
 
 
 // 404 handler
@@ -38,10 +40,10 @@ app.use((req, res, next) => {
 // 500 handler
 app.use((err, req, res, next) => {
   if (err instanceof multer.MulterError) {
-      return res.status(400).json({ error: "حجم فایل بیش از حد مجاز است" });
+      return res.status(400).json({ message: "حجم فایل بیش از حد مجاز است" });
     }
   if (err.message === 'File type is not valid') {
-      return res.status(400).json({ error: "نوع فایل نامعتبر می باشد" });
+      return res.status(400).json({ message: "نوع فایل نامعتبر می باشد" });
     }
    
     return res.status(500).json({ error: err.message || 'Server Error' });

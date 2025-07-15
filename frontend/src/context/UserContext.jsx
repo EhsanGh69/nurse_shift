@@ -1,22 +1,19 @@
 import { useState, useEffect, useContext, createContext } from "react";
 
-import { getUserData } from '../utils/services';
+import { useCurrentUser } from '../api/auth.api'
 
 const UserContext = createContext();
 
 export const UserProvider = ({children}) => {
     const [user, setUser] = useState(null)
     const [loading, setLoading] = useState(true)
+    const { data, isLoading } = useCurrentUser()
 
     useEffect(() => {
-        const fetchUser = async () => {
-            const data = await getUserData()
+        if(!isLoading && data)
             setUser(data)
-            setLoading(false)
-        }
-
-        fetchUser()
-    }, [])
+        setLoading(isLoading)
+    }, [isLoading, data])
 
     return (
         <UserContext.Provider value={{ user, setUser, loading }}>

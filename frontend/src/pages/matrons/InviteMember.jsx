@@ -1,45 +1,41 @@
-import { useState, useEffect } from 'react';
-import { Stack, Button, TextField, Typography } from '@mui/material';
+import { useState } from 'react';
+import { Grid, Button, TextField, Typography } from '@mui/material';
 import { Formik, Form } from 'formik';
 import { useNavigate, useParams } from 'react-router-dom';
-import axios from 'axios';
 
 import MainLayout from '../../mui/MainLayout';
 import AppHeader from '../../components/AppHeader';
 import { inviteMemberSchema } from '../../validations/matronsValidation';
-import { centerBox } from '../../styles/globalStyles'
 import SnackAlert from '../../components/SnackAlert';
-import { refreshToken } from '../../utils/services';
+import { useInviteMember } from '../../api/group.api';
+import BackButton from '../../components/BackButton';
+import handleApiErrors from '../../utils/apiErrors';
 
 
 export default function InviteMember() {
     const navigate = useNavigate()
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
     const { groupId } = useParams()
+    const { mutateAsync, isPending } = useInviteMember()
 
     const handleSubmit = async (values, { setSubmitting, resetForm }) => {
         try {
-            await axios.post('/matron/groups/invite', values, { withCredentials: true })
+            await mutateAsync(values)
             setSnackbar({ open: true, message: 'کد دعوت با موفقیت ارسال شد', severity: 'success' })
-            setTimeout(() => navigate('/matron'), 1000)
+            setTimeout(() => navigate(`/matron/groups/${groupId}`), 500)
             resetForm()
         } catch (error) {
-            console.log(error)
-            const msg = error.response?.data?.message || 'خطایی رخ داد';
+            const msg = handleApiErrors(error);
             setSnackbar({ open: true, message: msg, severity: 'error' })
         } finally {
             setSubmitting(false)
         }
     }
 
-    useEffect(() => {
-        refreshToken(navigate)
-    }, [])
-
     return (
         <MainLayout title="سرپرستار | دعوت عضو جدید">
-            <Stack direction='column' sx={centerBox}>
-                <AppHeader />
+            <AppHeader />
+            <Grid size={{ xs: 12, md: 8, lg: 6 }}>
 
                 <Typography variant='h5' align='center' gutterBottom mb={5}>
                     ارسال کد دعوت عضو جدید
@@ -47,13 +43,35 @@ export default function InviteMember() {
 
                 <Formik
                     initialValues={{
-                        mobile: "", groupId
+                        mobile: "", groupId, firstName: "", lastName: ""
                     }}
                     validationSchema={inviteMemberSchema}
                     onSubmit={handleSubmit}
                 >
                     {({ values, handleChange, handleBlur, errors, touched }) => (
                         <Form style={{ width: "100%" }}>
+                            <TextField
+                                fullWidth
+                                label="نام"
+                                name='firstName'
+                                value={values.firstName}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                error={touched.firstName && Boolean(errors.firstName)}
+                                helperText={touched.firstName && errors.firstName}
+                                sx={{ mb: 4 }}
+                            />
+                            <TextField
+                                fullWidth
+                                label="نام خانوادگی"
+                                name='lastName'
+                                value={values.lastName}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                error={touched.lastName && Boolean(errors.lastName)}
+                                helperText={touched.lastName && errors.lastName}
+                                sx={{ mb: 4 }}
+                            />
                             <TextField
                                 fullWidth
                                 label="موبایل"
@@ -77,26 +95,17 @@ export default function InviteMember() {
                                 color='primary'
                                 type='submit'
                                 sx={{ mb: 2, fontSize: 20 }}
+                                disabled={isPending}
                             >
                                 ارسال کد
                             </Button>
+                            <BackButton backUrl={`/matron/groups/${groupId}`} />
                         </Form>
                     )}
                 </Formik>
 
-                <Button
-                    fullWidth
-                    variant='contained'
-                    color='secondary'
-                    type='button'
-                    onClick={() => navigate(-2)}
-                    sx={{ fontSize: 20 }}
-                >
-                    بازگشت
-                </Button>
-
                 <SnackAlert snackbar={snackbar} setSnackbar={setSnackbar} />
-            </Stack>
+            </Grid>
         </MainLayout>
     )
 }

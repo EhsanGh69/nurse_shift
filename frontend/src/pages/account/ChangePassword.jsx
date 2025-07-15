@@ -1,30 +1,36 @@
 import { useState, useEffect } from 'react';
-import { Stack, Button, TextField } from '@mui/material';
+import { Grid, Button, TextField } from '@mui/material';
 import { Formik, Form } from 'formik';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 
 import MainLayout from '../../mui/MainLayout';
 import AppHeader from '../../components/AppHeader';
 import { changePasswordSchema } from '../../validations/accountValidation';
-import { centerBox } from '../../styles/globalStyles'
 import SnackAlert from '../../components/SnackAlert';
-import { refreshToken } from '../../utils/services';
+import BackButton from '../../components/BackButton';
+import { useChangePassword } from '../../api/account.api';
+import { useCurrentUser } from '../../api/auth.api'
+import handleApiErrors from '../../utils/apiErrors';
 
 
 export default function ChangePassword() {
     const navigate = useNavigate()
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
+    const [user, setUser] = useState(null)
+    const { mutateAsync, isPending } = useChangePassword()
+    const { data, isLoading } = useCurrentUser()
 
     const handleSubmit = async (values, { setSubmitting, resetForm }) => {
         try {
-            await axios.post('/account/change_password', values, { withCredentials: true })
+            await mutateAsync(values)
             setSnackbar({ open: true, message: 'رمز عبور شما با موفقیت تغییر یافت', severity: 'success' })
-            setTimeout(() => navigate('/nurse'), 1000)
+            setTimeout(() => {
+                if (user?.role === 'NURSE') navigate('/nurse')
+                else navigate('/matron')
+            }, 500)
             resetForm()
         } catch (error) {
-            console.log(error)
-            const msg = error.response?.data?.message || 'خطایی رخ داد';
+            const msg = handleApiErrors(error)
             setSnackbar({ open: true, message: msg, severity: 'error' })
         } finally {
             setSubmitting(false)
@@ -32,14 +38,16 @@ export default function ChangePassword() {
     }
 
     useEffect(() => {
-        refreshToken(navigate)
-    }, [])
+        if (!isLoading && data)
+            setUser(data)
+    }, [data, isLoading])
 
     return (
         <MainLayout title="تغییر رمز عبور">
-            <Stack direction='column' sx={centerBox}>
-                <AppHeader />
-
+            <AppHeader />
+            <Grid height="100vh" display="flex" flexDirection="column"
+                size={{ xs: 12, sm: 8, md: 6, xl: 5 }}
+            >
                 <Formik
                     initialValues={{
                         oldPassword: "", newPassword: ""
@@ -79,26 +87,17 @@ export default function ChangePassword() {
                                 color='primary'
                                 type='submit'
                                 sx={{ mb: 2, fontSize: 20 }}
+                                disabled={isPending}
                             >
                                 تغییر رمز عبور
                             </Button>
+                            <BackButton backUrl={user?.role === 'NURSE' ? '/nurse' : '/matron'} />
                         </Form>
                     )}
                 </Formik>
 
-                <Button
-                    fullWidth
-                    variant='contained'
-                    color='secondary'
-                    type='button'
-                    onClick={() => navigate(-2)}
-                    sx={{ fontSize: 20 }}
-                >
-                    بازگشت
-                </Button>
-
                 <SnackAlert snackbar={snackbar} setSnackbar={setSnackbar} />
-            </Stack>
+            </Grid>
         </MainLayout>
     )
 }

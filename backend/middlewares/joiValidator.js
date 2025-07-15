@@ -9,10 +9,9 @@ const validate = (schema) => {
                 err.details.forEach((error) => {
                     errObject[error.context.key] = error.message.replace(/"/g, "");
                 })
-                // console.log(err)
                 return res.status(422).json(errObject);
             }else {
-                return res.status(500).json({ message: err.message })
+                return res.status(500).json({ error: err.message })
             }
         }
     }

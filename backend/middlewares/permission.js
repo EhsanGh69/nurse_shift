@@ -6,6 +6,6 @@ module.exports = function (roles) {
 
         if (roles.includes(user.role)) return next();
 
-        return res.status(403).json({ message: "Your permission is denied!" })
+        return res.status(403).json({ error: "Your permission is denied!" })
     }
 } 

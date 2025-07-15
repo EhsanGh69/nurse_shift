@@ -1,20 +1,12 @@
-import { useEffect } from 'react';
-import { Box, Button, Stack } from '@mui/material'
-import { Link } from "react-router-dom"
+import { Box, Button, Stack } from '@mui/material';
+import { Link } from "react-router-dom";
 
-import MainLayout from '../mui/MainLayout'
-import { centerBox } from '../styles/globalStyles'
-import { userNavigate } from '../utils/services'
-
+import MainLayout from '../mui/MainLayout';
 
 export default function Welcome() {
-    useEffect(() => {
-        userNavigate()
-    }, [])
-
     return (
         <MainLayout title="خوش آمدید">
-            <Box sx={{ ...centerBox, justifyContent: 'center' }}>
+            <Box height="100vh" display="flex" alignItems="center">
                 <Stack spacing={2} alignItems="center">
                     <Button
                         variant='contained'

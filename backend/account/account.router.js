@@ -24,5 +24,11 @@ router.put('/edit',
     removePrevAvatar,
     accountController.editAccount
 )
+router.delete('/avatar/remove', 
+    verifyToken,
+    checkBlock,
+    removePrevAvatar,
+    accountController.removeAvatar
+)
 
 module.exports = router;

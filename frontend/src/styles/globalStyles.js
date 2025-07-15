@@ -3,15 +3,12 @@ export const centerBox = {
     flexDirection: 'column',
     alignItems: 'center',
     marginX: 'auto',
-    marginY: 5,
-    p: 2,
-    width: 400,
-    height: 800,
-    border: '1px solid black',
+    p: 4,
+    height: "100vh",
     overflowY: 'auto',
     scrollbarWidth: 'none', // Firefox
     '&::-webkit-scrollbar': {
-      display: 'none',       // Chrome, Safari
+        display: 'none',       // Chrome, Safari
     }
 }
 
@@ -20,7 +17,7 @@ export const clickBox = {
     borderRadius: 5,
     textDecoration: 'none',
     color: 'inherit',
-    p: 3,
+    p: 4,
     textAlign: 'center',
     cursor: 'pointer',
     transition: 'all 0.2s',
@@ -35,6 +32,15 @@ export const headerButton = {
     borderRadius: '50%',
     height: '50px',
     minWidth: '50px',
-    width: '50px',
-    mt: 2
+    width: '50px'
+}
+
+export const membersAccordionBox = {
+    maxHeight: 200,
+    overflowY: 'auto',
+    overflowX: 'hidden',
+    scrollbarWidth: 'none',
+    '&::-webkit-scrollbar': {
+        display: 'none',
+    }
 }

@@ -1,30 +1,30 @@
 import { useState } from 'react';
-import { Button, TextField, Typography, MenuItem, Grid } from '@mui/material';
+import { Grid, Button, TextField, Typography, MenuItem } from '@mui/material';
 import { Formik, Form } from 'formik';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
-import { matronRegisterSchema } from '../../validations/authValidation'
 import MainLayout from '../../mui/MainLayout';
-import { matronRegisterFields } from '../../constants/fields';
+import AppHeader from '../../components/AppHeader';
+import { createGroupSchema } from '../../validations/matronsValidation';
 import SnackAlert from '../../components/SnackAlert';
-import { useRegister } from '../../api/auth.api';
+import { useCreateGroup } from '../../api/group.api';
 import handleApiErrors from '../../utils/apiErrors';
 import BackButton from '../../components/BackButton';
 
 
-export default function MatronRegister() {
-    const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
-    const { mutateAsync, isPending } = useRegister()
+export default function CreateGroup() {
     const navigate = useNavigate()
+    const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
+    const { isPending, mutateAsync } = useCreateGroup()
 
     const handleSubmit = async (values, { setSubmitting, resetForm }) => {
         try {
-            await mutateAsync({ role: 'matron', formData: values })
-            setSnackbar({ open: true, message: 'ثبت نام با موفقیت انجام شد', severity: 'success' })
-            setTimeout(() => navigate('/login'), 500)
+            await mutateAsync(values)
+            setSnackbar({ open: true, message: 'گروه جدید با موفقیت ایجاد شد', severity: 'success' })
+            setTimeout(() => navigate('/matron/groups'), 500)
             resetForm()
         } catch (error) {
-            const msg = handleApiErrors(error)
+            const msg = handleApiErrors(error);
             setSnackbar({ open: true, message: msg, severity: 'error' })
         } finally {
             setSubmitting(false)
@@ -32,40 +32,23 @@ export default function MatronRegister() {
     }
 
     return (
-        <MainLayout title="ثبت نام">
-            <Grid size={{ xs: 12, sm: 8, md: 6, xl: 5 }}>
-                <Typography variant='h4' align='center' gutterBottom>
-                    ثبت نام سرپرستار
+        <MainLayout title="سرپرستار | افزودن گروه جدید">
+            <AppHeader />
+            <Grid size={{ xs: 12, md: 8, lg: 6 }}>
+
+                <Typography variant='h5' align='center' gutterBottom mb={5}>
+                    افزودن گروه جدید
                 </Typography>
 
                 <Formik
                     initialValues={{
-                        firstName: "", lastName: "", nationalCode: "",
-                        mobile: "", password: "",
-                        province: "", county: "",
-                        hospital: "", department: ""
+                        province: "", county: "", hospital: "", department: ""
                     }}
-                    validationSchema={matronRegisterSchema}
+                    validationSchema={createGroupSchema}
                     onSubmit={handleSubmit}
                 >
                     {({ values, handleChange, handleBlur, errors, touched }) => (
-                        <Form>
-                            {matronRegisterFields.map((field, index) => (
-                                <TextField
-                                    key={index}
-                                    fullWidth
-                                    label={field.label}
-                                    name={field.name}
-                                    type={field.type}
-                                    value={values[field.name]}
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                    error={touched[field.name] && Boolean(errors[field.name])}
-                                    helperText={touched[field.name] && errors[field.name]}
-                                    sx={{ mb: 2 }}
-                                />
-                            ))}
-
+                        <Form style={{ width: "100%" }}>
                             <TextField
                                 fullWidth
                                 select
@@ -120,7 +103,6 @@ export default function MatronRegister() {
                                 helperText={touched.department && errors.department}
                                 sx={{ mb: 2 }}
                             />
-
                             <Button
                                 fullWidth
                                 variant='contained'
@@ -131,12 +113,14 @@ export default function MatronRegister() {
                             >
                                 ثبت اطلاعات
                             </Button>
-                            <BackButton backUrl="/" />
+                            <BackButton backUrl="/matron/groups" />
                         </Form>
                     )}
                 </Formik>
+
+                <SnackAlert snackbar={snackbar} setSnackbar={setSnackbar} />
             </Grid>
-            <SnackAlert snackbar={snackbar} setSnackbar={setSnackbar} />
         </MainLayout>
     )
 }
+

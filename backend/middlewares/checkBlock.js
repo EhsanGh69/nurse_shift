@@ -14,7 +14,7 @@ module.exports = async (req, res, next) => {
     if(checkBlock) {
         res.clearCookie("access-token", cookieOptions)
         res.clearCookie("refresh-token", cookieOptions)
-        return res.status(403).json({ message: "Your account is blocked by admin" })
+        return res.status(403).json({ message: "حساب کاربری شما مسدود شده است" })
     }
     next();
 }

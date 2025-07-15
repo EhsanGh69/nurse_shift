@@ -1,52 +1,47 @@
-import { useState, useEffect } from 'react';
-import { Stack, Button, TextField, Typography, MenuItem } from '@mui/material';
+import { useState } from 'react';
+import { Button, TextField, Typography, Grid } from '@mui/material';
 import { Formik, Form } from 'formik';
-import { Link, useNavigate } from 'react-router-dom'
-import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 import { nurseRegisterSchema } from '../../validations/authValidation'
 import MainLayout from '../../mui/MainLayout';
-import { centerBox } from '../../styles/globalStyles';
 import { nurseRegisterFields } from '../../constants/fields';
 import SnackAlert from '../../components/SnackAlert';
-import { userNavigate } from '../../utils/services'
+import { useRegister } from '../../api/auth.api';
+import handleApiErrors from '../../utils/apiErrors';
+import BackButton from '../../components/BackButton';
 
 
 export default function NurseRegister() {
     const navigate = useNavigate()
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
+    const { mutateAsync, isPending } = useRegister()
 
     const handleSubmit = async (values, { setSubmitting, resetForm }) => {
         try {
-            await axios.post('/auth/register/nurse', values)
+            await mutateAsync({ formData: values, role: 'nurse' })
             setSnackbar({ open: true, message: 'ثبت نام با موفقیت انجام شد', severity: 'success' })
-            setTimeout(() => navigate('/login'), 1500)
+            setTimeout(() => navigate('/login'), 500)
             resetForm()
         } catch (error) {
-            const msg = error.response?.data?.message || 'خطایی رخ داد';
+            const msg = handleApiErrors(error)
             setSnackbar({ open: true, message: msg, severity: 'error' })
         } finally {
             setSubmitting(false)
         }
     }
 
-    useEffect(() => {
-        userNavigate()
-    }, [])
-
     return (
         <MainLayout title="ثبت نام">
-            <Stack direction='column' sx={centerBox}>
+            <Grid height="100vh" display="flex" flexDirection="column" justifyContent="center"
+                size={{ xs: 12, sm: 8, md: 6, xl: 5 }}
+            >
                 <Typography variant='h4' align='center' gutterBottom>
                     ثبت نام پرستار
                 </Typography>
 
                 <Formik
-                    initialValues={{
-                        firstName: "", lastName: "",
-                        inviteCode: "", nationalCode: "",
-                        mobile: "", password: ""
-                    }}
+                    initialValues={{ inviteCode: "", nationalCode: "", password: "" }}
                     validationSchema={nurseRegisterSchema}
                     onSubmit={handleSubmit}
                 >
@@ -74,27 +69,18 @@ export default function NurseRegister() {
                                 color='primary'
                                 type='submit'
                                 sx={{ mb: 2, fontSize: 20 }}
+                                disabled={isPending}
                             >
                                 ثبت اطلاعات
                             </Button>
+                            <BackButton backUrl="/" />
                         </Form>
                     )}
                 </Formik>
 
-                <Button
-                    fullWidth
-                    variant='contained'
-                    color='secondary'
-                    type='button'
-                    component={Link}
-                    to="/"
-                    sx={{ fontSize: 20 }}
-                >
-                    بازگشت
-                </Button>
+            </Grid>
 
-                <SnackAlert snackbar={snackbar} setSnackbar={setSnackbar} />
-            </Stack>
+            <SnackAlert snackbar={snackbar} setSnackbar={setSnackbar} />
         </MainLayout>
     )
 }

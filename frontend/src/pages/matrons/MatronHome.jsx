@@ -1,46 +1,38 @@
-import { useEffect } from 'react';
 import { Box, Grid, Typography } from '@mui/material';
 import { Link } from 'react-router-dom';
-import { Settings, Group, QuestionAnswer, Poll, Tune } from '@mui/icons-material';
+import { Settings, Group, QuestionAnswer, Poll, ManageAccounts } from '@mui/icons-material';
 
-import { centerBox, clickBox } from '../../styles/globalStyles';
+import { clickBox } from '../../styles/globalStyles';
 import MainLayout from '../../mui/MainLayout';
 import AppHeader from '../../components/AppHeader';
-import { refreshToken } from "../../utils/services";
 
 const items = [
-    { title: 'ویرایش حساب کاربری', icon: <Settings />, route: '/edit_account' },
-    { title: 'گروه ها', icon: <Group />, route: '/matron/groups' },
-    { title: 'پیام ها', icon: <QuestionAnswer />, route: '/messages' },
-    { title: 'نظرسنجی برنامه', icon: <Poll />, route: '/poll' },
-    { title: 'تنظیمات برنامه', icon: <Tune />, route: '/settings' }
+    { title: 'ویرایش کاربر', icon: <ManageAccounts fontSize='large' />, route: '/edit_account' },
+    { title: 'گروه ها', icon: <Group fontSize='large' />, route: '/matron/groups' },
+    { title: 'پیام ها', icon: <QuestionAnswer fontSize='large' />, route: '/messages' },
+    { title: 'نظرسنجی برنامه', icon: <Poll fontSize='large' />, route: '/poll' },
+    { title: 'تنظیمات برنامه', icon: <Settings fontSize='large' />, route: '/settings' }
 ]
 
 
 export default function MatronHome() {
-    useEffect(() => {
-        refreshToken()
-    }, [])
-
     return (
         <MainLayout title="سرپرستار | خانه">
-            <Box sx={centerBox}>
-                <AppHeader />
-                <Grid container spacing={3} justifyContent='center'>
-                    {items.map(item => (
-                        <Grid
-                            size={{ xs: 6 }}
-                            key={item.route}
-                            sx={clickBox}
-                            component={Link}
-                            to={item.route}
-                        >
-                            <Box sx={{ mb: 1 }}>{item.icon}</Box>
-                            <Typography variant='subtitle1'>{item.title}</Typography>
-                        </Grid>
-                    ))}
-                </Grid>
-            </Box>
+            <AppHeader />
+            <Grid container spacing={3} width="100%">
+                {items.map(item => (
+                    <Grid
+                        size={{ xs: 6, md: 4 }}
+                        key={item.route}
+                        sx={clickBox}
+                        component={Link}
+                        to={item.route}
+                    >
+                        <Box sx={{ mb: 1 }}>{item.icon}</Box>
+                        <Typography variant='h6'>{item.title}</Typography>
+                    </Grid>
+                ))}
+            </Grid>
         </MainLayout>
     )
 }

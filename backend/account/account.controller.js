@@ -16,7 +16,7 @@ exports.changePassword = async (req, res) => {
 }
 
 exports.editAccount = async (req, res) => {
-    const { firstName, lastName, mobile } =req.body;
+    const { firstName, lastName, mobile } = req.body;
 
     const user = await userModel.findByIdAndUpdate(req.user._id, {
         firstName, lastName, mobile
@@ -28,4 +28,12 @@ exports.editAccount = async (req, res) => {
     }
 
     return res.json(user)
+}
+
+exports.removeAvatar = async (req, res) => {
+    await userModel.findByIdAndUpdate(req.user._id, {
+        $set: { avatar: '' }
+    });
+
+    res.json({ message: "User avatar removed successfully" })
 }

@@ -22,17 +22,9 @@ export const matronRegisterSchema = Yup.object({
 })
 
 export const nurseRegisterSchema = Yup.object({
-    firstName: Yup.string()
-        .max(150, "طول نام باید کمتر از 150 کاراکتر باشد").min(3, "طول نام باید بیشتر از 3 کاراکتر باشد")
-        .required("لطفا نام خود را وارد نمایید"),
-    lastName: Yup.string()
-        .max(150, "طول نام خانوادگی باید کمتر از 150 کاراکتر باشد").min(3, "طول نام خانوادگی باید بیشتر از 3 کاراکتر باشد")
-        .required("لطفا نام خانوادگی خود را وارد نمایید"),
     inviteCode: Yup.string().required("لطفا کد دعوت خود را وارد نمایید"),
     nationalCode: Yup.string()
         .matches(/^(?!^(\d)\1{9}$)\d{10}$/, "کد ملی وارد شده معتبر نمی باشد").required("لطفا کد ملی خود را وارد نمایید"),
-    mobile: Yup.string()
-        .matches(/^09\d{9}$/, "شماره موبایل وارد شده معتبر نمی باشد").required("لطفا شماره موبایل خود را وارد نمایید"),
     password: Yup.string()
         .matches(/^(?=.*[a-zA-Z0-9]).{8,}$/, "رمز عبور باید حداقل 8 کاراکتر و شامل حروف یا اعداد انگلیسی باشد")
         .required("لطفا رمز عبور خود را تعیین نمایید")

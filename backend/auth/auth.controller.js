@@ -1,30 +1,28 @@
 const jwt = require("jsonwebtoken");
 
 const userModel = require('../user/user.model');
-const groupModel = require('../user/group.model');
+const groupModel = require('../group/group.model');
 const blockUserModel = require("../user/blockUser.model");
-const inviteCodeModel = require("../matron/inviteCode.model");
+const inviteCodeModel = require("../group/inviteCode.model");
 const { generateAccessToken, generateRefreshToken } = require('../utils/token');
 
 
 exports.nurseRegister = async (req, res) => {
-    const {firstName, lastName, password, mobile, nationalCode, inviteCode} = req.body;
+    const {password, nationalCode, inviteCode} = req.body;
 
-    const userExist = await userModel.findOne({
-        $or: [{ mobile }, { nationalCode }]
-    })
-    if (userExist)
-        return res.status(409).json({ message: "کاربری با مشخصات وارد شده از قبل وجود دارد" })
-
-    const foundInviteCode = await inviteCodeModel.findOne({ mobile, code: inviteCode });
+    const foundInviteCode = await inviteCodeModel.findOne({ code: inviteCode });
     if(!foundInviteCode)
-        return res.status(400).json({ message: "کد دعوت یا شماره همراه نادرست است" })
+        return res.status(400).json({ message: "کد دعوت وارد شده نادرست است" })
+
+    const userExist = await userModel.findOne({ nationalCode })
+    if (userExist)
+        return res.status(409).json({ message: "کاربری با کد ملی وارد شده از قبل وجود دارد" })
 
     const nurse = await userModel.create({
         password,
-        firstName,
-        lastName,
-        mobile,
+        firstName: foundInviteCode.firstName,
+        lastName: foundInviteCode.lastName,
+        mobile: foundInviteCode.mobile,
         nationalCode,
         role: "NURSE" 
     })
@@ -91,7 +89,7 @@ const cookieOptions = {
 exports.login = async (req, res) => {
     const { nationalCode, password } = req.body;
     let verifyPassword = false;
-
+    
     const user = await userModel.findOne({ nationalCode })
 
     if (user) {
@@ -135,48 +133,43 @@ exports.logout = async (req, res) => {
 
 exports.refreshToken = async (req, res) => {
     const refreshToken = req.cookies["refresh-token"]
-    if (!refreshToken) {
-        return res.status(401).json({ message: "You don't have refresh token" })
-    }
-
+    if (!refreshToken) 
+        return res.status(401).json({ message: "لطفا وارد شوید یا ثبت نام کنید" })
+    
     try {
         jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET)
         const user = await userModel.findOne({ refreshToken })
         if (!user) {
-            return res.status(403).json({ message: "Your access has been blocked!" })
+            return res.status(403).json({ error: "Your access has been blocked!" })
         }
 
         const checkBlock = await blockUserModel.findOne({ user: user._id })
-        if (checkBlock) return res.status(403).json({ message: "Your account is blocked by admin" });
+        if (checkBlock) return res.status(403).json({ message: "حساب کاربری شما مسدود است" });
 
         const newAccessToken = generateAccessToken(user._id)
         res.cookie("access-token", newAccessToken, { ...cookieOptions, maxAge: 15 * 60 * 1000 })
         return res.json({ accessToken: newAccessToken })
     } catch (error) {
-        res.clearCookie("access-token", cookieOptions)
-        res.clearCookie("refresh-token", cookieOptions)
-        return res.status(401).json({ message: "Your refresh token has expired!" })
+        return res.status(401).json({ error: "Your refresh token has expired!" })
     }
 }
 
 exports.getMe = async (req, res) => {
     const refreshToken = req.cookies["refresh-token"]
-    if (!refreshToken) {
-        return res.status(401).json({ message: "You don't have refresh token" })
-    }
+    
+    if (!refreshToken) 
+        return res.status(401).json({ message: "لطفا وارد شوید یا ثبت نام کنید" })
 
     try {
         jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET)
         const user = await userModel.findOne({ refreshToken })
-            .select("avatar firstName lastName mobile role nationalCode county province")
+            .select("avatar firstName lastName mobile role nationalCode")
 
         if (!user)
-            return res.status(403).json({ message: "Your access has been blocked!" })
-
+            return res.status(403).json({ error: "Your access has been blocked!" })
+        
         return res.json(user)
     } catch (error) {
-        res.clearCookie("access-token", cookieOptions)
-        res.clearCookie("refresh-token", cookieOptions)
-        return res.status(401).json({ message: "Your refresh token has expired!" })
+        return res.status(401).json({ error: "Your refresh token has expired!" })
     }
 }

@@ -1,45 +1,46 @@
-import { useState, useEffect } from 'react';
-import { Stack, Button, TextField, Typography } from '@mui/material';
+import { useState } from 'react';
+import { Button, TextField, Typography, Grid } from '@mui/material';
 import { Formik, Form } from 'formik';
-import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query'
 
 import MainLayout from '../../mui/MainLayout';
 import { loginSchema } from '../../validations/authValidation'
-import { centerBox } from '../../styles/globalStyles'
 import SnackAlert from '../../components/SnackAlert';
-import { userNavigate } from '../../utils/services'
+import { useLogin } from '../../api/auth.api';
+import handleApiErrors from '../../utils/apiErrors';
+import BackButton from '../../components/BackButton';
 
 
 export default function Login() {
-    const navigate = useNavigate()
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
+    const { mutateAsync, isPending } = useLogin()
+    const navigate = useNavigate()
+    const queryClient = useQueryClient()
 
     const handleSubmit = async (values, { setSubmitting, resetForm }) => {
         try {
-            const { data } = await axios.post('/auth/login', values, {withCredentials: true})
-            setSnackbar({ open: true, message: 'با موفقیت وارد شدید', severity: 'success' })
-            if(data.role === 'NURSE')
-                setTimeout(() => navigate('/nurse'), 1000)
-            else
-                setTimeout(() => navigate('/matron'), 1000)
+            const result = await mutateAsync(values)
+            setSnackbar({ open: true, message: "با موفقیت وارد شدید", severity: 'success' })
+            setTimeout(async () => {
+                await queryClient.refetchQueries({ queryKey: ['currentUser'] })
+                if (result.role === 'NURSE') navigate('/nurse')
+                else navigate('/matron')
+            }, 500)
             resetForm()
         } catch (error) {
-            console.log(error)
-            const msg = error.response?.data?.message || 'خطایی رخ داد';
+            const msg = handleApiErrors(error)
             setSnackbar({ open: true, message: msg, severity: 'error' })
         } finally {
             setSubmitting(false)
         }
     }
 
-    useEffect(() => {
-        userNavigate()
-    }, [])
-
     return (
         <MainLayout title="ورود">
-            <Stack direction='column' justifyContent='center' sx={centerBox}>
+            <Grid height="100vh" display="flex" flexDirection="column" justifyContent="center"
+                size={{ xs: 12, sm: 8, md: 6, xl: 5 }}
+            >
                 <Typography variant='h4' align='center' gutterBottom>
                     ورود اعضاء
                 </Typography>
@@ -82,27 +83,16 @@ export default function Login() {
                                 color='primary'
                                 type='submit'
                                 sx={{ mb: 2, fontSize: 20 }}
+                                disabled={isPending}
                             >
                                 ورود
                             </Button>
+                            <BackButton backUrl='/' />
                         </Form>
                     )}
                 </Formik>
-
-                <Button
-                    fullWidth
-                    variant='contained'
-                    color='secondary'
-                    type='button'
-                    component={Link}
-                    to="/"
-                    sx={{ fontSize: 20 }}
-                >
-                    بازگشت
-                </Button>
-
-                <SnackAlert snackbar={snackbar} setSnackbar={setSnackbar} />
-            </Stack>
+            </Grid>
+            <SnackAlert snackbar={snackbar} setSnackbar={setSnackbar} />
         </MainLayout>
     )
 }

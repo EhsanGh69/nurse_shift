@@ -1,73 +1,71 @@
 import { useState, useEffect } from "react";
-import { Box, Grid, Typography, CircularProgress, Backdrop, Alert, Button } from '@mui/material';
+import { Grid, Typography, CircularProgress, Backdrop, Alert, Button } from '@mui/material';
 import { Link } from 'react-router-dom';
-import { GroupAdd, Group } from '@mui/icons-material';
+import { GroupAdd } from '@mui/icons-material';
 
-import { centerBox, clickBox } from '../../styles/globalStyles';
+import { clickBox } from '../../styles/globalStyles';
 import MainLayout from '../../mui/MainLayout';
 import AppHeader from '../../components/AppHeader';
-import { getMatronGroups, refreshToken } from '../../utils/services';
-
+import { useMatronGroups } from '../../api/group.api';
+import GroupBox from "../../components/GroupBox";
 
 export default function Groups() {
-  const [groups, setGroups] = useState([])
-  const [loading, setLoading] = useState(false)
+	const [groups, setGroups] = useState([])
+	const [loading, setLoading] = useState(false)
+	const { isLoading, data } = useMatronGroups()
 
-  const handleMatronGroups = async () => {
-    await refreshToken()
-    const matronGroups = await getMatronGroups(setLoading)
-    setGroups(matronGroups)
-  }
+	useEffect(() => {
+		if(!isLoading && data)
+			setGroups(data)
+		setLoading(isLoading)
+	}, [isLoading, data])
 
-  useEffect(() => {
-    handleMatronGroups()
-  }, [])
+	return (
+		<MainLayout title="سرپرستار | گروه ها">
+			<AppHeader />
+			<Grid container width="100%">
+				<Backdrop open={loading} sx={{ zIndex: (them) => them.zIndex.drawer + 1 }}>
+					<CircularProgress color="inherit" />
+				</Backdrop>
 
-  return (
-    <MainLayout title="سرپرستار | گروه ها">
-      <Box sx={centerBox}>
-        <AppHeader />
-        <Grid container justifyContent='center' width="90%">
-          <Backdrop open={loading} sx={{ zIndex: (them) => them.zIndex.drawer + 1 }}>
-            <CircularProgress color="inherit" />
-          </Backdrop>
+				<Button
+					color="success"
+					variant="contained"
+					sx={{ mb: 2 }}
+					LinkComponent={Link}
+					size="large"
+					to="/matron/groups/create"
+				>
+					<GroupAdd sx={{ mr: 1 }} />
+					<Typography variant="h6">افزودن گروه جدید</Typography>
+				</Button>
 
-          <Button 
-            color="success" 
-            variant="contained" 
-            sx={{ mb: 2 }} 
-            LinkComponent={Link}
-            // to={item.route}
-          >
-            <GroupAdd sx={{ mr: 1 }} />
-            <Typography variant="subtitle1">افزودن گروه جدید</Typography>
-          </Button>
+				{groups
+					? groups.map(group => (
+						<Grid
+							display="flex"
+							justifyContent="space-around"
+							alignItems="center"
+							size={{ xs: 12 }}
+							key={group._id}
+							sx={{ ...clickBox, flexDirection: { xs: "column", md: "row" }, mb: 2 }}
+							component={Link}
+							to={`/matron/groups/${group._id}`}
+						>
+							<GroupBox 
+								county={group.county}  province={group.province}
+								hospital={group.hospital} department={group.department}
+							/>
 
-          {groups
-            ? groups.map(group => (
-              <Grid
-                size={{ xs: 12 }}
-                key={group._id}
-                sx={clickBox}
-                component={Link}
-              to={`/matron/groups/${group._id}`}
-              >
-                <Box sx={{ mb: 1 }}>
-                  <Group />
-                </Box>
-                <Typography variant='body1'>
-                  {group.department} - {group.hospital} - {group.county}
-                </Typography>
-              </Grid>
-            ))
-            : (
-              <Alert color="error" severity="error">
-                <Typography variant="h3">گروهی وجود ندارد</Typography>
-              </Alert>
-            )
-          }
-        </Grid>
-      </Box>
-    </MainLayout>
-  )
+						</Grid>
+					))
+					: (
+						<Alert color="error" severity="error">
+							<Typography variant="h3">گروهی وجود ندارد</Typography>
+						</Alert>
+					)
+				}
+			</Grid>
+		</MainLayout>
+	)
 }

@@ -1,5 +1,6 @@
 import { createBrowserRouter } from 'react-router-dom'
 
+import BaseRoute from './pages/BaseRoute';
 import Welcome from "./pages/Welcome";
 import NotFound from './pages/NotFound';
 import authRoutes from './pages/auth/routes';
@@ -8,7 +9,7 @@ import nurseRoutes from './pages/nurses/routes';
 import matronRoutes from './pages/matrons/routes';
 
 const router = createBrowserRouter([
-    { path: "/", element: <Welcome /> },
+    { path: "/", element: <BaseRoute><Welcome /></BaseRoute>},
     { path: "*", element: <NotFound /> },
     ...authRoutes,
     ...nurseRoutes,

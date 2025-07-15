@@ -8,5 +8,6 @@ export const matronRegisterFields = [
 
 export const nurseRegisterFields = [
     { name: 'inviteCode', label: 'کد دعوت', type: 'text' },
-    ...matronRegisterFields
+    { name: 'nationalCode', label: 'کد ملی', type: 'text' },
+    { name: 'password', label: 'رمز عبور', type: 'password' }
 ]

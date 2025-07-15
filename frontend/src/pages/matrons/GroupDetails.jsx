@@ -1,121 +1,96 @@
 import { useState, useEffect } from "react";
-import { Box, Grid, Typography, CircularProgress, Backdrop, Alert, Button, Avatar } from '@mui/material';
+import { Grid, Typography, CircularProgress, Backdrop, Button, Alert } from '@mui/material';
 import { Link, useParams } from 'react-router-dom';
-import { PersonAdd, Phone, PersonOff, Group } from '@mui/icons-material';
+import { PersonAdd, Group } from '@mui/icons-material';
 
-import { centerBox } from '../../styles/globalStyles';
 import MainLayout from '../../mui/MainLayout';
 import AppHeader from '../../components/AppHeader';
-import { getMatronGroupDetails, refreshToken } from '../../utils/services';
+import { useGroupDetails } from '../../api/group.api';
+import GroupBox from '../../components/GroupBox'
+import GroupMembersList from "../../components/GroupMembersList";
 
 
 export default function GroupDetails() {
     const [group, setGroup] = useState({})
     const [loading, setLoading] = useState(false)
     const { groupId } = useParams()
-
-    const handleMatronGroupDetails = async () => {
-        await refreshToken()
-        const matronGroupDetails = await getMatronGroupDetails(groupId, setLoading)
-        setGroup(matronGroupDetails)
-    }
+    const { isLoading, data } = useGroupDetails(groupId)
 
     useEffect(() => {
-        handleMatronGroupDetails()
-    }, [])
+        if (!isLoading && data)
+            setGroup(data)
+        setLoading(isLoading)
+    }, [isLoading, data])
 
     return (
         <MainLayout title="سرپرستار | گروه ها">
-            <Box sx={centerBox}>
-                <AppHeader />
-                <Grid container justifyContent='center' width="90%">
-                    <Backdrop open={loading} sx={{ zIndex: (them) => them.zIndex.drawer + 1 }}>
-                        <CircularProgress color="inherit" />
-                    </Backdrop>
+            <AppHeader />
+            <Grid container width="100%">
+                <Backdrop open={loading} sx={{ zIndex: (them) => them.zIndex.drawer + 1 }}>
+                    <CircularProgress color="inherit" />
+                </Backdrop>
 
+                <Grid
+                    size={{ xs: 12 }}
+                    display="flex"
+                    justifyContent="space-between"
+                    flexDirection={{ xs: "column", md: "row" }}
+                >
                     <Button
-                        color="success"
+                        color="primary"
                         variant="contained"
                         sx={{ mb: 2 }}
                         LinkComponent={Link}
                         to={`/matron/groups/${groupId}/invite`}
+                        size="large"
                     >
                         <PersonAdd sx={{ mr: 1 }} />
-                        <Typography variant="subtitle1">دعوت عضو جدید</Typography>
+                        <Typography variant="h6">دعوت عضو جدید</Typography>
                     </Button>
-
-                    {group
-                        ? (
-                            <>
-                                <Grid
-                                    size={{ xs: 12 }}
-                                >
-                                    <Alert color="success">
-                                        <Box display="flex" width="100%">
-                                            <Group sx={{ mr: 2 }} />
-                                            <Typography variant='body1'>
-                                                {group.department} - {group.hospital} - {group.county}
-                                            </Typography>
-                                        </Box>
-                                    </Alert>
-                                </Grid>
-                                {group?.members?.length
-                                    ? group?.members?.map(member => (
-                                        <Box
-                                            key={member.mobile}
-                                            sx={{
-                                                mt: 2,
-                                                backgroundColor: 'info.light',
-                                                p: 2,
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                width: '100%',
-                                                borderRadius: 1
-                                            }}
-                                        >
-                                            <Avatar
-                                                alt={`${member?.firstName} ${member?.lastName}`}
-                                                src={member?.avatar && `http://127.0.0.1:4000${member?.avatar}`}
-                                                sx={{ width: 50, height: 50, mr: 1 }}
-                                            />
-                                            <Typography variant='body2'
-                                                sx={{ color: '#fff', borderRight: 1, pr: 1 }}>
-                                                {`${member?.firstName} ${member?.lastName}`} 
-                                            </Typography>
-                                            <Typography variant='body2' 
-                                                sx={{ color: 'lightgray', pl: 1, fontSize: 15, 
-                                                display: 'flex', alignItems: 'center' }}>
-                                                <Phone />
-                                                {member.mobile}
-                                            </Typography>
-                                        </Box>
-                                    ))
-                                    : (
-                                        <Box
-                                            sx={{
-                                                mt: 2,
-                                                backgroundColor: 'warning.light',
-                                                p: 2,
-                                                color: 'error.dark',
-                                                textAlign: 'center',
-                                                borderRadius: 1
-                                            }}
-                                        >
-                                            <PersonOff />
-                                            <Typography variant="h6">این گروه عضوی ندارد</Typography>
-                                        </Box>
-                                    )
-                                }
-                            </>
-                        )
-                        : (
-                            <Alert color="warning" severity="warning">
-                                <Typography variant="body1">اطلاعاتی جهت نمایش وجود ندارد</Typography>
-                            </Alert>
-                        )
-                    }
+                    <Button
+                        color="secondary"
+                        variant="contained"
+                        sx={{ mb: 2 }}
+                        LinkComponent={Link}
+                        to={`/matron/groups`}
+                        size="large"
+                    >
+                        <Group sx={{ mr: 1 }} />
+                        <Typography variant="h6">بازگشت به گروه ها</Typography>
+                    </Button>
                 </Grid>
-            </Box>
+
+                {group
+                    ? (
+                        <>
+                            <Grid
+                                display="flex"
+                                justifyContent="space-around"
+                                alignItems="center"
+                                flexDirection={{ xs: "column", md: "row" }}
+                                sx={{
+                                    backgroundColor: "success.light",
+                                    p: 3, color: "whitesmoke",
+                                    borderRadius: 1
+                                }}
+                                size={{ xs: 12 }}
+                            >
+                                <GroupBox
+                                    province={group.province} county={group.county}
+                                    hospital={group.hospital} department={group.department}
+                                />
+                            </Grid>
+
+                            <GroupMembersList group={group} />
+                        </>
+                    )
+                    : (
+                        <Alert color="warning" severity="warning">
+                            <Typography variant="body1">اطلاعاتی جهت نمایش وجود ندارد</Typography>
+                        </Alert>
+                    )
+                }
+            </Grid>
         </MainLayout>
     )
 }
