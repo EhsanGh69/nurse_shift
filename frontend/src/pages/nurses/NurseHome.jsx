@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { Box, Grid, Typography } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { Settings, QuestionAnswer, Poll, Tune } from '@mui/icons-material';
@@ -8,14 +7,13 @@ import MainLayout from '../../mui/MainLayout';
 import AppHeader from '../../components/AppHeader';
 
 const items = [
-    { title: 'ویرایش حساب کاربری', icon: <Settings fontSize='large' />, route: '/edit' },
-    { title: 'پیام ها', icon: <QuestionAnswer fontSize='large' />, route: '/messages' },
+    { title: 'ویرایش حساب کاربری', icon: <Settings fontSize='large' />, route: '/account/edit' },
+    { title: 'گفت و گو ها', icon: <QuestionAnswer fontSize='large' />, route: '/messages/conversations' },
     { title: 'نظرسنجی برنامه', icon: <Poll fontSize='large' />, route: '/poll' },
     { title: 'تنظیمات برنامه', icon: <Tune fontSize='large' />, route: '/settings' }
 ]
 
 export default function NurseHome() {
-
     return (
         <MainLayout title="پرستار | خانه">
             <AppHeader />

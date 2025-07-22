@@ -8,8 +8,8 @@ import AppHeader from '../../components/AppHeader';
 import { editAccountSchema } from '../../validations/accountValidation';
 import SnackAlert from '../../components/SnackAlert';
 import FileInput from '../../components/FileInput';
-import { useCurrentUser } from '../../api/auth.api';
 import { useEditAccount } from '../../api/account.api';
+import { useGlobalData } from '../../context/GlobalContext';
 import handleApiErrors from '../../utils/apiErrors';
 import BackButton from '../../components/BackButton';
 
@@ -18,8 +18,10 @@ export default function EditAccount() {
     const navigate = useNavigate()
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
     const [user, setUser] = useState(null)
-    const { data, isLoading } = useCurrentUser()
+    const [loading, setLoading] = useState(true)
     const { mutateAsync, isPending } = useEditAccount()
+    const { getData } = useGlobalData()
+    const data = getData("userData")
 
     const handleSubmit = async (values, { setSubmitting, resetForm, setFieldError }) => {
         try {
@@ -49,14 +51,16 @@ export default function EditAccount() {
     }
 
     useEffect(() => {
-        if (!isLoading && data)
+        if (data){
             setUser(data)
-    }, [data, isLoading])
+            setLoading(false)
+        }
+    }, [data])
 
     return (
         <MainLayout title="ویرایش حساب کاربری">
             <AppHeader />
-            <Backdrop open={isLoading} sx={{ zIndex: (them) => them.zIndex.drawer + 1 }}>
+            <Backdrop open={loading} sx={{ zIndex: (them) => them.zIndex.drawer + 1 }}>
                 <CircularProgress color="inherit" />
             </Backdrop>
             {user &&

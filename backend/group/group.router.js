@@ -21,7 +21,6 @@ router.get('/',
 )
 router.get('/:id',
     verifyToken,
-    permission(['ADMIN', 'MATRON']),
     groupController.groupDetails
 )
 router.get('/invitees/:id',

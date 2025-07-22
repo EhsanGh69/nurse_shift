@@ -3,26 +3,36 @@ const { Router } = require('express');
 const messageController = require('./message.controller');
 const verifyToken = require('../middlewares/verifyToken');
 const validator = require('../middlewares/joiValidator');
-const { newMessageSchema } = require('../validators/messageValidators');
+const { newMessageSchema, responseMessageSchema, seenMessageSchema } = require('../validators/messageValidators');
 
 const router = Router()
 
 router.post('/new', 
     verifyToken,
     validator(newMessageSchema),
-    messageController.newMessage
+    messageController.newConversation
 )
 
 router.post('/response/:id', 
     verifyToken,
-    validator(newMessageSchema),
+    validator(responseMessageSchema),
     messageController.responseMessage
 )
 
-router.get('/', 
+router.put('/seen', 
     verifyToken,
-    validator(newMessageSchema),
-    messageController.userMessages
+    validator(seenMessageSchema),
+    messageController.seenMessages
+)
+
+router.get('/conversations', 
+    verifyToken,
+    messageController.userConversations
+)
+
+router.get('/contacts', 
+    verifyToken,
+    messageController.getUserContacts
 )
 
 module.exports = router;

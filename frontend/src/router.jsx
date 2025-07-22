@@ -7,6 +7,7 @@ import authRoutes from './pages/auth/routes';
 import accountRoutes from './pages/account/routes';
 import nurseRoutes from './pages/nurses/routes';
 import matronRoutes from './pages/matrons/routes';
+import messageRoutes from './pages/messages/routes';
 
 const router = createBrowserRouter([
     { path: "/", element: <BaseRoute><Welcome /></BaseRoute>},
@@ -14,7 +15,8 @@ const router = createBrowserRouter([
     ...authRoutes,
     ...nurseRoutes,
     ...matronRoutes,
-    ...accountRoutes
+    ...accountRoutes,
+    ...messageRoutes
 ])
 
 export default router;

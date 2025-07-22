@@ -54,7 +54,9 @@ exports.groupDetails = async (req, res) => {
     if(!isValidObjectId(id))
         return res.status(422).json({ error: "Group id is not valid" });
 
-    const group = await groupModel.findOne({ _id: id, matron: user._id })
+    const group = await groupModel.findOne({ 
+        _id: id, $or: [{ members: { $all: [user._id] } }, { matron: user._id }] 
+    })
     .populate("members", "firstName lastName mobile avatar").lean();
     if(!group)
         return res.status(404).json({ message: "Group not found!" });

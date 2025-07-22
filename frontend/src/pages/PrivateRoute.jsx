@@ -5,6 +5,7 @@ import { useCurrentUser } from '../api/auth.api';
 import handleApiErrors from '../utils/apiErrors';
 import SnackAlert from '../components/SnackAlert';
 import LoadingModal from '../components/LoadingModal';
+import { useGlobalData } from "../context/GlobalContext"
 
 export default function PrivateRoute() {
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: '' })
@@ -12,6 +13,7 @@ export default function PrivateRoute() {
     const location = useLocation()
     const navigate = useNavigate()
     const { isLoading, isError, error, data } = useCurrentUser()
+    const { setData } = useGlobalData()
 
     useEffect(() => {
         if (!isLoading && !data && isError) {
@@ -32,6 +34,7 @@ export default function PrivateRoute() {
 
     useEffect(() => {
         if (!isLoading && data) {
+            setData("userData", data)
             const isNotNurse = data.role !== 'NURSE' && location.pathname.includes('/nurse')
             const isNurse = data.role === 'NURSE' && location.pathname.includes('/matron')
             if (isNotNurse) navigate('/matron')

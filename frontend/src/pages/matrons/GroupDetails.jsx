@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Grid, Typography, CircularProgress, Backdrop, Button, Alert } from '@mui/material';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { PersonAdd, Group } from '@mui/icons-material';
 
 import MainLayout from '../../mui/MainLayout';
@@ -12,15 +12,23 @@ import GroupMembersList from "../../components/GroupMembersList";
 
 export default function GroupDetails() {
     const [group, setGroup] = useState({})
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(true)
     const { groupId } = useParams()
-    const { isLoading, data } = useGroupDetails(groupId)
+    const { isLoading, data, isError, error } = useGroupDetails(groupId)
+    const navigate = useNavigate()
 
     useEffect(() => {
-        if (!isLoading && data)
+        if (!isLoading && data){
+            setLoading(false)
             setGroup(data)
-        setLoading(isLoading)
-    }, [isLoading, data])
+        }
+
+        if (!data && isError) {
+            const status = error?.response?.status
+            if (status === 404 || status === 422)
+                navigate('/404', { state: { backTo: "/matron/groups" } })
+        }
+    }, [isLoading, data, isError, error])
 
     return (
         <MainLayout title="سرپرستار | گروه ها">

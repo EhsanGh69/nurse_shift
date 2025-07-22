@@ -1,15 +1,15 @@
-import { Box, Button, Stack, Typography } from '@mui/material'
-import { useNavigate } from "react-router-dom"
+import { Button, Stack, Typography } from '@mui/material'
+import { useNavigate, useLocation } from "react-router-dom"
 
 import MainLayout from '../mui/MainLayout'
-import { centerBox } from '../styles/globalStyles'
 
 
 export default function NotFound() {
+    const { state } = useLocation()
     const navigate = useNavigate()
 
     return (
-        <MainLayout title="خوش آمدید">
+        <MainLayout title="یافت نشد">
             <Stack spacing={2} alignItems="center">
                 <Typography variant='h1'>
                     404
@@ -20,7 +20,7 @@ export default function NotFound() {
                 <Button
                     variant='contained'
                     color='secondary'
-                    onClick={() => navigate(-1)}
+                    onClick={() => navigate(state?.backTo || "/")}
                     sx={{ width: 300, fontSize: 20 }}
                 >
                     بازگشت

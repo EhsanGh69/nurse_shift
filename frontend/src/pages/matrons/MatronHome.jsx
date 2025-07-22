@@ -7,9 +7,9 @@ import MainLayout from '../../mui/MainLayout';
 import AppHeader from '../../components/AppHeader';
 
 const items = [
-    { title: 'ویرایش کاربر', icon: <ManageAccounts fontSize='large' />, route: '/edit_account' },
+    { title: 'ویرایش کاربر', icon: <ManageAccounts fontSize='large' />, route: '/account/edit' },
     { title: 'گروه ها', icon: <Group fontSize='large' />, route: '/matron/groups' },
-    { title: 'پیام ها', icon: <QuestionAnswer fontSize='large' />, route: '/messages' },
+    { title: 'گفت و گو ها', icon: <QuestionAnswer fontSize='large' />, route: '/messages/conversations' },
     { title: 'نظرسنجی برنامه', icon: <Poll fontSize='large' />, route: '/poll' },
     { title: 'تنظیمات برنامه', icon: <Settings fontSize='large' />, route: '/settings' }
 ]

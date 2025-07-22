@@ -20,6 +20,8 @@ export const useGroupDetails = (groupId) => {
             const { data } = await api.get(`/groups/${groupId}`)
             return data
         },
+        retry: 0,
+        staleTime: 0,
         enabled: !!groupId
     })
 }
