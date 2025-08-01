@@ -1,14 +1,13 @@
 import { useState, useEffect } from 'react'
-import {
-    Paper, InputBase, IconButton, Grid, Button, Typography, Box
-} from "@mui/material";
-import { QuestionAnswer, Send, ContactPhone, PersonRemove, PersonOff } from '@mui/icons-material';
+import { IconButton, Grid, Button, Typography, Box } from "@mui/material";
+import { QuestionAnswer, ContactPhone, PersonRemove, PersonOff } from '@mui/icons-material';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { useNewMessage, useUserContacts } from '../../api/message.api';
 import MainLayout from '../../mui/MainLayout';
 import AppHeader from '../../components/AppHeader';
 import ContactsList from '../../components/ContactsList';
+import MessageInput from '../../components/MessageInput';
 
 
 export default function CreateConversation() {
@@ -77,7 +76,10 @@ export default function CreateConversation() {
                     </Button>
 
                     {contacts && 
-                        <ContactsList open={open} setOpen={setOpen} handleSelect={handleSelect} contacts={contacts} />
+                        <ContactsList 
+                            open={open} setOpen={setOpen} 
+                            handleSelect={handleSelect} contacts={contacts} 
+                        />
                     }
 
                     {selectedContact
@@ -109,33 +111,11 @@ export default function CreateConversation() {
                     flexDirection="column"
                     size={{ xs: 12, lg: 8 }}
                 >
-                    <Paper
-                        elevation={3}
-                        sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            p: 1,
-                            borderRadius: 3,
-                            bgcolor: "#f9f9f9",
-                        }}
-                    >
-                        <IconButton color="primary" 
-                            disabled={text && !isPending ? false : true}
-                            onClick={handleSendMsg}
-                        >
-                            <Send />
-                        </IconButton>
-
-                        <InputBase
-                            disabled={selectedContact ? false : true}
-                            placeholder="پیام خود را بنویسید ..."
-                            value={text}
-                            onChange={(e) => setText(e.target.value)}
-                            multiline
-                            fullWidth
-                            sx={{ px: 1, py: 2 }}
-                        />
-                    </Paper>
+                    <MessageInput 
+                        handleSend={handleSendMsg}
+                        isPending={isPending}
+                        text={text} setText={setText}
+                    />
                 </Grid>
             </Grid>
         </MainLayout>

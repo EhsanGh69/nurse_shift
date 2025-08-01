@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Button, TextField, Typography, MenuItem, Grid } from '@mui/material';
 import { Formik, Form } from 'formik';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 import { matronRegisterSchema } from '../../validations/authValidation'
 import MainLayout from '../../mui/MainLayout';
@@ -10,12 +11,14 @@ import SnackAlert from '../../components/SnackAlert';
 import { useRegister } from '../../api/auth.api';
 import handleApiErrors from '../../utils/apiErrors';
 import BackButton from '../../components/BackButton';
+import { textFieldStyle } from '../../styles/globalStyles';
 
 
 export default function MatronRegister() {
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
     const { mutateAsync, isPending } = useRegister()
     const navigate = useNavigate()
+    const preferDark = useMediaQuery('(prefers-color-scheme: dark)')
 
     const handleSubmit = async (values, { setSubmitting, resetForm }) => {
         try {
@@ -34,7 +37,9 @@ export default function MatronRegister() {
     return (
         <MainLayout title="ثبت نام">
             <Grid size={{ xs: 12, sm: 8, md: 6, xl: 5 }}>
-                <Typography variant='h4' align='center' gutterBottom>
+                <Typography variant='h4' align='center' gutterBottom
+                    sx={{ color: preferDark ? '#f5f5f5' : '#1e1e1e' }}
+                >
                     ثبت نام سرپرستار
                 </Typography>
 
@@ -62,7 +67,7 @@ export default function MatronRegister() {
                                     onBlur={handleBlur}
                                     error={touched[field.name] && Boolean(errors[field.name])}
                                     helperText={touched[field.name] && errors[field.name]}
-                                    sx={{ mb: 2 }}
+                                    sx={{ mb: 2, ...textFieldStyle(preferDark) }}
                                 />
                             ))}
 
@@ -76,7 +81,7 @@ export default function MatronRegister() {
                                 onBlur={handleBlur}
                                 error={touched.province && Boolean(errors.province)}
                                 helperText={touched.province && errors.province}
-                                sx={{ mb: 2 }}
+                                sx={{ mb: 2,...textFieldStyle(preferDark) }}
                             >
                                 <MenuItem value="markazi">
                                     مرکزی
@@ -92,7 +97,7 @@ export default function MatronRegister() {
                                 onBlur={handleBlur}
                                 error={touched.county && Boolean(errors.county)}
                                 helperText={touched.county && errors.county}
-                                sx={{ mb: 2 }}
+                                sx={{ mb: 2,...textFieldStyle(preferDark) }}
                             >
                                 <MenuItem value="arak">
                                     اراک
@@ -107,7 +112,7 @@ export default function MatronRegister() {
                                 onBlur={handleBlur}
                                 error={touched.hospital && Boolean(errors.hospital)}
                                 helperText={touched.hospital && errors.hospital}
-                                sx={{ mb: 2 }}
+                                sx={{ mb: 2, ...textFieldStyle(preferDark) }}
                             />
                             <TextField
                                 fullWidth
@@ -118,7 +123,7 @@ export default function MatronRegister() {
                                 onBlur={handleBlur}
                                 error={touched.department && Boolean(errors.department)}
                                 helperText={touched.department && errors.department}
-                                sx={{ mb: 2 }}
+                                sx={{ mb: 2,...textFieldStyle(preferDark) }}
                             />
 
                             <Button

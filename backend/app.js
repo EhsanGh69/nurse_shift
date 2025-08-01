@@ -10,6 +10,8 @@ const authRouter = require("./auth/auth.router");
 const accountRouter = require("./account/account.router");
 const groupRouter = require("./group/group.router");
 const messageRouter = require("./message/message.router");
+const settingRouter = require("./setting/setting.router");
+const pollRouter = require("./poll/poll.router");
 
 
 const app = express();
@@ -25,6 +27,8 @@ app.use('/auth', authRouter)
 app.use('/account', accountRouter)
 app.use('/groups', groupRouter)
 app.use('/messages', messageRouter)
+app.use('/settings', settingRouter)
+app.use('/polls', pollRouter)
 
 
 // 404 handler

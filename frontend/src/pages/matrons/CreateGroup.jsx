@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Grid, Button, TextField, Typography, MenuItem } from '@mui/material';
+import { useTheme } from '@mui/material/styles'
 import { Formik, Form } from 'formik';
 import { useNavigate } from 'react-router-dom';
 
@@ -16,6 +17,8 @@ export default function CreateGroup() {
     const navigate = useNavigate()
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
     const { isPending, mutateAsync } = useCreateGroup()
+    const theme = useTheme()
+    const isDark = theme.palette.mode === 'dark'
 
     const handleSubmit = async (values, { setSubmitting, resetForm }) => {
         try {
@@ -35,8 +38,10 @@ export default function CreateGroup() {
         <MainLayout title="سرپرستار | افزودن گروه جدید">
             <AppHeader />
             <Grid size={{ xs: 12, md: 8, lg: 6 }}>
-
-                <Typography variant='h5' align='center' gutterBottom mb={5}>
+                <Typography 
+                    variant='h5' align='center' gutterBottom mb={5}
+                    color={isDark ? '#f5f5f5' : '#1e1e1e'}
+                >
                     افزودن گروه جدید
                 </Typography>
 

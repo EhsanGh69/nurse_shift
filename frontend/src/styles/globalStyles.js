@@ -13,7 +13,7 @@ export const centerBox = {
 }
 
 export const clickBox = {
-    backgroundColor: 'secondary.light',
+    backgroundColor: 'secondary.main',
     borderRadius: 5,
     textDecoration: 'none',
     color: 'inherit',
@@ -28,7 +28,6 @@ export const clickBox = {
 }
 
 export const headerButton = {
-    backgroundColor: '#f0f0f0',
     borderRadius: '50%',
     height: '50px',
     minWidth: '50px',
@@ -42,5 +41,23 @@ export const membersAccordionBox = {
     scrollbarWidth: 'none',
     '&::-webkit-scrollbar': {
         display: 'none',
+    }
+}
+
+export const textFieldStyle = (isDark) => {
+    return {
+        "& .MuiInputBase-root": {
+          backgroundColor: isDark ? "#2a2a2a" : "#ffffff",
+          color: isDark ? "#e0e0e0" : "#000000",
+        },
+        "& .MuiOutlinedInput-notchedOutline": {
+          borderColor: isDark ? "#555" : "#ccc",
+        },
+        "&:hover .MuiOutlinedInput-notchedOutline": {
+          borderColor: isDark ? "#888" : "#888",
+        },
+        "& .MuiInputLabel-root": {
+          color: isDark ? "#aaa" : "#666",
+        }
     }
 }

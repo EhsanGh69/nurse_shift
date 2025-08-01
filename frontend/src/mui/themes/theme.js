@@ -9,11 +9,17 @@ export const cacheRtl = createCache({
     stylisPlugins: [prefixer, rtlPlugin]
 });
 
-const theme = createTheme({
-    direction: 'rtl',
-    typography: {
-        fontFamily: 'Vazir, Arial'
-    }
-}, faIR);
+const generateTheme = ({ fontFamily, fontSize, themeMode }) => {
+    return createTheme({
+        direction: 'rtl',
+        palette: {
+            mode: themeMode
+        },
+        typography: {
+            fontFamily,
+            fontSize
+        }
+    }, faIR)
+};
 
-export default theme;
+export default generateTheme;

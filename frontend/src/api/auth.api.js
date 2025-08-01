@@ -7,6 +7,7 @@ export const useLogin = () => {
     return useMutation({
         mutationFn: async (formData) => {
             const { data } = await axios.post('/auth/login', formData)
+            localStorage.setItem("refreshToken", data.refreshToken)
             return data
         }
     })
@@ -16,7 +17,10 @@ export const useLogout = () => {
     const queryClient = useQueryClient()
 
     return useMutation({
-        mutationFn: async () => await api.post('/auth/logout'),
+        mutationFn: async () => {
+            await api.post('/auth/logout')
+            localStorage.removeItem("refreshToken")
+        },
         onSuccess: () => queryClient.removeQueries({ queryKey: ['currentUser'] })
     })
 }
@@ -36,6 +40,7 @@ export const useCurrentUser = () => {
             const { data } = await api.get('/auth/me')
             return data
         },
-        retry: 1
+        retry: 1,
+        enabled: !!localStorage.getItem("refreshToken")
     })
 }

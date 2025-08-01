@@ -10,6 +10,30 @@
     font-display: swap;
 }
 
+@font-face {
+    font-family: 'Tanha';
+    src: url('/fonts/Tanha.eot');
+    src: url('/fonts/Tanha.eot?#iefix') format('embedded-opentype'),
+        url('/fonts/Tanha.woff2') format('woff2'),
+        url('/fonts/Tanha.woff') format('woff'),
+        url('/fonts/Tanha.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Parastoo';
+    src: url('/fonts/Parastoo.eot');
+    src: url('/fonts/Parastoo.eot?#iefix') format('embedded-opentype'),
+        url('/fonts/Parastoo.woff2') format('woff2'),
+        url('/fonts/Parastoo.woff') format('woff'),
+        url('/fonts/Parastoo.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
 *{
     padding: 0;
     margin: 0;

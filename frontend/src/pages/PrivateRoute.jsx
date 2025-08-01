@@ -19,9 +19,9 @@ export default function PrivateRoute() {
         if (!isLoading && !data && isError) {
             const status = error?.response?.status
             if (status === 401 || status === 403)
-                navigate('/login', { 
-                    state: { errorMessage: handleApiErrors(error), from: location }, 
-                    replace: true 
+                navigate('/login', {
+                    state: { errorMessage: handleApiErrors(error), from: location },
+                    replace: true
                 })
             else if (!error.response || status === 500)
                 navigate('/', { state: { errorMessage: handleApiErrors(error) }, replace: true })

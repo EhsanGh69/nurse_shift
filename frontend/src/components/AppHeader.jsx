@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react'
 import { Avatar, Box, Typography, Grid, Button, Menu, MenuItem } from '@mui/material';
-import { Sunny, LockReset, Logout, Home } from '@mui/icons-material';
+import { useTheme } from '@mui/material/styles'
+import { Sunny, LockReset, Logout, Home, Bedtime } from '@mui/icons-material';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 import SnackAlert from './SnackAlert';
 import { headerButton } from "../styles/globalStyles";
 import { useLogout } from '../api/auth.api';
+import { useChangeTheme } from '../api/setting.api';
 import handleApiErrors from '../utils/apiErrors';
 import { useGlobalData } from "../context/GlobalContext";
 
@@ -18,8 +20,11 @@ export default function AppHeader() {
     const navigate = useNavigate()
     const { pathname } = useLocation()
     const { mutateAsync } = useLogout()
+    const { mutateAsync: changeTheme } = useChangeTheme()
     const { getData } = useGlobalData()
     const data = getData("userData")
+    const theme = useTheme()
+    const isDark = theme.palette.mode === 'dark'
 
     const handleOpen = (event) => setAnchorEl(event.currentTarget)
     const handleClose = () => setAnchorEl(null)
@@ -33,6 +38,10 @@ export default function AppHeader() {
             const msg = handleApiErrors(err)
             setSnackbar({ open: true, message: msg, severity: 'error' })
         }
+    }
+
+    const handleChangeTheme = async () => {
+        try { await changeTheme() } catch (error) {}
     }
 
     useEffect(() => {
@@ -54,17 +63,29 @@ export default function AppHeader() {
                                 width: 'fit-content'
                             }}
                         >
-                            <Button onClick={handleOpen} size='small'>
+                            <Button 
+                                onClick={handleOpen} 
+                                size='small'
+                                sx={{
+                                    backgroundColor: isDark ? '#5a5858ff' : '#ffffff'
+                                }}
+                            >
                                 <Avatar
                                     alt={userData.firstName}
                                     src={userData.avatar && `http://127.0.0.1:4000${userData.avatar}`}
-                                    sx={{ width: 50, height: 50, mr: 1 }}
+                                    sx={{ 
+                                        width: 50, height: 50, mr: 1,
+                                        backgroundColor: isDark ? '#9e9b9bff' : null
+                                    }}
                                 />
                                 <Box display="flex" flexDirection="column" alignItems="start">
-                                    <Typography variant='h6' sx={{ color: '#000' }}>
+                                    <Typography variant='h6' sx={{ color: isDark ? '#ffffff' : '#1e1e1e' }}>
                                         {`${userData.firstName} ${userData.lastName}`}
                                     </Typography>
-                                    <Typography variant='subtitle2' sx={{ color: 'info.main' }}>
+                                    <Typography 
+                                    variant='subtitle1' 
+                                    fontWeight={800}
+                                    sx={{ color: isDark ? '#9cb5ebff' : '#7366e9ff' }}>
                                         {userData.role === 'NURSE' ? 'پرستار' : 'سرپرستار'}
                                     </Typography>
                                 </Box>
@@ -94,15 +115,30 @@ export default function AppHeader() {
                     <Grid size={{ xs: 6 }} display="flex" justifyContent="end" alignItems="center">
                         {(pathname !== '/nurse' && pathname !== '/matron') && (
                             <Button
-                                sx={headerButton}
+                                sx={{
+                                    ...headerButton,
+                                    backgroundColor: isDark ? '#f0f0f0' : '#1c4a2eff',
+                                }}
                                 LinkComponent={Link}
                                 to={userData.role === 'NURSE' ? '/nurse' : '/matron'}
                             >
-                                <Home sx={{ fontSize: 30 }} color='success' />
+                                <Home sx={{ 
+                                        fontSize: 30,
+                                        color: isDark ? '#1c4a2eff' : '#f0f0f0'
+                                    }} 
+                                />
                             </Button>
                         )}
-                        <Button sx={{ ...headerButton, ml: 1 }}>
-                            <Sunny sx={{ fontSize: 30 }} color='warning' />
+                        <Button sx={{ 
+                                ...headerButton, ml: 1,
+                                backgroundColor: isDark ? '#f0f0f0' : 'info.main',
+                            }}
+                            onClick={handleChangeTheme}
+                        >
+                            {isDark 
+                                ? <Sunny sx={{ fontSize: 30 }} color='warning' />
+                                : <Bedtime sx={{ fontSize: 30, color: "#ddd" }} />
+                            }
                         </Button>
                     </Grid>
                     <SnackAlert snackbar={snackbar} setSnackbar={setSnackbar} />

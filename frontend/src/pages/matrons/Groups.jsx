@@ -27,7 +27,6 @@ export default function Groups() {
 				<Backdrop open={loading} sx={{ zIndex: (them) => them.zIndex.drawer + 1 }}>
 					<CircularProgress color="inherit" />
 				</Backdrop>
-
 				<Button
 					color="success"
 					variant="contained"

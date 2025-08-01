@@ -112,7 +112,7 @@ exports.login = async (req, res) => {
         $set: { refreshToken, lastLogin: Date.now() }
     })
 
-    return res.json({ role: user.role })
+    return res.json({ role: user.role, refreshToken })
 }
 
 exports.logout = async (req, res) => {

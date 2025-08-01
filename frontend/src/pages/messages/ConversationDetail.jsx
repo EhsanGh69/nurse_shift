@@ -17,6 +17,7 @@ export default function ConversationDetail() {
     const { mobile } = useParams()
     const navigate = useNavigate()
     const bottomRef = useRef()
+    const boxRef = useRef()
 
     useEffect(() => {
         if (data) {
@@ -31,6 +32,7 @@ export default function ConversationDetail() {
 
     useEffect(() => {
         if(conversation)
+            // boxRef.current.scrollTop = boxRef.current.scrollHeight;
             bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [conversation])
 
@@ -72,6 +74,7 @@ export default function ConversationDetail() {
                                 }}
                             >
                                 <Box
+                                    ref={boxRef}
                                     sx={{
                                         maxHeight: 500,
                                         overflowY: 'auto',

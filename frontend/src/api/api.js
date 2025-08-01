@@ -30,12 +30,13 @@ api.interceptors.response.use(
     async (error) => {
         const originalRequest = error.config
         const isRefreshRoute = originalRequest.url.includes('/auth/refresh_token')
-        const isLoginRoute = originalRequest.url.includes('/auth/login')
 
-        if(error.response?.status === 401 && !isRefreshRoute && !originalRequest._retry){
+        if (error.response?.status === 401 && !isRefreshRoute && !originalRequest._retry) {
             originalRequest._retry = true
 
-            if(!isRefreshing){
+            const refreshToken = localStorage.getItem("refreshToken");
+
+            if (!isRefreshing && refreshToken) {
                 isRefreshing = true
                 try {
                     const { data } = await api.post("/auth/refresh_token", {})
@@ -43,8 +44,9 @@ api.interceptors.response.use(
                     onRefreshed(data.accessToken)
                     return api(originalRequest)
                 } catch (error) {
+                    localStorage.removeItem("refreshToken")
                     return Promise.reject(error);
-                }finally{
+                } finally {
                     isRefreshing = false
                 }
             }
@@ -56,7 +58,7 @@ api.interceptors.response.use(
                 })
             })
         }
-        
+
         return Promise.reject(error)
     }
 )

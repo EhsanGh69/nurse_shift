@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Button, TextField, Typography, Grid } from '@mui/material';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import { Formik, Form } from 'formik';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query'
@@ -10,6 +11,7 @@ import SnackAlert from '../../components/SnackAlert';
 import { useLogin } from '../../api/auth.api';
 import handleApiErrors from '../../utils/apiErrors';
 import BackButton from '../../components/BackButton';
+import { textFieldStyle } from '../../styles/globalStyles';
 
 
 export default function Login() {
@@ -17,6 +19,7 @@ export default function Login() {
     const { mutateAsync, isPending } = useLogin()
     const navigate = useNavigate()
     const queryClient = useQueryClient()
+    const preferDark = useMediaQuery('(prefers-color-scheme: dark)')
 
     const handleSubmit = async (values, { setSubmitting, resetForm }) => {
         try {
@@ -41,7 +44,10 @@ export default function Login() {
             <Grid height="100vh" display="flex" flexDirection="column" justifyContent="center"
                 size={{ xs: 12, sm: 8, md: 6, xl: 5 }}
             >
-                <Typography variant='h4' align='center' gutterBottom>
+                <Typography
+                    variant='h4' align='center' gutterBottom
+                    sx={{ color: preferDark ? '#f5f5f5' : '#1e1e1e' }}
+                >
                     ورود اعضاء
                 </Typography>
 
@@ -56,6 +62,7 @@ export default function Login() {
                         <Form>
                             <TextField
                                 fullWidth
+                                variant='outlined'
                                 label="کد ملی"
                                 name='nationalCode'
                                 value={values.nationalCode}
@@ -63,7 +70,7 @@ export default function Login() {
                                 onBlur={handleBlur}
                                 error={touched.nationalCode && Boolean(errors.nationalCode)}
                                 helperText={touched.nationalCode && errors.nationalCode}
-                                sx={{ mb: 2 }}
+                                sx={{ mb: 2, ...textFieldStyle(preferDark) }}
                             />
                             <TextField
                                 fullWidth
@@ -75,7 +82,7 @@ export default function Login() {
                                 onBlur={handleBlur}
                                 error={touched.password && Boolean(errors.password)}
                                 helperText={touched.password && errors.password}
-                                sx={{ mb: 2 }}
+                                sx={{ mb: 2, ...textFieldStyle(preferDark) }}
                             />
                             <Button
                                 fullWidth

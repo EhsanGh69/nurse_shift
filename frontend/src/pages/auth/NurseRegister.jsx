@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button, TextField, Typography, Grid } from '@mui/material';
 import { Formik, Form } from 'formik';
 import { useNavigate } from 'react-router-dom';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 import { nurseRegisterSchema } from '../../validations/authValidation'
 import MainLayout from '../../mui/MainLayout';
@@ -10,12 +11,14 @@ import SnackAlert from '../../components/SnackAlert';
 import { useRegister } from '../../api/auth.api';
 import handleApiErrors from '../../utils/apiErrors';
 import BackButton from '../../components/BackButton';
+import { textFieldStyle } from '../../styles/globalStyles';
 
 
 export default function NurseRegister() {
     const navigate = useNavigate()
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
     const { mutateAsync, isPending } = useRegister()
+    const preferDark = useMediaQuery('(prefers-color-scheme: dark)')
 
     const handleSubmit = async (values, { setSubmitting, resetForm }) => {
         try {
@@ -36,7 +39,9 @@ export default function NurseRegister() {
             <Grid height="100vh" display="flex" flexDirection="column" justifyContent="center"
                 size={{ xs: 12, sm: 8, md: 6, xl: 5 }}
             >
-                <Typography variant='h4' align='center' gutterBottom>
+                <Typography variant='h4' align='center' gutterBottom
+                    sx={{ color: preferDark ? '#f5f5f5' : '#1e1e1e' }}
+                >
                     ثبت نام پرستار
                 </Typography>
 
@@ -59,7 +64,7 @@ export default function NurseRegister() {
                                     onBlur={handleBlur}
                                     error={touched[field.name] && Boolean(errors[field.name])}
                                     helperText={touched[field.name] && errors[field.name]}
-                                    sx={{ mb: 2 }}
+                                    sx={{ mb: 2, ...textFieldStyle(preferDark) }}
                                 />
                             ))}
 

@@ -74,7 +74,7 @@ export default function GroupMembersList({ group }) {
                         <Accordion
                             sx={{
                                 width: '100%',
-                                mt: 2, bgcolor: "secondary.light",
+                                mt: 2, bgcolor: "secondary.main",
                                 borderRadius: 1
                             }}
                             defaultExpanded
@@ -127,7 +127,7 @@ export default function GroupMembersList({ group }) {
                         </Grid>
                         <Grid
                             size={{ md: 6 }} textAlign="center" mt={2}
-                            bgcolor="secondary.light" p={2} borderRadius={1}
+                            bgcolor="secondary.main" p={2} borderRadius={1}
                         >
                             <Box display="flex" alignItems="center">
                                 <PeopleAlt sx={{ color: "whitesmoke" }} />
