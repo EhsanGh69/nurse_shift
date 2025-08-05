@@ -7,7 +7,7 @@ const userModel = require('../user/user.model');
 
 exports.getGroups = async (req, res) => {
     const user = req.user;
-    const groups = await groupModel.find({ matron: user._id })
+    const groups = await groupModel.find({ $or: [{ members: { $all: [user._id] } }, { matron: user._id }] })
     .select("-matron -createdAt -updatedAt").lean()
     res.json(groups)
 }

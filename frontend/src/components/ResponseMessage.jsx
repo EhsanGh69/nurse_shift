@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { escape } from 'he'
 
 import { useResponseMessage } from '../api/message.api';
 import MessageInput from './MessageInput';
@@ -10,7 +11,7 @@ export default function ResponseMessage({ contactId }) {
     const handleSendMsg = async () => {
         try {
             if (text)
-                await mutateAsync({ content: text.trimEnd() })
+                await mutateAsync({ content: escape(text.trimEnd()) })
         } 
         catch (error) {}
         finally{ setText("") }

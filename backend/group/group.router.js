@@ -16,11 +16,11 @@ router.post('/invite',
 )
 router.get('/',
     verifyToken,
-    permission(['ADMIN', 'MATRON']),
     groupController.getGroups
 )
 router.get('/:id',
     verifyToken,
+    permission(['ADMIN', 'MATRON']),
     groupController.groupDetails
 )
 router.get('/invitees/:id',

@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Grid, Button, Paper, TextareaAutosize, Typography, TextField } from '@mui/material';
+import { Grid, Button, Paper, Typography, TextField } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import SendIcon from "@mui/icons-material/Send";
 import { useNavigate } from 'react-router-dom';
+import { escape } from 'he'
 
 import MainLayout from '../mui/MainLayout';
 import AppHeader from '../components/AppHeader';
@@ -27,7 +28,7 @@ export default function SendPoll() {
     const handleSendPoll = async () => {
         try {
             if (text) {
-                await mutateAsync({ opinion: text.trimEnd() })
+                await mutateAsync({ opinion: escape(text.trimEnd()) })
                 setSnackbar({ open: true, message: 'نظر شما با موفقیت ارسال شد', severity: 'success' })
                 if (user?.role === 'MATRON' || user?.role === 'ADMIN')
                     setTimeout(() => navigate('/matron'), 500)
