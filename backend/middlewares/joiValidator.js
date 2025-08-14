@@ -9,7 +9,8 @@ const validate = (schema) => {
                 err.details.forEach((error) => {
                     errObject[error.context.key] = error.message.replace(/"/g, "");
                 })
-                return res.status(422).json(errObject);
+                // console.log(errObject)
+                return res.status(422).json({ message: "درخواست نامعتبر بود", validationErrors: errObject });
             }else {
                 return res.status(500).json({ error: err.message })
             }

@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { Box, Grid, Typography } from '@mui/material'
 import { Restore, CheckCircle } from '@mui/icons-material'
 
-import { useSeenMessages } from "../api/message.api"
+import { useSeenMessages } from "../../api/message.api"
 
 
 export default function SingleMessage({ conversation }) {

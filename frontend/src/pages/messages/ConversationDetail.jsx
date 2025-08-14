@@ -6,8 +6,8 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import MainLayout from '../../mui/MainLayout';
 import AppHeader from '../../components/AppHeader';
 import { useUserMessages } from '../../api/message.api';
-import ResponseMessage from "../../components/ResponseMessage";
-import SingleMessage from "../../components/SingleMessage";
+import ResponseMessage from "../../components/message/ResponseMessage";
+import SingleMessage from "../../components/message/SingleMessage";
 
 
 export default function ConversationDetail() {

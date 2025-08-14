@@ -2,7 +2,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 
 import api from './api';
 
-export const useMatronGroups = () => {
+export const useUserGroups = () => {
     return useQuery({
         queryKey: ['matronGroups'],
         queryFn: async () => {

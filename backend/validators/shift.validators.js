@@ -19,9 +19,10 @@ const shiftDaysKeys = [
 const personSettingKeys = ["M", "E", "N", "MH", "EH", "NH"]
 const hourSettingKeys = ["NPM", "NPE", "NPN", "PM", "PE", "PN", "PMH", "PEH", "PNH"]
 
-const shiftDaysValidator = (value, helpers) => {
+
+const keysValidator = (value, validKeys, helpers) => {
     const keys = Object.keys(value)
-    const invalidKeys = keys.filter(key => !shiftDaysKeys.includes(key))
+    const invalidKeys = keys.filter(key => !validKeys.includes(key))
     if (invalidKeys.length) {
         return helpers.error("any.invalid", { message: `invalid keys: ${invalidKeys.join(", ")}` })
     }
@@ -36,8 +37,10 @@ exports.createShiftSchema = Joi.object({
                 key, Joi.array().items(Joi.number().integer().min(1).max(31).required())
             ])
         )
-    ).required().custom((value, helpers) => shiftDaysValidator(value, helpers)),
-    description: Joi.string().allow("")
+    ).required().custom((value, helpers) => keysValidator(value, shiftDaysKeys, helpers)),
+    month: Joi.string().required(),
+    year: Joi.string().required(),
+    description: Joi.string().optional()
 })
 
 exports.updateShiftSchema = Joi.object({
@@ -48,8 +51,8 @@ exports.updateShiftSchema = Joi.object({
                 key, Joi.array().items(Joi.number().integer().min(1).max(31).required())
             ])
         )
-    ).required().custom((value, helpers) => shiftDaysValidator(value, helpers)),
-    description: Joi.string().allow("")
+    ).required().custom((value, helpers) => keysValidator(value, shiftDaysKeys, helpers)),
+    description: Joi.string().optional()
 })
 
 exports.rejectShiftDaySchema = Joi.object({
@@ -63,12 +66,12 @@ exports.shiftSettingSchema = Joi.object({
         Object.fromEntries(
             personSettingKeys.map(key => [ key, Joi.number().integer().required() ])
         )
-    ).required().custom((value, helpers) => shiftDaysValidator(value, helpers)),
+    ).required().custom((value, helpers) => keysValidator(value, personSettingKeys, helpers)),
     hourCount: Joi.object().keys(
         Object.fromEntries(
             hourSettingKeys.map(key => [ key, Joi.number().integer().required() ])
         )
-    ).required().custom((value, helpers) => shiftDaysValidator(value, helpers)),
+    ).required().custom((value, helpers) => keysValidator(value, hourSettingKeys, helpers)),
     dayLimit: Joi.number().integer().max(31).required()
 })
 

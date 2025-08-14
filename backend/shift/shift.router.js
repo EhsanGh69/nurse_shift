@@ -10,13 +10,20 @@ const {
 
 const router = Router()
 
-router.post('/',
+//* Shift
+router.post('/save',
+    verifyToken,
+    validate(createShiftSchema),
+    shiftController.saveShift
+)
+router.post('/create',
     verifyToken,
     validate(createShiftSchema),
     shiftController.createShift
 )
-router.put('/:id',
+router.put('/update/:id',
     verifyToken,
+    permission(['ADMIN', 'MATRON']),
     validate(updateShiftSchema),
     shiftController.updateShift
 )
@@ -29,17 +36,31 @@ router.get('/user',
     verifyToken,
     shiftController.getUserShifts
 )
-router.get('/group/:groupId',
-    verifyToken,
-    permission(['ADMIN', 'MATRON']),
-    shiftController.getGroupShifts
-)
 router.put('/reject/:id',
     verifyToken,
     permission(['ADMIN', 'MATRON']),
     validate(rejectShiftDaySchema),
     shiftController.rejectShiftDay
 )
+
+//* Table
+router.get('/table/:groupId',
+    verifyToken,
+    permission(['ADMIN', 'MATRON']),
+    shiftController.getAllShiftsTables
+)
+router.get('/table/:groupId/:month/:year',
+    verifyToken,
+    permission(['ADMIN', 'MATRON']),
+    shiftController.getShiftsTable
+)
+router.put('/table/:groupId/:month/:year',
+    verifyToken,
+    permission(['ADMIN', 'MATRON']),
+    shiftController.updateShiftsTable
+)
+
+//* Settings
 router.post('/settings',
     verifyToken,
     permission(['ADMIN', 'MATRON']),
@@ -52,6 +73,8 @@ router.put('/settings/:id',
     validate(shiftSettingSchema),
     shiftController.updateShiftSettings
 )
+
+//* Infos
 router.post('/info',
     verifyToken,
     permission(['ADMIN', 'MATRON']),

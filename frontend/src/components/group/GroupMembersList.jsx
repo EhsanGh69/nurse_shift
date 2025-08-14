@@ -6,8 +6,8 @@ import {
 import { ExpandMore, PersonOff, PeopleAlt, GroupAdd } from '@mui/icons-material';
 
 import GroupMember from './GroupMember';
-import { membersAccordionBox } from '../styles/globalStyles';
-import { useGroupInvitees } from '../api/group.api';
+import { membersAccordionBox } from '../../styles/globalStyles';
+import { useGroupInvitees } from '../../api/group.api';
 
 function NotMember({ text }) {
     return (

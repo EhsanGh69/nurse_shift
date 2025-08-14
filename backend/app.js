@@ -13,6 +13,7 @@ const messageRouter = require("./message/message.router");
 const settingRouter = require("./setting/setting.router");
 const pollRouter = require("./poll/poll.router");
 const shiftRouter = require("./shift/shift.router");
+const jsonRouter = require("./json/json.router");
 
 
 const app = express();
@@ -31,6 +32,7 @@ app.use('/messages', messageRouter)
 app.use('/settings', settingRouter)
 app.use('/polls', pollRouter)
 app.use('/shifts', shiftRouter)
+app.use('/json', jsonRouter)
 
 
 // 404 handler

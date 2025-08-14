@@ -6,13 +6,13 @@ import { GroupAdd } from '@mui/icons-material';
 import { clickBox } from '../../styles/globalStyles';
 import MainLayout from '../../mui/MainLayout';
 import AppHeader from '../../components/AppHeader';
-import { useMatronGroups } from '../../api/group.api';
-import GroupBox from "../../components/GroupBox";
+import { useUserGroups } from '../../api/group.api';
+import GroupBox from "../../components/group/GroupBox";
 
 export default function Groups() {
 	const [groups, setGroups] = useState([])
 	const [loading, setLoading] = useState(false)
-	const { isLoading, data } = useMatronGroups()
+	const { isLoading, data } = useUserGroups()
 
 	useEffect(() => {
 		if(!isLoading && data)

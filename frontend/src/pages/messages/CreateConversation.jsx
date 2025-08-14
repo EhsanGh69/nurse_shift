@@ -6,8 +6,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useNewMessage, useUserContacts } from '../../api/message.api';
 import MainLayout from '../../mui/MainLayout';
 import AppHeader from '../../components/AppHeader';
-import ContactsList from '../../components/ContactsList';
-import MessageInput from '../../components/MessageInput';
+import ContactsList from '../../components/message/ContactsList';
+import MessageInput from '../../components/message/MessageInput';
 
 
 export default function CreateConversation() {

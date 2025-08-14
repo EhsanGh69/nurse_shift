@@ -4,6 +4,7 @@ const userModel = require('../user/user.model');
 const groupModel = require('../group/group.model');
 const blockUserModel = require("../user/blockUser.model");
 const inviteCodeModel = require("../group/inviteCode.model");
+const settingModel = require("../setting/setting.model");
 const { generateAccessToken, generateRefreshToken } = require('../utils/token');
 
 
@@ -33,6 +34,8 @@ exports.nurseRegister = async (req, res) => {
 
     await foundInviteCode.deleteOne()
 
+    await settingModel.create({ user: nurse._id })
+
     res.status(201).json({ message: 'You registered successfully' })
 }
 
@@ -57,6 +60,8 @@ exports.matronRegister = async (req, res) => {
     })
 
     await groupModel.create({ matron: matron._id, province, county, hospital, department })
+
+    await settingModel.create({ user: matron._id })
 
     res.status(201).json({ message: 'You registered successfully' })
 }

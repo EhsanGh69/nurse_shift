@@ -34,6 +34,10 @@ const shiftSchema = new mongoose.Schema({
     expired: {
         type: Boolean,
         default: false
+    },
+    temporal: {
+        type: Boolean,
+        default: true
     }
 }, { timestamps: true }) 
 

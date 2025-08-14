@@ -8,6 +8,7 @@ import accountRoutes from './pages/account/routes';
 import nurseRoutes from './pages/nurses/routes';
 import matronRoutes from './pages/matrons/routes';
 import messageRoutes from './pages/messages/routes';
+import shiftRoutes from './pages/shifts/routes';
 import PrivateRoute from './pages/PrivateRoute';
 import ChangeSettings from './pages/ChangeSettings';
 import SendPoll from './pages/SendPoll';
@@ -25,7 +26,8 @@ const router = createBrowserRouter([
     ...nurseRoutes,
     ...matronRoutes,
     ...accountRoutes,
-    ...messageRoutes
+    ...messageRoutes,
+    ...shiftRoutes
 ])
 
 export default router;

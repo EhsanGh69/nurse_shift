@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { escape } from 'he'
 
-import { useResponseMessage } from '../api/message.api';
+import { useResponseMessage } from '../../api/message.api';
 import MessageInput from './MessageInput';
 
 export default function ResponseMessage({ contactId }) {

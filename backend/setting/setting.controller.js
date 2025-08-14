@@ -6,8 +6,7 @@ exports.getSettings = async (req, res) => {
     
     let settings = await settingModel.findOne({ user: userId }).select("-__v -_id")
     
-    if(!settings)
-        settings = await settingModel.create({ user: userId })
+    if(!settings) settings = await settingModel.create({ user: userId })
 
     res.json(settings)
 }

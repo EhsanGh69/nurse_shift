@@ -6,8 +6,8 @@ import { PersonAdd, Group } from '@mui/icons-material';
 import MainLayout from '../../mui/MainLayout';
 import AppHeader from '../../components/AppHeader';
 import { useGroupDetails } from '../../api/group.api';
-import GroupBox from '../../components/GroupBox'
-import GroupMembersList from "../../components/GroupMembersList";
+import GroupBox from '../../components/group/GroupBox'
+import GroupMembersList from "../../components/group/GroupMembersList";
 
 
 export default function GroupDetails() {
