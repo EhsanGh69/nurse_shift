@@ -4,7 +4,7 @@ import api from './api';
 
 export const useUserGroups = () => {
     return useQuery({
-        queryKey: ['matronGroups'],
+        queryKey: ['userGroups'],
         queryFn: async () => {
             const { data } = await api.get('/groups')
             return data

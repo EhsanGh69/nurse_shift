@@ -1,11 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useContext } from 'react'
 import { useNavigate, Outlet, useLocation } from 'react-router-dom';
 
 import { useCurrentUser } from '../api/auth.api';
 import handleApiErrors from '../utils/apiErrors';
 import SnackAlert from '../components/SnackAlert';
 import LoadingModal from '../components/LoadingModal';
-import { useGlobalData } from "../context/GlobalContext"
+import { GlobalContext } from "../context/GlobalContext"
 
 export default function PrivateRoute() {
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: '' })
@@ -13,7 +13,7 @@ export default function PrivateRoute() {
     const location = useLocation()
     const navigate = useNavigate()
     const { isLoading, isError, error, data } = useCurrentUser()
-    const { setData } = useGlobalData()
+    const { setData } = useContext(GlobalContext)
 
     useEffect(() => {
         if (!isLoading && !data && isError) {

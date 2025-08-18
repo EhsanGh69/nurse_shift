@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useContext } from 'react';
 import { Grid, Button, TextField } from '@mui/material';
 import { Formik, Form } from 'formik';
 import { useNavigate } from 'react-router-dom';
@@ -9,16 +9,16 @@ import { changePasswordSchema } from '../../validations/accountValidation';
 import SnackAlert from '../../components/SnackAlert';
 import BackButton from '../../components/BackButton';
 import { useChangePassword } from '../../api/account.api';
-import { useCurrentUser } from '../../api/auth.api'
+import { GlobalContext } from '../../context/GlobalContext';
 import handleApiErrors from '../../utils/apiErrors';
 
 
 export default function ChangePassword() {
     const navigate = useNavigate()
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
-    const [user, setUser] = useState(null)
     const { mutateAsync, isPending } = useChangePassword()
-    const { data, isLoading } = useCurrentUser()
+    const { getData } = useContext(GlobalContext)
+    const user = getData("userData")
 
     const handleSubmit = async (values, { setSubmitting, resetForm }) => {
         try {
@@ -36,11 +36,6 @@ export default function ChangePassword() {
             setSubmitting(false)
         }
     }
-
-    useEffect(() => {
-        if (!isLoading && data)
-            setUser(data)
-    }, [data, isLoading])
 
     return (
         <MainLayout title="تغییر رمز عبور">

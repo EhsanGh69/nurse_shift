@@ -1,14 +1,22 @@
+import { useMemo } from "react";
 import { Snackbar, Alert, Typography } from '@mui/material';
 import { Info, Warning, Error, CheckCircle } from '@mui/icons-material';
+import { useTheme } from "@mui/material/styles";
 
-const severityIcons = {
-  info: <Info sx={{ fontSize: 25 }} />,
-  warning: <Warning sx={{ fontSize: 25 }} />,
-  error: <Error sx={{ fontSize: 25 }} />,
-  success: <CheckCircle sx={{ fontSize: 25 }} />,
-}
 
 export default function SnackAlert({ snackbar, setSnackbar }) {
+    const theme = useTheme();
+    const isDark = theme.palette.mode === "dark";
+
+    const color = useMemo(() => isDark ? "#f5f5f5" : "#1e1e1e")
+
+    const severityIcons = useMemo(() => ({
+        info: <Info sx={{ fontSize: 25, color }} />,
+        warning: <Warning sx={{ fontSize: 25, color }} />,
+        error: <Error sx={{ fontSize: 25, color }} />,
+        success: <CheckCircle sx={{ fontSize: 25, color }} />,
+    }))
+
     return (
         <Snackbar
             open={snackbar.open}
@@ -16,15 +24,18 @@ export default function SnackAlert({ snackbar, setSnackbar }) {
             onClose={() => setSnackbar({ ...snackbar, open: false })}
             anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
         >
-            <Alert 
-                severity={snackbar.severity} 
+            <Alert
+                severity={snackbar.severity}
                 icon={severityIcons[snackbar.severity]}
-                sx={{ 
-                    width: '100%', 
-                     alignItems: 'center'
-                }} 
+                sx={{
+                    width: '100%',
+                    alignItems: 'center'
+                }}
                 variant="filled">
-                <Typography mr={1} sx={{ fontSize: 20, fontFamily: 'Vazir' }}>
+                <Typography
+                    mr={1}
+                    sx={{ fontSize: 20, fontFamily: 'Vazir', color }}
+                >
                     {snackbar.message}
                 </Typography>
             </Alert>

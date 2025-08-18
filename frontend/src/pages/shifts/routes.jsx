@@ -1,12 +1,15 @@
 import PrivateRoute from "../PrivateRoute";
-import NurseShift from "./NurseShifts";
+import ShiftsProvider from "./ShiftsProvider";
+import NurseShifts from "./NurseShifts";
 import CreateShift from "./CreateShift";
+import NurseShift from "./NurseShift";
 
 const shiftRoutes = [{
     path: "/shifts", element: <PrivateRoute />, children:
         [
-            { path: "", element: <NurseShift /> },
-            { path: "create", element: <CreateShift /> }
+            { path: "", element: <NurseShifts /> },
+            { path: "create", element: <ShiftsProvider><CreateShift /></ShiftsProvider> },
+            { path: ":shiftId", element: <ShiftsProvider><NurseShift /></ShiftsProvider> },
         ]
 }]
 

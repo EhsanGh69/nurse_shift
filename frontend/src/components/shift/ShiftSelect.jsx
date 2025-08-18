@@ -1,13 +1,20 @@
+import { useContext, useEffect } from "react";
 import { Check, Close, EventAvailable } from "@mui/icons-material";
 import { Box, Collapse, Grid, IconButton, Paper, Typography } from "@mui/material";
 
 import { shiftDays } from "../../constants/shifts";
+import ShiftsContext from "../../context/ShiftsContext";
 
 
-export default function ShiftSelect({ 
-    collapseOpen, setCollapseOpen, shiftYear, shiftMonth, selectedDay, checkHoliday, getSelectedShiftDay,
-    selectedShifts, setSelectedShifts
-}) {
+export default function ShiftSelect() {
+    const { selectedDay, setSelectedDay, collapseOpen, checkHoliday, getSelectedShiftDay,
+      selectedShifts, shiftYear, shiftMonth, setCollapseOpen, setSelectedShifts, topBox, userShift
+    } = useContext(ShiftsContext)
+
+    useEffect(() => {
+      if(userShift)
+        setSelectedShifts({ ...userShift?.currentShiftDays })
+    }, [userShift])
 
     const handleShiftSelect = (shift) => {
         if (!selectedDay) return;
@@ -26,12 +33,21 @@ export default function ShiftSelect({
         setSelectedShifts(updated);
     };
 
+    const handleScrollBox = () => {
+      if(topBox.current)
+        topBox.current.scrollIntoView({ behavior: "smooth", block: "start" })
+    }
+
   return (
-    <Collapse in={collapseOpen} sx={{ mt: 2 }}>
+    <Box ref={topBox}>
+      <Collapse in={collapseOpen} sx={{ mt: 2 }} onEntered={handleScrollBox}>
       <Paper sx={{ p: 2 }}>
         <IconButton
           size="small"
-          onClick={() => setCollapseOpen(false)}
+          onClick={() => {
+            setCollapseOpen(false)
+            setSelectedDay(null)
+          }}
           sx={{ mb: 2 }}
         >
           <Close />
@@ -63,7 +79,9 @@ export default function ShiftSelect({
 
         <Grid container>
           {shiftDays.map((shiftDay) => {
-            const isChecked = getSelectedShiftDay(selectedDay) === shiftDay;
+            const isEqual = userShift?.shiftDays[selectedDay] === getSelectedShiftDay(selectedDay)
+            const checkUserShift = userShift?.shiftDays[selectedDay] === shiftDay
+            const isChecked = !isEqual && getSelectedShiftDay(selectedDay) === shiftDay || isEqual && checkUserShift;
             const isOffOrV = shiftDay === "OFF" || shiftDay === "V";
             const notHolidayInclude =
               !checkHoliday(selectedDay) && shiftDay.includes("H");
@@ -100,6 +118,7 @@ export default function ShiftSelect({
           })}
         </Grid>
       </Paper>
-    </Collapse>
+      </Collapse>
+    </Box>
   );
 }

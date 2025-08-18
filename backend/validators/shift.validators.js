@@ -40,7 +40,7 @@ exports.createShiftSchema = Joi.object({
     ).required().custom((value, helpers) => keysValidator(value, shiftDaysKeys, helpers)),
     month: Joi.string().required(),
     year: Joi.string().required(),
-    description: Joi.string().optional()
+    description: Joi.string().allow("")
 })
 
 exports.updateShiftSchema = Joi.object({
@@ -52,7 +52,7 @@ exports.updateShiftSchema = Joi.object({
             ])
         )
     ).required().custom((value, helpers) => keysValidator(value, shiftDaysKeys, helpers)),
-    description: Joi.string().optional()
+    description: Joi.string().allow("")
 })
 
 exports.rejectShiftDaySchema = Joi.object({

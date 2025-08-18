@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import { Avatar, Box, Typography, Grid, Button, Menu, MenuItem } from '@mui/material';
 import { useTheme } from '@mui/material/styles'
 import { Sunny, LockReset, Logout, Home, Bedtime } from '@mui/icons-material';
@@ -9,20 +9,19 @@ import { headerButton } from "../styles/globalStyles";
 import { useLogout } from '../api/auth.api';
 import { useChangeTheme } from '../api/setting.api';
 import handleApiErrors from '../utils/apiErrors';
-import { useGlobalData } from "../context/GlobalContext";
+import { GlobalContext } from "../context/GlobalContext";
 
 
 export default function AppHeader() {
     const [anchorEl, setAnchorEl] = useState(null)
-    const [userData, setUserData] = useState(null)
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
     const open = Boolean(anchorEl)
     const navigate = useNavigate()
     const { pathname } = useLocation()
     const { mutateAsync } = useLogout()
     const { mutateAsync: changeTheme } = useChangeTheme()
-    const { getData } = useGlobalData()
-    const data = getData("userData")
+    const { getData } = useContext(GlobalContext)
+    const userData = getData("userData")
     const theme = useTheme()
     const isDark = theme.palette.mode === 'dark'
 
@@ -43,11 +42,6 @@ export default function AppHeader() {
     const handleChangeTheme = async () => {
         try { await changeTheme() } catch (error) {}
     }
-
-    useEffect(() => {
-        if(data)
-            setUserData(data)
-    }, [data])
 
     return (
         <>

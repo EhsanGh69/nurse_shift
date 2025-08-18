@@ -1,6 +1,6 @@
-import { useState, useContext, createContext } from "react";
+import { useState, createContext } from "react";
 
-const GlobalContext = createContext();
+export const GlobalContext = createContext({ setData: () => {}, getData: () => {} });
 
 export const GlobalContextProvider = ({children}) => {
     const [dataMap, setDataMap] = useState({})
@@ -17,5 +17,3 @@ export const GlobalContextProvider = ({children}) => {
         </GlobalContext.Provider>
     )
 }
-
-export const useGlobalData = () => useContext(GlobalContext)

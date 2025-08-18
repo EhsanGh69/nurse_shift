@@ -32,5 +32,5 @@ export const nurseRegisterSchema = Yup.object({
 
 export const loginSchema = Yup.object({
     nationalCode: Yup.string().required("لطفا کد ملی خود را وارد نمایید"),
-    password: Yup.string().required("لطفا رمز عبور خود را تعیین نمایید"),
+    password: Yup.string().required("لطفا رمز عبور خود را وارد نمایید"),
 })

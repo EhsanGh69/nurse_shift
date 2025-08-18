@@ -85,7 +85,8 @@ exports.saveShift = async (req, res) => {
   const userId = req.user._id;
   const { groupId, shiftDays, month, year } = req.body;
 
-  const userGroup = await groupModel.findOne({ _id: groupId, $or: [{ members: { $all: [userId] } }, { matron: userId }]});
+  const userGroup = await groupModel.findOne({ _id: groupId, 
+    $or: [{ members: { $all: [userId] } }, { matron: userId }]});
   if (!userGroup)
     return res.status(404).json({ error: "User group not found" });
 
@@ -127,7 +128,7 @@ exports.createShift = async (req, res) => {
   const shiftExist = await shiftModel.findOne({ user: userId, group: groupId, month, year })
 
   if(shiftExist && !shiftExist.temporal)
-    return res.status(409).json({ message: "Shift already created" });
+    return res.status(409).json({ message: "شیفت برای این گروه قبلا ارسال شده است" });
   else if(shiftExist && shiftExist.temporal) {
     await shiftExist.updateOne({ shiftDays, description, temporal: false })
     return res.json({ message: "Your shift created successfully" })
@@ -192,12 +193,53 @@ exports.getShiftReport = async (req, res) => {
 
 exports.getUserShifts = async (req, res) => {
   const userId = req.user._id;
+  const { year, month } = req.query;
 
   const userShifts = await shiftModel
     .find({ user: userId })
     .populate("group", "province county hospital department")
     .lean();
-  res.json(userShifts);
+
+  const shiftMonth = Number(currentMonth) + 1 > 12 ? 1 : Number(currentMonth) + 1
+  const shiftYear = shiftMonth > 12 ? Number(currentYear) + 1 : Number(currentYear)
+
+  const monthCount = userShifts.filter(shift => {
+    return shift.year === String(shiftYear)  && shift.month === String(shiftMonth)
+  }).length
+
+  let filteredShifts = []
+
+  if(year && !month){
+    filteredShifts = userShifts.filter(shift => shift.year === String(year))
+    return res.json({ shifts: filteredShifts, monthCount, totalCount: userShifts.length })
+  }
+
+  if(year && month){
+    filteredShifts = userShifts.filter(shift => shift.month === String(month))
+    return res.json({ shifts: filteredShifts, monthCount, totalCount: userShifts.length })
+  }
+};
+
+exports.getUserShift = async (req, res) => {
+  const userId = req.user._id;
+  const { id } = req.params;
+
+  const formattedShiftDays = {}
+
+  const userShift = await shiftModel
+    .findOne({ _id: id, user: userId })
+    .select("-description -rejects -__v")
+    .populate("group", "province county hospital department")
+    .lean();
+
+  if(!userShift)
+    return res.status(404).json({ error: "User shift not found" })
+
+  for(const key in userShift.shiftDays){
+    userShift.shiftDays[key].forEach(shiftDay => formattedShiftDays[shiftDay] = key)
+  }
+  
+  res.json({ ...userShift, shiftDays: formattedShiftDays, currentShiftDays: userShift.shiftDays });
 };
 
 exports.rejectShiftDay = async (req, res) => {

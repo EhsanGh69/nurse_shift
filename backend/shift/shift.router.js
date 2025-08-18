@@ -36,6 +36,10 @@ router.get('/user',
     verifyToken,
     shiftController.getUserShifts
 )
+router.get('/user/:id',
+    verifyToken,
+    shiftController.getUserShift
+)
 router.put('/reject/:id',
     verifyToken,
     permission(['ADMIN', 'MATRON']),

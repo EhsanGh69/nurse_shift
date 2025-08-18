@@ -28,7 +28,7 @@ export default function MainLayout({ title, children }) {
                         ...centerBox,
 
                     }}
-                    size={{ xs: 12, lg: 8 }}
+                    size={{ xs: 12, lg: 10, xl: 8 }}
                     border="2px solid whitesmoke"
                 >
                     {children}

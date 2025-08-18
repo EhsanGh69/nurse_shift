@@ -1,17 +1,18 @@
 import { Box, Grid, Typography } from '@mui/material';
 import { Link } from 'react-router-dom';
-import { Settings, Group, QuestionAnswer, Poll, ManageAccounts } from '@mui/icons-material';
+import { Settings, Group, QuestionAnswer, Poll, ManageAccounts, CalendarMonth } from '@mui/icons-material';
 
 import { clickBox } from '../../styles/globalStyles';
 import MainLayout from '../../mui/MainLayout';
 import AppHeader from '../../components/AppHeader';
 
 const items = [
-    { title: 'ویرایش کاربر', icon: <ManageAccounts fontSize='large' />, route: '/account/edit' },
+    { title: 'مدیریت شیفت ها', icon: <CalendarMonth fontSize='large' />, route: '/shifts' },
     { title: 'گروه ها', icon: <Group fontSize='large' />, route: '/matron/groups' },
+    { title: 'ویرایش کاربر', icon: <ManageAccounts fontSize='large' />, route: '/account/edit' },
     { title: 'گفت و گو ها', icon: <QuestionAnswer fontSize='large' />, route: '/messages/conversations' },
+    { title: 'تنظیمات برنامه', icon: <Settings fontSize='large' />, route: '/settings' },
     { title: 'نظرسنجی برنامه', icon: <Poll fontSize='large' />, route: '/poll' },
-    { title: 'تنظیمات برنامه', icon: <Settings fontSize='large' />, route: '/settings' }
 ]
 
 

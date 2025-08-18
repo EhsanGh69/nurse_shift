@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { Button, TextField, CircularProgress, Backdrop } from '@mui/material';
 import { Formik, Form } from 'formik';
 import { useNavigate } from 'react-router-dom';
@@ -9,7 +9,7 @@ import { editAccountSchema } from '../../validations/accountValidation';
 import SnackAlert from '../../components/SnackAlert';
 import FileInput from '../../components/FileInput';
 import { useEditAccount } from '../../api/account.api';
-import { useGlobalData } from '../../context/GlobalContext';
+import { GlobalContext } from '../../context/GlobalContext';
 import handleApiErrors from '../../utils/apiErrors';
 import BackButton from '../../components/BackButton';
 
@@ -20,7 +20,7 @@ export default function EditAccount() {
     const [user, setUser] = useState(null)
     const [loading, setLoading] = useState(true)
     const { mutateAsync, isPending } = useEditAccount()
-    const { getData } = useGlobalData()
+    const { getData } = useContext(GlobalContext)
     const data = getData("userData")
 
     const handleSubmit = async (values, { setSubmitting, resetForm, setFieldError }) => {
