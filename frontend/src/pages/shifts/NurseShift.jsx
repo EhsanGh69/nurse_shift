@@ -10,6 +10,7 @@ import ShiftCalendar from "../../components/shift/ShiftCalendar";
 import ShiftSelect from "../../components/shift/ShiftSelect";
 import ShiftsContext from "../../context/ShiftsContext";
 import { useUserShift } from "../../api/shift.api";
+import useShiftStore from "../../store/shiftStore";
 
 export default function NurseShift() {
     const theme = useTheme();
@@ -18,6 +19,7 @@ export default function NurseShift() {
     const navigate = useNavigate()
     const { shiftId } = useParams()
     const { isLoading, data, isError, error } = useUserShift(shiftId)
+    const { groupTitle } = useShiftStore()
 
     useEffect(() => {
         if(!isLoading && isError && error.status === 404)
@@ -59,6 +61,15 @@ export default function NurseShift() {
                         color={isDark ? "#f5f5f5" : "#1e1e1e"}
                     >
                         شیفت های {userShift?.year}/{userShift?.month}
+                    </Typography>
+                    <Typography
+                        variant="h6"
+                        align="center"
+                        gutterBottom
+                        mb={1}
+                        color="info"
+                        >
+                        گروه : {' '}{groupTitle}
                     </Typography>
                     {userShift?.temporal && (
                         <Typography

@@ -1,25 +1,24 @@
 import { useMemo } from 'react';
 import { Box, Grid, Typography } from '@mui/material';
 import { Link } from 'react-router-dom';
-import { Settings, Group, QuestionAnswer, Poll, ManageAccounts, PermContactCalendar } from '@mui/icons-material';
+import { ListAlt, CalendarMonth, TableChart, EventNote, SwitchAccount } from '@mui/icons-material';
 
 import { clickBox } from '../../styles/globalStyles';
 import MainLayout from '../../mui/MainLayout';
 import AppHeader from '../../components/AppHeader';
 
 
-export default function MatronHome() {
+export default function ShiftsManagement() {
     const items = useMemo(() => [
-        { title: 'مدیریت شیفت ها', icon: <PermContactCalendar fontSize='large' />, route: '/shifts/matron' },
-        { title: 'گروه ها', icon: <Group fontSize='large' />, route: '/matron/groups' },
-        { title: 'ویرایش کاربر', icon: <ManageAccounts fontSize='large' />, route: '/account/edit' },
-        { title: 'گفت و گو ها', icon: <QuestionAnswer fontSize='large' />, route: '/messages/conversations' },
-        { title: 'تنظیمات برنامه', icon: <Settings fontSize='large' />, route: '/settings' },
-        { title: 'نظرسنجی برنامه', icon: <Poll fontSize='large' />, route: '/poll' },
+        { title: 'تنظیمات شیفت', icon: <ListAlt fontSize='large' />, route: '/shifts/matron/settings' },
+        { title: 'اطلاعات پرستاران', icon: <SwitchAccount fontSize='large' />, route: '/shifts/matron/infos' },
+        { title: 'شیفت های پرستاران', icon: <EventNote fontSize='large' />, route: '/shifts/matron/manage' },
+        { title: 'آرشیو جداول', icon: <TableChart fontSize='large' />, route: '/shifts/matron/tables' },
+        { title: 'شیفت های من', icon: <CalendarMonth fontSize='large' />, route: '/shifts' },
     ])
 
     return (
-        <MainLayout title="سرپرستار | خانه">
+        <MainLayout title="سرپرستار | مدیریت شیفت ها">
             <AppHeader />
             <Grid container spacing={3} width="100%">
                 {items.map(item => (
@@ -38,3 +37,4 @@ export default function MatronHome() {
         </MainLayout>
     )
 }
+

@@ -2,31 +2,23 @@ import { useState, useEffect, useContext } from "react";
 import { Button, Grid } from "@mui/material";
 
 import { shiftDays } from "../../constants/shifts";
-import { useUserGroups } from "../../api/group.api";
 import { useSaveShift } from "../../api/shift.api";
-import GroupsModal from "./GroupsModal";
 import SnackAlert from "../SnackAlert";
 import handleApiErrors from "../../utils/apiErrors";
 import ShiftsContext from "../../context/ShiftsContext";
 import CalendarGrid from "./CalendarGrid";
 import SendShift from "./SendShift";
+import useShiftStore from "../../store/shiftStore";
 
 
 export default function ShiftCalendar() {
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
-    const [groups, setGroups] = useState(null)
-    const [modalOpen, setModalOpen] = useState(false)
     const [filledShifts, setFilledShifts] = useState({})
-    const [activeHandler, setActiveHandler] = useState(null)
-    
-    const { data, isLoading } = useUserGroups()
+    const { groupId: shiftGroupId } = useShiftStore()
     const { mutateAsync: saveMutate, isPending: savePending } = useSaveShift()
     
-    const { formOpen, selectedShifts, shiftYear, shiftMonth, userShift } = useContext(ShiftsContext)
-
-    useEffect(() => {
-      if(!isLoading, data) setGroups(data)
-    }, [data, isLoading])
+    const { formOpen, selectedShifts, shiftYear, shiftMonth, userShift, setCollapseOpen } 
+    = useContext(ShiftsContext)
 
     useEffect(() => {
       if(selectedShifts) getFilledShifts()
@@ -46,17 +38,12 @@ export default function ShiftCalendar() {
         await saveMutate({ 
           groupId, shiftDays: filledShifts, month: String(shiftMonth), year: String(shiftYear) 
         })
-        setModalOpen(false)
         setSnackbar({ open: true, message: 'تغییرات با موفقیت ذخیره شد', severity: 'success' })
+        setCollapseOpen(false)
       } catch (error) {
         const msg = handleApiErrors(error);
         setSnackbar({ open: true, message: msg, severity: 'error' })
       }
-    }
-
-    const handlerManager = (handler) => {
-      setActiveHandler(() => handler)
-      setModalOpen(true)
     }
 
     const anyDayHasShift = () => {
@@ -77,7 +64,7 @@ export default function ShiftCalendar() {
               color: "whitesmoke",
               display: !!userShift && (!userShift?.temporal || userShift?.expired) ? "none" : "inherit"
             }}
-            onClick={() => handlerManager(handleSaveShift)}
+            onClick={() => handleSaveShift(shiftGroupId)}
             disabled={savePending}
           >
             ذخیره تغییرات
@@ -85,14 +72,8 @@ export default function ShiftCalendar() {
         </Grid>
       )}
 
-      <GroupsModal 
-        open={modalOpen} onClose={() => setModalOpen(false)} 
-        handleConfirm={activeHandler} groups={groups}
-      />
-
       <SendShift 
-        setSnackbar={setSnackbar} filledShifts={filledShifts} 
-        formOpen={formOpen} handlerManager={handlerManager}
+        setSnackbar={setSnackbar} filledShifts={filledShifts} formOpen={formOpen}
       />
 
       <SnackAlert snackbar={snackbar} setSnackbar={setSnackbar} />

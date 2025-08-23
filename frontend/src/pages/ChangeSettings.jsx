@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { Button, TextField, CircularProgress, Backdrop, MenuItem } from '@mui/material';
 import { Formik, Form } from 'formik';
 import { useNavigate } from 'react-router-dom';
@@ -9,19 +9,17 @@ import SnackAlert from '../components/SnackAlert';
 import BackButton from '../components/BackButton';
 import { useChangeSettings, useCurrentSettings } from '../api/setting.api';
 import handleApiErrors from '../utils/apiErrors';
-import { useGlobalData } from '../context/GlobalContext';
+import { GlobalContext } from '../context/GlobalContext';
 
 
 export default function ChangeSettings() {
     const navigate = useNavigate()
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
     const [settings, setSettings] = useState(null)
-    const [user, setUser] = useState(null)
-    const [loading, setLoading] = useState(true)
     const { mutateAsync, isPending } = useChangeSettings()
     const { isLoading, data } = useCurrentSettings()
-    const { getData } = useGlobalData()
-    const userData = getData("userData")
+    const { getData } = useContext(GlobalContext)
+    const user = getData("userData")
 
     const handleSubmit = async (values, { setSubmitting, resetForm }) => {
         try {
@@ -41,18 +39,13 @@ export default function ChangeSettings() {
     }
 
     useEffect(() => {
-        if (userData)
-            setUser(userData)
-        if (!isLoading && data) {
-            setSettings(data)
-            setLoading(false)
-        }
-    }, [isLoading, data, userData])
+        if (!isLoading && data) setSettings(data)
+    }, [isLoading, data])
 
     return (
         <MainLayout title="ویرایش حساب کاربری">
             <AppHeader />
-            <Backdrop open={loading} sx={{ zIndex: (them) => them.zIndex.drawer + 1 }}>
+            <Backdrop open={isLoading} sx={{ zIndex: (them) => them.zIndex.drawer + 1 }}>
                 <CircularProgress color="inherit" />
             </Backdrop>
             {settings &&

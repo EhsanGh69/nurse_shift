@@ -1,6 +1,7 @@
 import { createContext } from "react";
 
 const ShiftsContext = createContext({
+    userGroups: null,
     userShift: null,
     setUserShift: () => {},
     topBox: null,

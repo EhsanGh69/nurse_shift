@@ -32,7 +32,7 @@ router.get('/report/:groupId',
     permission(['ADMIN', 'MATRON']),
     shiftController.getShiftReport
 )
-router.get('/user',
+router.get('/user/all/:groupId',
     verifyToken,
     shiftController.getUserShifts
 )
@@ -71,25 +71,24 @@ router.post('/settings',
     validate(shiftSettingSchema),
     shiftController.setShiftSettings
 )
-router.put('/settings/:id',
+router.get('/settings/:groupId',
     verifyToken,
     permission(['ADMIN', 'MATRON']),
     validate(shiftSettingSchema),
-    shiftController.updateShiftSettings
+    shiftController.getShiftSettings
 )
 
 //* Infos
-router.post('/info',
+router.post('/infos',
     verifyToken,
     permission(['ADMIN', 'MATRON']),
     validate(jobInfoSchema),
     shiftController.setJobInfo
 )
-router.put('/info/:id',
+router.get('/infos/:groupId',
     verifyToken,
     permission(['ADMIN', 'MATRON']),
-    validate(jobInfoSchema),
-    shiftController.updateJobInfo
+    shiftController.getJobInfos
 )
 
 module.exports = router;

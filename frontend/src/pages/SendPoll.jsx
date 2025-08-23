@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { Grid, Button, Paper, Typography, TextField } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import SendIcon from "@mui/icons-material/Send";
 import { useNavigate } from 'react-router-dom';
-import { escape } from 'he'
+import { escape } from 'he';
 
 import MainLayout from '../mui/MainLayout';
 import AppHeader from '../components/AppHeader';
@@ -11,17 +11,16 @@ import SnackAlert from '../components/SnackAlert';
 import BackButton from '../components/BackButton';
 import { useSendUserPoll } from '../api/poll.api';
 import handleApiErrors from '../utils/apiErrors';
-import { useGlobalData } from '../context/GlobalContext';
+import { GlobalContext } from '../context/GlobalContext';
 
 
 export default function SendPoll() {
     const [text, setText] = useState("");
-    const [user, setUser] = useState(null);
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
     const navigate = useNavigate()
     const { mutateAsync, isPending } = useSendUserPoll()
-    const { getData } = useGlobalData()
-    const userData = getData("userData")
+    const { getData } = useContext(GlobalContext)
+    const user = getData("userData")
     const theme = useTheme()
     const isDark = theme.palette.mode === 'dark'
 
@@ -41,11 +40,6 @@ export default function SendPoll() {
             setSnackbar({ open: true, message: msg, severity: 'error' })
         }
     }
-
-    useEffect(() => {
-        if (userData)
-            setUser(userData)
-    }, [userData])
 
     return (
         <MainLayout title="نظرات و پیشنهادات">

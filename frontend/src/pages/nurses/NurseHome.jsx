@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Box, Grid, Typography } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { Settings, QuestionAnswer, Poll, Tune, CalendarMonth } from '@mui/icons-material';
@@ -6,15 +7,15 @@ import { clickBox } from '../../styles/globalStyles';
 import MainLayout from '../../mui/MainLayout';
 import AppHeader from '../../components/AppHeader';
 
-const items = [
-    { title: 'ویرایش حساب کاربری', icon: <Settings fontSize='large' />, route: '/account/edit' },
-    { title: 'گفت و گو ها', icon: <QuestionAnswer fontSize='large' />, route: '/messages/conversations' },
-    { title: 'نظرسنجی برنامه', icon: <Poll fontSize='large' />, route: '/poll' },
-    { title: 'تنظیمات برنامه', icon: <Tune fontSize='large' />, route: '/settings' },
-    { title: 'شیفت ها', icon: <CalendarMonth fontSize='large' />, route: '/shifts' },
-]
-
 export default function NurseHome() {
+    const items = useMemo(() => [
+        { title: 'ویرایش حساب کاربری', icon: <Settings fontSize='large' />, route: '/account/edit' },
+        { title: 'گفت و گو ها', icon: <QuestionAnswer fontSize='large' />, route: '/messages/conversations' },
+        { title: 'نظرسنجی برنامه', icon: <Poll fontSize='large' />, route: '/poll' },
+        { title: 'تنظیمات برنامه', icon: <Tune fontSize='large' />, route: '/settings' },
+        { title: 'شیفت های من', icon: <CalendarMonth fontSize='large' />, route: '/shifts' },
+    ])
+
     return (
         <MainLayout title="پرستار | خانه">
             <AppHeader />

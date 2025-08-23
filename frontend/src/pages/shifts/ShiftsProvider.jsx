@@ -4,6 +4,7 @@ import { useYearHolidays } from "../../api/json.api";
 import generateMonthGrid from "../../utils/monthGrid";
 import { shiftDays } from "../../constants/shifts";
 import ShiftsContext from "../../context/ShiftsContext";
+import { useUserGroups } from "../../api/group.api";
 
 
 export default function ShiftsProvider ({ children }) {
@@ -13,9 +14,11 @@ export default function ShiftsProvider ({ children }) {
     const [holidays, setHolidays] = useState(null);
     const [formOpen, setFormOpen] = useState(false);
     const [userShift, setUserShift] = useState(null)
+    const [userGroups, setUserGroups] = useState(null)
 
     const { monthGrid, shiftMonth, shiftYear, daysInMonth } = generateMonthGrid();
-    const { data, isLoading } = useYearHolidays();
+    const { data: holidaysData, isLoading: holidaysLoading } = useYearHolidays();
+    const { data: groupsData, isLoading: groupsLoading } = useUserGroups()
     const topBox = useRef();
 
     const checkHoliday = (day) => {
@@ -45,19 +48,24 @@ export default function ShiftsProvider ({ children }) {
     }, [selectedShifts]);
 
     useEffect(() => {
-        if (!isLoading && data)
-            setHolidays(data.holidays.filter((item) => item.month === shiftMonth));
-    }, [data, isLoading]);
+        if (!holidaysLoading && holidaysData)
+            setHolidays(holidaysData.holidays.filter((item) => item.month === shiftMonth));
+    }, [holidaysData, holidaysLoading]);
+
+    useEffect(() => {
+        if(!groupsLoading && groupsData) setUserGroups(groupsData)
+    }, [groupsData, groupsLoading])
 
 
   return (
     <ShiftsContext.Provider
         value={{
+            userGroups,
             userShift,
             setUserShift,
             topBox,
             formOpen,
-            isLoading,
+            isLoading: holidaysLoading,
             monthGrid,
             shiftYear,
             shiftMonth,

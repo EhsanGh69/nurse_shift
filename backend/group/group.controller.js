@@ -57,6 +57,7 @@ exports.groupDetails = async (req, res) => {
     const group = await groupModel.findOne({ 
         _id: id, $or: [{ members: { $all: [user._id] } }, { matron: user._id }] 
     })
+    .populate("matron", "firstName lastName mobile avatar")
     .populate("members", "firstName lastName mobile avatar").lean();
     if(!group)
         return res.status(404).json({ message: "Group not found!" });

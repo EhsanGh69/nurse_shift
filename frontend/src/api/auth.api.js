@@ -20,6 +20,7 @@ export const useLogout = () => {
         mutationFn: async () => {
             await api.post('/auth/logout')
             localStorage.removeItem("refreshToken")
+            localStorage.removeItem("shift-storage")
         },
         onSuccess: () => queryClient.removeQueries({ queryKey: ['currentUser'] })
     })

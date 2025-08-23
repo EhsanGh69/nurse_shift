@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Grid, Button, TextField, Typography } from '@mui/material';
+import { useTheme } from "@mui/material/styles";
 import { Formik, Form } from 'formik';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -13,6 +14,8 @@ import handleApiErrors from '../../utils/apiErrors';
 
 
 export default function InviteMember() {
+    const theme = useTheme();
+    const isDark = theme.palette.mode === "dark";
     const navigate = useNavigate()
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
     const { groupId } = useParams()
@@ -37,8 +40,11 @@ export default function InviteMember() {
             <AppHeader />
             <Grid size={{ xs: 12, md: 8, lg: 6 }}>
 
-                <Typography variant='h5' align='center' gutterBottom mb={5}>
-                    ارسال کد دعوت عضو جدید
+                <Typography
+                    color={isDark ? "#f5f5f5" : "#1e1e1e"}
+                    variant='h5' align='center' gutterBottom mb={5}
+                >
+                    ارسال کد دعوت برای عضو جدید
                 </Typography>
 
                 <Formik

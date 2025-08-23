@@ -49,7 +49,7 @@ export default function UserConversations() {
                     <Typography variant="h6">ایجاد گفت و گوی جدید</Typography>
                 </Button>
 
-                {conversations
+                {conversations.length
                     ? conversations.map((conversation, index) => (
                         <Grid
                             display="flex"

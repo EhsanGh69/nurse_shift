@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 
 import api from './api';
 
@@ -18,14 +18,15 @@ export const useCreateShift = () => {
     })
 }
 
-export const useUserShifts = (year, month) => {
+export const useUserShifts = (groupId, year, month) => {
     return useQuery({
-        queryKey: ['userShifts', year, month],
+        queryKey: ['userShifts', groupId, year, month],
         queryFn: async () => {
-            const { data } = await api.get('/shifts/user', { params: { year, month } })
+            const { data } = await api.get(`/shifts/user/all/${groupId}`, { params: { year, month } })
             return data
         },
-        retry: 1
+        retry: 1,
+        enabled: !!groupId
     })
 }
 
@@ -36,7 +37,7 @@ export const useUserShift = (shiftId) => {
             const { data } = await api.get(`/shifts/user/${shiftId}`)
             return data
         },
-        retry: 0,
+        retry: 1,
         staleTime: 0,
         enabled: !!shiftId
     })

@@ -1,7 +1,6 @@
 import { Grid, MenuItem, TextField } from '@mui/material'
 import { useTheme } from "@mui/material/styles";
 
-
 import { textFieldStyle } from '../../styles/globalStyles';
 
 export default function ShiftsFilter(
@@ -49,7 +48,7 @@ export default function ShiftsFilter(
                 }}
             >
                 <MenuItem value="" selected={true}>
-                    انتخاب کنید
+                    همه ماه ها
                 </MenuItem>
                 {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(month => (
                     <MenuItem key={month} value={month}>
