@@ -9,7 +9,7 @@ import AppHeader from "../../components/AppHeader";
 import ShiftCalendar from "../../components/shift/ShiftCalendar";
 import ShiftSelect from "../../components/shift/ShiftSelect";
 import ShiftsContext from "../../context/ShiftsContext";
-import { useUserShift } from "../../api/shift.api";
+import { useUserShift, useShiftExpire } from "../../api/shift.api";
 import useShiftStore from "../../store/shiftStore";
 
 export default function NurseShift() {
@@ -19,6 +19,7 @@ export default function NurseShift() {
     const navigate = useNavigate()
     const { shiftId } = useParams()
     const { isLoading, data, isError, error } = useUserShift(shiftId)
+    const { mutate: mutateExpire } = useShiftExpire()
     const { groupTitle } = useShiftStore()
 
     useEffect(() => {
@@ -27,6 +28,11 @@ export default function NurseShift() {
         else if(!isLoading && data)
             setUserShift(data)
     }, [isLoading, data, isError, error])
+
+    useEffect(() => {
+        if(userShift && !userShift?.expired) 
+            mutateExpire(userShift?._id)
+    }, [userShift])
 
     return (
         <MainLayout title="شیفت پرستار">

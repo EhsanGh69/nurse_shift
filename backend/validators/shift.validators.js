@@ -45,19 +45,23 @@ exports.createShiftSchema = Joi.object({
 
 exports.updateShiftSchema = Joi.object({
     groupId: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).required(),
-    shiftDays: Joi.object().keys(
+    shiftDay: Joi.object().keys(
         Object.fromEntries(
-            shiftDaysKeys.map(key => [
-                key, Joi.array().items(Joi.number().integer().min(1).max(31).required())
+            ["current", "update"].map(key => [
+                key, Joi.string()
+                    .pattern(/^(M|E|N|OFF|V|ME|MN|NE|EN|NM|NME|MEN|MH|EH|NH|MEH|MNH|NEH|ENH|NMH|NMEH|MENH)([1-9]|[12]\d|3[01])$/)
+                    .required()
             ])
         )
-    ).required().custom((value, helpers) => keysValidator(value, shiftDaysKeys, helpers)),
+    ).required(),
     description: Joi.string().allow("")
 })
 
 exports.rejectShiftDaySchema = Joi.object({
     groupId: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).required(),
-    shiftDay: Joi.string().pattern(/^(M|E|N|OFF|V|ME|MN|NE|EN|NM|NME|MEN)([1-9]|[12]\d|3[01])$/).required()
+    shiftDay: Joi.string()
+    .pattern(/^(M|E|N|OFF|V|ME|MN|NE|EN|NM|NME|MEN|MH|EH|NH|MEH|MNH|NEH|ENH|NMH|NMEH|MENH)([1-9]|[12]\d|3[01])$/)
+    .required()
 })
 
 exports.shiftSettingSchema = Joi.object({

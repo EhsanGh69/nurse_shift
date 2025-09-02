@@ -72,10 +72,12 @@ export default function ShiftCalendar() {
         </Grid>
       )}
 
-      <SendShift 
-        setSnackbar={setSnackbar} filledShifts={filledShifts} formOpen={formOpen}
-      />
-
+      {!userShift?.expired && (
+        <SendShift 
+          setSnackbar={setSnackbar} filledShifts={filledShifts} formOpen={formOpen}
+        />
+      )}
+      
       <SnackAlert snackbar={snackbar} setSnackbar={setSnackbar} />
     </Grid>
   );

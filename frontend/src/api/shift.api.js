@@ -18,6 +18,14 @@ export const useCreateShift = () => {
     })
 }
 
+export const useShiftExpire = () => {
+    return useMutation({
+        mutationFn: async (shiftId) => {
+            await api.put(`/shifts/expire/${shiftId}`)
+        }
+    })
+}
+
 export const useUserShifts = (groupId, year, month) => {
     return useQuery({
         queryKey: ['userShifts', groupId, year, month],

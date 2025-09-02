@@ -6,6 +6,7 @@ import NurseShift from "./NurseShift";
 import ShiftsManagement from "./ShiftsManagement";
 import ShiftSettings from "./ShiftSettings";
 import ManageNursesShifts from "./ManageNursesShifts";
+import NurseDayShifts from "./NurseDayShifts";
 import NursesInfos from "./NursesInfos";
 
 const shiftRoutes = [{
@@ -17,6 +18,7 @@ const shiftRoutes = [{
             { path: "matron", element: <ShiftsProvider><ShiftsManagement /></ShiftsProvider> },
             { path: "matron/settings", element: <ShiftsProvider><ShiftSettings /></ShiftsProvider> },
             { path: "matron/manage", element: <ShiftsProvider><ManageNursesShifts /></ShiftsProvider> },
+            { path: "matron/manage/:day", element: <ShiftsProvider><NurseDayShifts /></ShiftsProvider> },
             { path: "matron/infos", element: <ShiftsProvider><NursesInfos /></ShiftsProvider> },
         ]
 }]

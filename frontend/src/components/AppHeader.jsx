@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from 'react'
+import { useState, useContext } from 'react'
 import { Avatar, Box, Typography, Grid, Button, Menu, MenuItem } from '@mui/material';
 import { useTheme } from '@mui/material/styles'
 import { Sunny, LockReset, Logout, Home, Bedtime } from '@mui/icons-material';
@@ -14,8 +14,8 @@ import { GlobalContext } from "../context/GlobalContext";
 
 export default function AppHeader() {
     const [anchorEl, setAnchorEl] = useState(null)
-    const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
     const open = Boolean(anchorEl)
+    const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
     const navigate = useNavigate()
     const { pathname } = useLocation()
     const { mutateAsync } = useLogout()

@@ -50,3 +50,47 @@ export const useSetJobInfo = () => {
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['jobInfos'] })
     })
 }
+
+export const useNursesShifts = (groupId, year, month) => {
+    return useQuery({
+        queryKey: ['nursesShifts', groupId, year, month],
+        queryFn: async () => {
+            const { data } = await api.get(`/shifts/report/${groupId}/${year}/${month}`)
+            return data
+        },
+        retry: 0,
+        staleTime: 0,
+        enabled: !!groupId
+    })
+}
+
+export const useRejectedShifts = () => {
+    return useMutation({
+        mutationFn: async ({groupId, shiftId}) => {
+            const { data } = await api.get(`/shifts/reject/${groupId}/${shiftId}`)
+            return data
+        }
+    })
+}
+
+export const useRejectShift = (shiftId) => {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: async (data) => {
+            await api.put(`/shifts/reject/${shiftId}`, data)
+        },
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['nursesShifts'] })
+    })
+}
+
+export const useChangeShift = (shiftId) => {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: async (data) => {
+            await api.put(`/shifts/update/${shiftId}`, data)
+        },
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['nursesShifts'] })
+    })
+}

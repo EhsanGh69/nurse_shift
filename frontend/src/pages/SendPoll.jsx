@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useContext } from 'react';
 import { Grid, Button, Paper, Typography, TextField } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import SendIcon from "@mui/icons-material/Send";

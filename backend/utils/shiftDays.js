@@ -1,6 +1,8 @@
 exports.getShiftDays = (shifts) => {
     const groups = {};
-    const shiftOrder = { M: 0, E: 1, N: 2, OFF: 3, V: 4, ME: 5, MN: 6, NE: 7, EN: 8, NM: 9, NME: 10, MEN: 11 };
+    const shiftOrder = { M: 0, E: 1, N: 2, OFF: 3, V: 4, ME: 5, MN: 6, NE: 7, EN: 8, NM: 9, NME: 10, MEN: 11,
+        MH: 12, EH: 13, NH: 14, MEH: 15, MNH: 16, NEH: 17, ENH: 18, NMH: 19, NMEH: 20, MENH: 21
+     };
 
     shifts.forEach(shift => {
         const shiftId = shift._id;

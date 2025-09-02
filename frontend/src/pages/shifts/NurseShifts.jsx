@@ -1,11 +1,10 @@
-import { useState, useEffect, useMemo, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import { 
     Grid, Typography, CircularProgress, Backdrop, Alert, Button
 } from '@mui/material';
 
 import { EditCalendar, EventBusy, PermContactCalendar } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
-import moment from "jalali-moment";
 
 import MainLayout from '../../mui/MainLayout';
 import AppHeader from '../../components/AppHeader';
@@ -15,12 +14,11 @@ import ShiftsFilter from "../../components/shift/ShiftsFilter";
 import { GlobalContext } from "../../context/GlobalContext";
 import ShiftGroup from "../../components/shift/ShiftGroup";
 import useShiftStore from '../../store/shiftStore';
+import ShiftsContext from "../../context/ShiftsContext";
 
 
 export default function NurseShifts() {
-    const today = moment()
-    const shiftMonth = useMemo(() => today.jMonth() + 2 > 12 ? 1 : today.jMonth() + 2)
-    const shiftYear = useMemo(() => shiftMonth > 12 ? today.jYear() + 1 : today.jYear())
+    const { shiftYear } = useContext(ShiftsContext)
     const [userShifts, setUserShifts] = useState(null)
     const [selectedYear, setSelectedYear] = useState(shiftYear)
     const [selectedMonth, setSelectedMonth] = useState('')
@@ -38,7 +36,7 @@ export default function NurseShifts() {
     }, [data, isLoading])
 
     useEffect(() => {
-        if(haveShiftMonth) useShiftStore.getState().setParams({ haveShift: haveShiftMonth })
+        if(haveShiftMonth !== null) useShiftStore.getState().setParams({ haveShift: haveShiftMonth })
     }, [haveShiftMonth])
 
 

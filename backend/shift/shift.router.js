@@ -27,24 +27,33 @@ router.put('/update/:id',
     validate(updateShiftSchema),
     shiftController.updateShift
 )
-router.get('/report/:groupId',
+router.get('/report/:groupId/:year/:month',
     verifyToken,
     permission(['ADMIN', 'MATRON']),
     shiftController.getShiftReport
+)
+router.get('/user/:id',
+    verifyToken,
+    shiftController.getUserShift
 )
 router.get('/user/all/:groupId',
     verifyToken,
     shiftController.getUserShifts
 )
-router.get('/user/:id',
+router.put('/expire/:id',
     verifyToken,
-    shiftController.getUserShift
+    shiftController.checkShiftExpiration
 )
 router.put('/reject/:id',
     verifyToken,
     permission(['ADMIN', 'MATRON']),
     validate(rejectShiftDaySchema),
     shiftController.rejectShiftDay
+)
+router.get('/reject/:groupId/:id',
+    verifyToken,
+    permission(['ADMIN', 'MATRON']),
+    shiftController.getRejectedShiftDays
 )
 
 //* Table
