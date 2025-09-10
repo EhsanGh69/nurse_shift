@@ -39,3 +39,9 @@ export const getMatchCount = (shiftData, countObj) => {
     })
     return matchCount
 }
+
+export const checkLeapYear = (year=1404) => {
+    const diffYear = year - 1403
+    if(diffYear % 4 === 0) return true
+    return false
+}

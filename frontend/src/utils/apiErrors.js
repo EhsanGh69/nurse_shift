@@ -1,5 +1,5 @@
 const handleApiErrors = (error, options = {}) => {
-    const status = error?.response?.status
+    const status = error?.status
     const data = error?.response?.data
     const fallback = options.fallback || '❌ خطایی رخ داد'
     

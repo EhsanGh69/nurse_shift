@@ -5,7 +5,8 @@ const verifyToken = require("../middlewares/verifyToken");
 const validate = require("../middlewares/joiValidator");
 const permission = require("../middlewares/permission");
 const { 
-    createShiftSchema, updateShiftSchema, shiftSettingSchema, rejectShiftDaySchema, jobInfoSchema
+    createShiftSchema, updateShiftSchema, shiftSettingSchema, rejectShiftDaySchema, jobInfoSchema,
+    refreshShiftsTableSchema
 } = require("../validators/shift.validators");
 
 const router = Router()
@@ -36,6 +37,11 @@ router.get('/user/:id',
     verifyToken,
     shiftController.getUserShift
 )
+router.get('/user/desc/:id',
+    verifyToken,
+    permission(['ADMIN', 'MATRON']),
+    shiftController.getUserShiftDescription
+)
 router.get('/user/all/:groupId',
     verifyToken,
     shiftController.getUserShifts
@@ -57,20 +63,21 @@ router.get('/reject/:groupId/:id',
 )
 
 //* Table
-router.get('/table/:groupId',
+router.post('/tables/refresh',
+    verifyToken,
+    permission(['ADMIN', 'MATRON']),
+    validate(refreshShiftsTableSchema),
+    shiftController.refreshShiftsTables
+)
+router.get('/tables/all/:groupId',
     verifyToken,
     permission(['ADMIN', 'MATRON']),
     shiftController.getAllShiftsTables
 )
-router.get('/table/:groupId/:month/:year',
+router.get('/tables/:id',
     verifyToken,
     permission(['ADMIN', 'MATRON']),
     shiftController.getShiftsTable
-)
-router.put('/table/:groupId/:month/:year',
-    verifyToken,
-    permission(['ADMIN', 'MATRON']),
-    shiftController.updateShiftsTable
 )
 
 //* Settings

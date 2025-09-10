@@ -53,8 +53,7 @@ exports.updateShiftSchema = Joi.object({
                     .required()
             ])
         )
-    ).required(),
-    description: Joi.string().allow("")
+    ).required()
 })
 
 exports.rejectShiftDaySchema = Joi.object({
@@ -62,6 +61,12 @@ exports.rejectShiftDaySchema = Joi.object({
     shiftDay: Joi.string()
     .pattern(/^(M|E|N|OFF|V|ME|MN|NE|EN|NM|NME|MEN|MH|EH|NH|MEH|MNH|NEH|ENH|NMH|NMEH|MENH)([1-9]|[12]\d|3[01])$/)
     .required()
+})
+
+exports.refreshShiftsTableSchema = Joi.object({
+    groupId: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).required(),
+    month: Joi.string().required(),
+    year: Joi.string().required()
 })
 
 exports.shiftSettingSchema = Joi.object({

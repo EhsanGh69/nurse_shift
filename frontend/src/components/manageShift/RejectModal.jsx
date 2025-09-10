@@ -1,17 +1,34 @@
+import { useState, useEffect } from 'react';
 import { Modal, Box, Typography, Button } from '@mui/material';
 import { useTheme } from "@mui/material/styles";
 
 import { modalBox } from '../../styles/globalStyles'
-import { useRejectShift } from '../../api/shiftManagement.api'
+import { useRejectShift, useRejectedShifts } from '../../api/shiftManagement.api'
 import useShiftStore from "../../store/shiftStore";
 import handleApiErrors from '../../utils/apiErrors';
 
 
-export default function RejectModal({ open, msg, closeHandler, selectedShift, setSnackbar }) {
+export default function RejectModal({ open, closeHandler, selectedShift, setSnackbar }) {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const { groupId } = useShiftStore();
   const { mutateAsync, isPending } = useRejectShift(selectedShift.shiftId)
+  const { isLoading, data } = useRejectedShifts(selectedShift.shiftId, groupId)
+  const [rejectModalMsg, setRejectModalMsg] = useState(null)
+
+  useEffect(() => {
+    if(!isLoading && data) {
+      if (data.rejects.length){
+        setRejectModalMsg(
+            <>
+                <p>شیفت {selectedShift.shiftUser} را قبلا رد کرده اید</p>
+                <p>آیا باز هم می خواهید رد کنید؟</p>
+            </>
+          );
+      }
+      else setRejectModalMsg(`آیا از رد کردن شیفت ${selectedShift.shiftUser} اطمینان دارید؟`);
+    }
+  }, [isLoading, data])
 
   const handleRejectShift = async () => {
     try {
@@ -33,7 +50,7 @@ export default function RejectModal({ open, msg, closeHandler, selectedShift, se
               variant='h6' mb={2} sx={{ fontFamily: 'Vazir' }}
               color={isDark ? "#f5f5f5" : "#1e1e1e"}
             >
-              {msg}
+              {rejectModalMsg && rejectModalMsg}
             </Typography>
             <Button onClick={handleRejectShift} disabled={isPending}
               color='primary' sx={{ mr: 2 }} variant='contained'>بله</Button>

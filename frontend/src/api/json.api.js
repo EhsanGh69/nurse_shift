@@ -13,14 +13,3 @@ export const useYearHolidays = () => {
         retry: 1
     })
 }
-
-export const useLeapYear = (year) => {
-    return useQuery({
-        queryKey: ['leapYear', year],
-        queryFn: async () => {
-            const { data } = await axios.get(`https://api.ineo-team.ir/kabiseh.php?year=${year}`)
-            return data
-        },
-        retry: 1
-    })
-}

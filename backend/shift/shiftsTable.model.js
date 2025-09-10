@@ -17,6 +17,10 @@ const shiftsTableSchema = new mongoose.Schema({
     rows: {
         type: [Object],
         default: []
+    },
+    totalHourDay: {
+        type: Map,
+        of: Number
     }
 });
 

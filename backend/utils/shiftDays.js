@@ -62,13 +62,13 @@ const getNonPromotionOperation = (shiftDays, hourCounts) => {
     let nonPromotionOperation = 0;
     for (const [shift, count] of Object.entries(shiftCounts)) {
         if(shift.includes("M"))
-            nonPromotionOperation += count * hourCounts.NPM
+            nonPromotionOperation += count * hourCounts.get('NPM')
         
         if(shift.includes("E"))
-            nonPromotionOperation += count * hourCounts.NPE
+            nonPromotionOperation += count * hourCounts.get('NPE')
         
         if(shift.includes("N"))
-            nonPromotionOperation += count * hourCounts.NPN
+            nonPromotionOperation += count * hourCounts.get('NPN')
     }
     return nonPromotionOperation;
 }
@@ -79,23 +79,23 @@ const getPromotionOperation = (shiftDays, hourCounts) => {
     for (const [shift, count] of Object.entries(shiftCounts)) {
         if(shift.includes("M")){
             if(shift.includes("H"))
-                promotionOperation += count * hourCounts.PMH
+                promotionOperation += count * hourCounts.get('PMH')
             else
-                promotionOperation += count * hourCounts.PM
+                promotionOperation += count * hourCounts.get('PM')
         }
         
         if(shift.includes("E")){
             if(shift.includes("H"))
-                promotionOperation += count * hourCounts.PEH
+                promotionOperation += count * hourCounts.get('PEH')
             else
-                promotionOperation += count * hourCounts.PE
+                promotionOperation += count * hourCounts.get('PE')
         }
         
         if(shift.includes("N")){
             if(shift.includes("H"))
-                promotionOperation += count * hourCounts.PNH
+                promotionOperation += count * hourCounts.get('PNH')
             else
-                promotionOperation += count * hourCounts.PN
+                promotionOperation += count * hourCounts.get('PN')
         }
     }
     return promotionOperation;
@@ -108,6 +108,8 @@ exports.generateShiftsTable = (shifts, infos, settings) => {
             if(String(shift.user._id) === String(info.user)){
                 const nonPromotionOperation = getNonPromotionOperation(shift.shiftDays, settings.hourCount)
                 const promotionOperation = getPromotionOperation(shift.shiftDays, settings.hourCount)
+                const nonPromotionOvertime = nonPromotionOperation - info.promotionDuty
+                const promotionOvertime = promotionOperation - info.promotionDuty
                 const shiftsRow = {
                     fullname: `${shift.user.firstName} ${shift.user.lastName}`,
                     post: info.post,
@@ -119,12 +121,47 @@ exports.generateShiftsTable = (shifts, infos, settings) => {
                     shiftDays: getShiftDaysRow(shift.shiftDays),
                     nonPromotionOperation,
                     promotionOperation,
-                    nonPromotionOvertime: nonPromotionOperation - info.promotionDuty,
-                    promotionOvertime: promotionOperation - info.promotionDuty
+                    nonPromotionOvertime: nonPromotionOvertime < 0 ? 0 : nonPromotionOvertime,
+                    promotionOvertime: promotionOvertime < 0 ? 0 : promotionOvertime
                 };
                 shiftsTable.push(shiftsRow)
             }
         })
     });
     return shiftsTable;
+}
+
+exports.getHourCountDay = (shifts, hourCount) => {
+    const monthDays = [...Array(31).keys()].map(i => String(i + 1))
+    const allShiftToDays = []
+    shifts.map(shift => allShiftToDays.push(getShiftDaysRow(shift.shiftDays)))
+
+    const totalHourDay = {}
+    monthDays.map(mDay => {
+        totalHourDay[mDay] = 0
+        allShiftToDays.map(stDay => {
+            if(stDay[mDay]){
+                if(stDay[mDay].includes('M')){
+                    if(stDay[mDay].includes("H"))
+                        totalHourDay[mDay] += hourCount.get('PMH')
+                    else
+                        totalHourDay[mDay] += hourCount.get('PM')
+                }
+                if(stDay[mDay].includes("E")){
+                    if(stDay[mDay].includes("H"))
+                        totalHourDay[mDay] += hourCount.get('PEH')
+                    else
+                        totalHourDay[mDay] += hourCount.get('PE')
+                }
+                if(stDay[mDay].includes("N")){
+                    if(stDay[mDay].includes("H"))
+                        totalHourDay[mDay] += hourCount.get('PNH')
+                    else
+                        totalHourDay[mDay] += hourCount.get('PN')
+                }
+            }
+        })
+    })
+
+    return totalHourDay
 }

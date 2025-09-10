@@ -24,8 +24,7 @@ export default function UserConversations() {
     }
 
     useEffect(() => {
-        if (!isLoading && data)
-            setConversations(data)
+        if (!isLoading && data) setConversations(data)
         setLoading(isLoading)
     }, [isLoading, data])
 
@@ -49,7 +48,7 @@ export default function UserConversations() {
                     <Typography variant="h6">ایجاد گفت و گوی جدید</Typography>
                 </Button>
 
-                {conversations.length
+                {conversations?.length
                     ? conversations.map((conversation, index) => (
                         <Grid
                             display="flex"
@@ -86,7 +85,6 @@ export default function UserConversations() {
                                     </Badge>
                                 </Box>
                             )}
-
                         </Grid>
                     ))
                     : (

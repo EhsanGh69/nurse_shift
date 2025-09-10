@@ -6,7 +6,7 @@ const groupModel = require("../group/group.model");
 const shiftSettingModel = require("./shiftSetting.model");
 const jobInfoModel = require("./jobInfo.model");
 const shiftsTableModel = require("./shiftsTable.model");
-const { getShiftDays, generateShiftsTable } = require("../utils/shiftDays");
+const { getShiftDays, generateShiftsTable, getHourCountDay } = require("../utils/shiftDays");
 
 const currentYear = moment(new Date()).locale("fa").format("jYYYY");
 const currentMonth = moment(new Date()).locale("fa").format("jMM");
@@ -15,79 +15,83 @@ const shiftMonth = Number(currentMonth) + 1 > 12 ? 1 : Number(currentMonth) + 1
 const shiftYear = shiftMonth > 12 ? Number(currentYear) + 1 : Number(currentYear)
 
 
-exports.getShiftsTable = async (req, res) => {
-    const userId = req.user._id;
-    const { groupId, month, year } = req.params;
+exports.refreshShiftsTables = async (req, res) => {
+  const userId = req.user._id;
+  const { groupId, month, year } = req.body;
 
-    if(!isValidObjectId(groupId)) return res.status(422).json({ error: "Group id is not valid" })
+  if(!isValidObjectId(groupId)) return res.status(422).json({ error: "Group id is not valid" })
 
-    const userGroup = await groupModel.findOne({ _id: groupId, matron: userId });
-    if (!userGroup)
-        return res.status(404).json({ error: "User group not found" });
+  const userGroup = await groupModel.findOne({ _id: groupId, matron: userId });
+  if (!userGroup) return res.status(404).json({ error: "User group not found" });
 
-    const shiftsTable = await shiftsTableModel.findOne({ group: groupId, month, year })
+  const shiftsTable = await shiftsTableModel.findOne({ group: groupId, month, year })
 
-    if(!shiftsTable) {
-        const allJobInfos = await jobInfoModel.find({ group: groupId }).lean();
-        if (!allJobInfos.length)
-            return res.status(400).json({ message: "برای دریافت جدول شیفت ها تنظیم اطلاعات شغلی پرستاران لازم است" });
+  const checkShiftExpire = year > shiftYear || month > shiftMonth
 
-        const shiftSetting = await shiftSettingModel.findOne({ group: groupId });
-        if (!shiftSetting)
-            return res.status(400).json({ message: "برای دریافت جدول شیفت ها تنظیمات شیفت لازم است" });
+  if(!shiftsTable || !checkShiftExpire) {
+      const allJobInfos = await jobInfoModel.find({ group: groupId }).lean();
+      if (!allJobInfos.length)
+          return res.status(400).json({ message: "برای دریافت جدول شیفت ها تنظیم اطلاعات شغلی پرستاران لازم است" });
 
-        const allShifts = await shiftModel.find({ group: groupId, month, year })
-            .populate("user", "firstName lastName").lean();
+      const shiftSetting = await shiftSettingModel.findOne({ group: groupId });
+      if (!shiftSetting)
+          return res.status(400).json({ message: "برای دریافت جدول شیفت ها تنظیمات شیفت لازم است" });
 
-        const newSiftsTable = await shiftsTableModel.create({ 
-            group: groupId, month, year,
-            rows: generateShiftsTable(allShifts, allJobInfos, shiftSetting)
+      const allShifts = await shiftModel.find({ group: groupId, month, year })
+          .populate("user", "firstName lastName").lean();
+      if(!allShifts.length)
+        return res.status(400).json({ message: "هیچ شیفتی برای ماه مورد نظر وجود ندارد" })
+
+      if(!shiftsTable){
+        await shiftsTableModel.create({ 
+          group: groupId, month, year,
+          rows: generateShiftsTable(allShifts, allJobInfos, shiftSetting),
+          totalHourDay: getHourCountDay(allShifts, shiftSetting.hourCount)
         })
+      }else {
+        shiftsTable.rows = generateShiftsTable(allShifts, allJobInfos, shiftSetting)
+        shiftsTable.totalHourDay = getHourCountDay(allShifts, shiftSetting.hourCount)
+        shiftsTable.save()
+      }
+  }
+  res.json({ message: "Shifts tables refreshed successfully" })
+}
 
-        return res.status(201).json(newSiftsTable)
-    }
-    
-    res.json(shiftsTable)
+exports.getShiftsTable = async (req, res) => {
+  const { id } = req.params;
+  if(!isValidObjectId(id)) return res.status(422).json({ error: "Table id is not valid" })
+
+  const shiftsTable = await shiftsTableModel.findById(id)
+  .populate("group", "province county hospital department").lean()
+  if(!shiftsTable) return res.status(404).json({ error: "Shifts table not found" })
+  res.json(shiftsTable)
 };
 
 exports.getAllShiftsTables = async (req, res) => {
     const userId = req.user._id;
     const { groupId } = req.params;
+    const { year, month } = req.query;
 
     if(!isValidObjectId(groupId)) return res.status(422).json({ error: "Group id is not valid" })
 
     const userGroup = await groupModel.findOne({ _id: groupId, matron: userId });
-    if (!userGroup)
-        return res.status(404).json({ error: "User group not found" });
+    if (!userGroup) return res.status(404).json({ error: "User group not found" });
 
-    const shiftsTables = await shiftsTableModel.find({ group: groupId })
-    res.json(shiftsTables)
-}
+    const shiftsTables = await shiftsTableModel.find({ group: groupId }).lean()
 
-exports.updateShiftsTable = async (req, res) => {
-    const userId = req.user._id;
-    const { groupId, month, year } = req.params;
+    let filteredShiftsTables = []
 
-    if(!isValidObjectId(groupId)) return res.status(422).json({ error: "Group id is not valid" })
+    if(year && !month){
+      filteredShiftsTables = shiftsTables.filter(sTable => sTable.year === String(year))
+      return res.json(filteredShiftsTables)
+    }
 
-    const userGroup = await groupModel.findOne({ _id: groupId, matron: userId });
-    if (!userGroup)
-        return res.status(404).json({ error: "User group not found" });
+    if(year && month){
+      filteredShiftsTables = shiftsTables.filter(sTable => sTable.year === String(year) && sTable.month === String(month))
+      return res.json(filteredShiftsTables)
+    }
 
-    if(Number(currentYear) > Number(year) || Number(currentMonth) > Number(month))
-        return res.status(400).json({ message: "جدول شیفت مورد نظر منقضی شده و قابل ویرایش نمی باشد"})
-
-    const allJobInfos = await jobInfoModel.find({ group: groupId }).lean();
-    const shiftSetting = await shiftSettingModel.findOne({ group: groupId }).lean();
-    const allShifts = await shiftModel.find({ group: groupId, month, year })
-        .populate("user", "firstName lastName").lean();
-
-    const updatedSiftsTable = await shiftsTableModel.findOneAndUpdate({ group: groupId, month, year }, 
-        { rows: generateShiftsTable(allShifts, allJobInfos, shiftSetting) })
-    if(!updatedSiftsTable)
-        return res.status(404).json({ message: "جدول شیفت مورد نظر یافت نشد" })
-
-    res.json(updatedSiftsTable)
+    if(!year && !month) return res.status(400).json({ error: "Year query is required" })
 }
 
 exports.saveShift = async (req, res) => {
@@ -163,7 +167,7 @@ exports.createShift = async (req, res) => {
 exports.updateShift = async (req, res) => {
   const user = req.user;
   const { id } = req.params;
-  const { groupId, shiftDay, description } = req.body;
+  const { groupId, shiftDay } = req.body;
 
   const userGroup = await groupModel.findOne({ _id: groupId, matron: user._id });
   if (!userGroup)
@@ -198,7 +202,6 @@ exports.updateShift = async (req, res) => {
     shift.shiftDays.set(keyU, [numU])
   }
   
-  shift.description = description;
   await shift.save();
 
   res.json({ message: "Shift updated successfully" });
@@ -212,7 +215,9 @@ exports.getShiftReport = async (req, res) => {
   if (!userGroup)
     return res.status(404).json({ error: "User group not found" });
 
-  const groupShifts = await shiftModel.find({ group: groupId, year, month, expired: false })
+  const groupShifts = await shiftModel.find({ group: groupId, year, month, expired: false 
+    // , temporal: false
+  })
     .populate("user", "firstName lastName mobile")
     .lean();
 
@@ -224,8 +229,7 @@ exports.getUserShifts = async (req, res) => {
   const { groupId } = req.params;
   const { year, month } = req.query;
 
-  if(!isValidObjectId(groupId))
-    return res.status(422).json({ error: "Group id is not valid" })
+  if(!isValidObjectId(groupId)) return res.status(422).json({ error: "Group id is not valid" })
 
   const userShifts = await shiftModel.find({ user: userId, group: groupId })
     .populate("group", "province county hospital department")
@@ -243,12 +247,11 @@ exports.getUserShifts = async (req, res) => {
   }
 
   if(year && month){
-    filteredShifts = userShifts.filter(shift => shift.month === String(month))
+    filteredShifts = userShifts.filter(shift => shift.year === String(year) && shift.month === String(month))
     return res.json({ shifts: filteredShifts, haveShift })
   }
 
-  if(!year && !month)
-    return res.status(400).json({ error: "Year query is required" })
+  if(!year && !month) return res.status(400).json({ error: "Year query is required" })
 };
 
 exports.getUserShift = async (req, res) => {
@@ -275,6 +278,19 @@ exports.getUserShift = async (req, res) => {
   res.json({ ...userShift, shiftDays: formattedShiftDays, currentShiftDays: userShift.shiftDays });
 };
 
+exports.getUserShiftDescription = async (req, res) => {
+  const { id } = req.params;
+  if(!isValidObjectId(id)) return res.status(422).json({ error: "Shift id is not valid" })
+
+  const userShift = await shiftModel.findById(id)
+    .select("description user")
+    .populate("user", "firstName lastName")
+    .lean();
+
+  if(!userShift) return res.status(404).json({ error: "User shift not found" })
+  res.json(userShift)
+}
+
 exports.checkShiftExpiration = async (req, res) => {
   const userId = req.user._id;
   const { id } = req.params;
@@ -298,10 +314,9 @@ exports.rejectShiftDay = async (req, res) => {
   const { groupId, shiftDay } = req.body;
 
   const userGroup = await groupModel.findOne({ _id: groupId, matron: userId });
-  if (!userGroup)
-    return res.status(404).json({ error: "User group not found" });
+  if (!userGroup) return res.status(404).json({ error: "User group not found" });
 
-  const shift = await shiftModel.findOne({ _id: id, group: groupId });
+  const shift = await shiftModel.findById(id);
   if (!shift) return res.status(404).json({ error: "Shift not found" });
 
   shift.rejects.push(shiftDay);

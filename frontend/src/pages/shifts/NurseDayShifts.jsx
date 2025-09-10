@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from 'react'
-import { Backdrop, Button, CircularProgress, Grid, Typography, useMediaQuery, Drawer } from '@mui/material'
+import { Backdrop, Button, CircularProgress, Grid, Typography, useMediaQuery, Drawer, Paper } from '@mui/material'
 import { useTheme } from "@mui/material/styles";
 import { EventNote } from '@mui/icons-material'
 import { useParams, useNavigate, Link } from 'react-router-dom'
@@ -9,11 +9,13 @@ import AppHeader from '../../components/AppHeader'
 import { useNursesShifts } from "../../api/shiftManagement.api";
 import RejectModal from '../../components/manageShift/RejectModal';
 import ChangeModal from '../../components/manageShift/ChangeModal';
+import NurseDescModal from '../../components/manageShift/NurseDescModal';
 import useShiftStore from '../../store/shiftStore';
 import ShiftsContext from '../../context/ShiftsContext';
 import ShiftDataBox from '../../components/manageShift/ShiftDataBox';
 import ShiftsCountBox from '../../components/manageShift/ShiftsCountBox';
 import SnackAlert from '../../components/SnackAlert';
+import { getShiftDay } from "../../utils/shiftsData";
 
 
 export default function NurseDayShifts() {
@@ -24,9 +26,9 @@ export default function NurseDayShifts() {
     const [dayShifts, setDayShifts] = useState(null)
     const [selectedShift, setSelectedShift] = useState({ shiftId: '', shiftDay: '', shiftUser: '' })
     const [drawerOpen, setDrawerOpen] = useState(false)
+    const [descModalOpen, setDescModalOpen] = useState(false)
     const [changeModalOpen, setChangeModalOpen] = useState(false)
     const [rejectModalOpen, setRejectModalOpen] = useState(false)
-    const [rejectModalMsg, setRejectModalMsg] = useState(null)
     const { groupId, groupTitle } = useShiftStore()
     const { shiftMonth, shiftYear } = useContext(ShiftsContext)
     const { data, isLoading } = useNursesShifts(groupId, String(shiftYear), String(shiftMonth))
@@ -35,11 +37,19 @@ export default function NurseDayShifts() {
 
     useEffect(() => {
         if(!isLoading && data){
-            const filterData = data.filter(item => item.shiftDay.includes(day))
+            const filterData = data.filter(item => getShiftDay(item.shiftDay)[1] === Number(day))
             if(!!filterData.length) setDayShifts(filterData)
             else navigate('/shifts/matron/manage')
         }
     }, [data, isLoading])
+
+    const handleSelectShift = (shiftData) => {
+        setSelectedShift({
+            shiftId: shiftData.shiftId,
+            shiftDay: shiftData.shiftDay,
+            shiftUser: shiftData.shiftUser
+        });
+    };
 
     return (
         <MainLayout title={`شیفت های ${shiftYear}/${shiftMonth}/${day}`}>
@@ -106,15 +116,29 @@ export default function NurseDayShifts() {
                             }
                         </Grid>
 
+                        <Grid size={{ xs: 12 }} mt={1}>
+                            <Paper
+                                elevation={3}
+                                sx={{ p: 2, border: '2px solid #1976d2' }}
+                            >
+                                <Typography
+                                    variant='h6'
+                                    color='warning'
+                                    sx={{ textTransform: 'uppercase', fontWeight: 'bold' }}>
+                                    M: صبح | E: عصر | N: شب | V: مرخصی | H: تعطیل | OFF: بدون شیفت
+                                </Typography>
+                            </Paper>
+                        </Grid>
+
                         <Grid size={{ xs: 12 }}>
                             {dayShifts.map(dayShift => (
                                 <ShiftDataBox
                                     key={dayShift.shiftDay}
                                     shiftData={dayShift}
-                                    setRejectModalMsg={setRejectModalMsg}
+                                    handleSelectShift={handleSelectShift}
                                     setRejectModalOpen={setRejectModalOpen}
-                                    setSelectedShift={setSelectedShift}
                                     setChangeModalOpen={setChangeModalOpen}
+                                    setDescModalOpen={setDescModalOpen}
                                 />
                             ))}
                         </Grid>
@@ -122,7 +146,7 @@ export default function NurseDayShifts() {
                 )}
             </Grid>
             <RejectModal 
-                open={rejectModalOpen} msg={rejectModalMsg} 
+                open={rejectModalOpen}
                 closeHandler={() => setRejectModalOpen(false)}
                 selectedShift={selectedShift}
             />
@@ -130,6 +154,11 @@ export default function NurseDayShifts() {
                 open={changeModalOpen}
                 setChangeModalOpen={setChangeModalOpen}
                 setSnackbar={setSnackbar}
+                selectedShift={selectedShift}
+            />
+            <NurseDescModal
+                open={descModalOpen}
+                setModalOpen={setDescModalOpen}
                 selectedShift={selectedShift}
             />
             <SnackAlert snackbar={snackbar} setSnackbar={setSnackbar} />

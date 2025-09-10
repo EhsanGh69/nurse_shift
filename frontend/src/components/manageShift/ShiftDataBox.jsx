@@ -1,46 +1,30 @@
 import { useContext, useState } from "react";
-import { Box, Button, Divider, IconButton, Paper, Typography, Menu, MenuItem } from "@mui/material";
+import { Box, Divider, IconButton, Paper, Typography, Menu, MenuItem } from "@mui/material";
 import MenuIcon  from '@mui/icons-material/Menu'
 import EventBusyIcon  from '@mui/icons-material/EventBusy'
-import PlaylistRemoveIcon  from '@mui/icons-material/PlaylistRemove'
 import EditCalendarIcon  from '@mui/icons-material/EditCalendar'
+import NoteIcon  from '@mui/icons-material/Note'
 
-import { useRejectedShifts } from "../../api/shiftManagement.api";
-import useShiftStore from "../../store/shiftStore";
 import ShiftsContext from "../../context/ShiftsContext";
 import { getShiftDay } from "../../utils/shiftsData";
 
 
 export default function ShiftDataBox({
   shiftData,
-  setRejectModalMsg,
   setRejectModalOpen,
-  setSelectedShift,
-  setChangeModalOpen
+  handleSelectShift,
+  setChangeModalOpen,
+  setDescModalOpen
 }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const menuOpen = Boolean(anchorEl)
-  const handleMenuOpen = (event) => setAnchorEl(event.currentTarget)
+  const [activeUser, setActiveUser] = useState(null);
+  const handleMenuOpen = (event, user) => {
+    setAnchorEl(event.currentTarget)
+    setActiveUser(user)
+  }
   const handleMenuClose = () => setAnchorEl(null)
   const { checkHoliday } = useContext(ShiftsContext);
-  const { groupId } = useShiftStore();
-  const { mutateAsync: mutateRejects } = useRejectedShifts();  
-
-  const handleRejectModal = async ({ shiftId, shiftDay }) => {
-    await mutateRejects({ groupId, shiftId })
-    .then((data) => {
-        if (data?.rejects.length)
-        setRejectModalMsg(
-            <>
-                <p>شیفت این پرستار را قبلا رد کرده اید</p>
-                <p>آیا باز هم می خواهید رد کنید؟</p>
-            </>
-        );
-        else setRejectModalMsg("آیا از رد کردن شیفت این پرستار اطمینان دارید؟");
-    })
-    setRejectModalOpen(true);
-    setSelectedShift({ shiftId, shiftDay })
-  };
 
   return (
     <Paper elevation={3} sx={{ p: 2, border: "2px solid #1976d2", mt: 1 }}>
@@ -92,7 +76,7 @@ export default function ShiftDataBox({
                         color: "info.main",
                         bgcolor: "#f0f0f0"
                     }}
-                    onClick={handleMenuOpen}
+                    onClick={(e) => handleMenuOpen(e, user)}
                 >
                     <MenuIcon sx={{ fontSize: 35 }} />
                 </IconButton>
@@ -106,7 +90,14 @@ export default function ShiftDataBox({
                 >
                     <MenuItem 
                         sx={{ display: 'flex' }} 
-                        onClick={() => handleRejectModal({ shiftId: user.shiftId, shiftDay: shiftData.shiftDay })}
+                        onClick={() => {
+                          handleSelectShift({ 
+                            shiftId: activeUser?.shiftId, 
+                            shiftDay: shiftData.shiftDay, 
+                            shiftUser: activeUser?.fullname 
+                          })
+                          setRejectModalOpen(true)
+                        }}
                     >
                         <EventBusyIcon sx={{ mt: 1 }} color="error" />
                         <Typography color="error" variant="subtitle1" sx={{ mt: 1, ml: 1 }}>رد شیفت</Typography>
@@ -114,20 +105,30 @@ export default function ShiftDataBox({
                     <MenuItem 
                         sx={{ display: 'flex' }}
                         onClick={() => {
-                            setChangeModalOpen(true)
-                            setSelectedShift({ 
-                                shiftId: user.shiftId, 
+                            handleSelectShift({ 
+                                shiftId: activeUser?.shiftId, 
                                 shiftDay: shiftData.shiftDay, 
-                                shiftUser: user.fullname
+                                shiftUser: activeUser?.fullname
                             })
+                            setChangeModalOpen(true)
                         }}
                     >
                         <EditCalendarIcon sx={{ mt: 1 }} color="info" />
                         <Typography color="info" variant="subtitle1" sx={{ mt: 1, ml: 1 }}>تغییر شیفت</Typography>
                     </MenuItem>
-                    <MenuItem sx={{ display: 'flex' }}>
-                        <PlaylistRemoveIcon sx={{ mt: 1 }} color="warning" />
-                        <Typography color="warning" variant="subtitle1" sx={{ mt: 1, ml: 1 }}>شیفت های رد شده</Typography>
+                    <MenuItem 
+                      sx={{ display: 'flex' }}
+                      onClick={() => {
+                        handleSelectShift({ 
+                          shiftId: activeUser?.shiftId, 
+                          shiftDay: shiftData.shiftDay, 
+                          shiftUser: activeUser?.fullname
+                        })
+                        setDescModalOpen(true)
+                      }}
+                    >
+                        <NoteIcon sx={{ mt: 1 }} color="warning" />
+                        <Typography color="warning" variant="subtitle1" sx={{ mt: 1, ml: 1 }}>توضیحات پرستار</Typography>
                     </MenuItem>
                 </Menu>
             </Box>

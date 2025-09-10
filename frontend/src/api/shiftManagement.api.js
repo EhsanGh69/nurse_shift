@@ -64,12 +64,30 @@ export const useNursesShifts = (groupId, year, month) => {
     })
 }
 
-export const useRejectedShifts = () => {
-    return useMutation({
-        mutationFn: async ({groupId, shiftId}) => {
+
+export const useRejectedShifts = (shiftId, groupId) => {
+    return useQuery({
+        queryKey: ['rejectedShifts', shiftId, groupId],
+        queryFn: async () => {
             const { data } = await api.get(`/shifts/reject/${groupId}/${shiftId}`)
             return data
-        }
+        },
+        retry: 0,
+        staleTime: 0,
+        enabled: !!shiftId && !!groupId
+    })
+}
+
+export const useNurseDescription = (shiftId) => {
+    return useQuery({
+        queryKey: ['nurseDescription', shiftId],
+        queryFn: async () => {
+            const { data } = await api.get(`/shifts/user/desc/${shiftId}`)
+            return data
+        },
+        retry: 0,
+        staleTime: 0,
+        enabled: !!shiftId
     })
 }
 
@@ -92,5 +110,42 @@ export const useChangeShift = (shiftId) => {
             await api.put(`/shifts/update/${shiftId}`, data)
         },
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['nursesShifts'] })
+    })
+}
+
+export const useShiftsTables = (groupId, year, month) => {
+    return useQuery({
+        queryKey: ['shiftsTables', groupId, year, month],
+        queryFn: async () => {
+            const { data } = await api.get(`/shifts/tables/all/${groupId}`, { params: { year, month } })
+            return data
+        },
+        retry: 0,
+        staleTime: 0,
+        enabled: !!groupId
+    })
+}
+
+export const useShiftsTable = (tableId) => {
+    return useQuery({
+        queryKey: ['shiftsTable', tableId],
+        queryFn: async () => {
+            const { data } = await api.get(`/shifts/tables/${tableId}`)
+            return data
+        },
+        retry: 0,
+        staleTime: 0,
+        enabled: !!tableId
+    })
+}
+
+export const useRefreshShiftsTables = () => {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: async (data) => {
+            await api.post(`/shifts/tables/refresh`, data)
+        },
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['shiftsTables'] })
     })
 }

@@ -88,7 +88,11 @@ export default function NurseShifts() {
                 )}
 
                 {userShifts?.length
-                    ? userShifts.map((shift, index) => <ShiftBox shift={shift} key={index} />)
+                    ? (
+                        <Grid container spacing={3} width="100%">
+                            {userShifts.map((shift, index) => <ShiftBox shift={shift} key={index} />)}
+                        </Grid>
+                    )
                     : (
                         <Alert color="error" severity="error" icon={<EventBusy fontSize="large" />}
                             sx={{ width: "100%", display: "flex", justifyContent: "center" }}>
@@ -100,4 +104,3 @@ export default function NurseShifts() {
         </MainLayout>
     )
 }
-
