@@ -8,7 +8,7 @@ import ShiftsContext from "../../context/ShiftsContext";
 
 export default function ShiftSelect() {
     const { selectedDay, setSelectedDay, collapseOpen, checkHoliday, getSelectedShiftDay,
-      selectedShifts, shiftYear, shiftMonth, setCollapseOpen, setSelectedShifts, topBox, userShift
+      selectedShifts, shiftYear, shiftMonth, setCollapseOpen, setSelectedShifts, selectBox, userShift
     } = useContext(ShiftsContext)
 
     useEffect(() => {
@@ -34,90 +34,90 @@ export default function ShiftSelect() {
     };
 
     const handleScrollBox = () => {
-      if(topBox.current)
-        topBox.current.scrollIntoView({ behavior: "smooth", block: "start" })
+      if(selectBox.current)
+        selectBox.current.scrollIntoView({ behavior: "smooth", block: "start" })
     }
 
   return (
-    <Box ref={topBox}>
+    <Box ref={selectBox}>
       <Collapse in={collapseOpen} sx={{ mt: 2 }} onEntered={handleScrollBox}>
-      <Paper sx={{ p: 2 }}>
-        <IconButton
-          size="small"
-          onClick={() => {
-            setCollapseOpen(false)
-            setSelectedDay(null)
-          }}
-          sx={{ mb: 2 }}
-        >
-          <Close />
-        </IconButton>
-
-        <Box width="100%" mb={1.5}>
-          <Typography
-            variant="body1"
-            fontWeight={700}
-            component="span"
-            color="success"
-            display="flex"
-            alignItems="center"
+        <Paper sx={{ p: 2 }}>
+          <IconButton
+            size="small"
+            onClick={() => {
+              setCollapseOpen(false)
+              setSelectedDay(null)
+            }}
+            sx={{ mb: 2 }}
           >
-            <EventAvailable fontSize="small" sx={{ mr: 1 }} />
-            {`${shiftYear}/${shiftMonth}/${selectedDay}`}
-          </Typography>
-          <Typography variant="body1" component="span" color="error">
-            {checkHoliday(selectedDay) &&
-              `تعطیل - ${checkHoliday(selectedDay).title}`}
-          </Typography>
-        </Box>
+            <Close />
+          </IconButton>
 
-        <Box width="100%" mb={1.5}>
-          <Typography variant="body1" fontWeight={700} color="info">
-            M: صبح | E: عصر | N: شب | V: مرخصی | H: تعطیل
-          </Typography>
-        </Box>
+          <Box width="100%" mb={1.5}>
+            <Typography
+              variant="body1"
+              fontWeight={700}
+              component="span"
+              color="success"
+              display="flex"
+              alignItems="center"
+            >
+              <EventAvailable fontSize="small" sx={{ mr: 1 }} />
+              {`${shiftYear}/${shiftMonth}/${selectedDay}`}
+            </Typography>
+            <Typography variant="body1" component="span" color="error">
+              {checkHoliday(selectedDay) &&
+                `تعطیل - ${checkHoliday(selectedDay).title}`}
+            </Typography>
+          </Box>
 
-        <Grid container>
-          {shiftDays.map((shiftDay) => {
-            const isEqual = userShift?.shiftDays[selectedDay] === getSelectedShiftDay(selectedDay)
-            const checkUserShift = userShift?.shiftDays[selectedDay] === shiftDay
-            const isChecked = !isEqual && getSelectedShiftDay(selectedDay) === shiftDay || isEqual && checkUserShift;
-            const isOffOrV = shiftDay === "OFF" || shiftDay === "V";
-            const notHolidayInclude =
-              !checkHoliday(selectedDay) && shiftDay.includes("H");
-            const holidayNotInclude =
-              checkHoliday(selectedDay) && !shiftDay.includes("H");
+          <Box width="100%" mb={1.5}>
+            <Typography variant="body1" fontWeight={700} color="info">
+              M: صبح | E: عصر | N: شب | V: مرخصی | H: تعطیل
+            </Typography>
+          </Box>
 
-            return (
-              <Grid key={shiftDay}>
-                <Paper
-                  onClick={() => handleShiftSelect(shiftDay)}
-                  sx={{
-                    px: 2,
-                    py: 1,
-                    ml: 1,
-                    mb: 1,
-                    cursor: "pointer",
-                    display:
-                      !isOffOrV && (notHolidayInclude || holidayNotInclude)
-                        ? "none"
-                        : "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    borderRadius: 2,
-                    minWidth: 80,
-                    backgroundColor: isChecked ? "#1976d2" : "#f0f0f0",
-                    color: isChecked ? "#fff" : "#000",
-                  }}
-                >
-                  {isChecked && <Check />}
-                  <Typography sx={{ ml: 0.5 }}>{shiftDay}</Typography>
-                </Paper>
-              </Grid>
-            );
-          })}
-        </Grid>
-      </Paper>
+          <Grid container>
+            {shiftDays.map((shiftDay) => {
+              const isEqual = userShift?.shiftDays[selectedDay] === getSelectedShiftDay(selectedDay)
+              const checkUserShift = userShift?.shiftDays[selectedDay] === shiftDay
+              const isChecked = !isEqual && getSelectedShiftDay(selectedDay) === shiftDay || isEqual && checkUserShift;
+              const isOffOrV = shiftDay === "OFF" || shiftDay === "V";
+              const notHolidayInclude =
+                !checkHoliday(selectedDay) && shiftDay.includes("H");
+              const holidayNotInclude =
+                checkHoliday(selectedDay) && !shiftDay.includes("H");
+
+              return (
+                <Grid key={shiftDay}>
+                  <Paper
+                    onClick={() => handleShiftSelect(shiftDay)}
+                    sx={{
+                      px: 2,
+                      py: 1,
+                      ml: 1,
+                      mb: 1,
+                      cursor: "pointer",
+                      display:
+                        !isOffOrV && (notHolidayInclude || holidayNotInclude)
+                          ? "none"
+                          : "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      borderRadius: 2,
+                      minWidth: 80,
+                      backgroundColor: isChecked ? "#1976d2" : "#f0f0f0",
+                      color: isChecked ? "#fff" : "#000",
+                    }}
+                  >
+                    {isChecked && <Check />}
+                    <Typography sx={{ ml: 0.5 }}>{shiftDay}</Typography>
+                  </Paper>
+                </Grid>
+              );
+            })}
+          </Grid>
+        </Paper>
       </Collapse>
     </Box>
   );

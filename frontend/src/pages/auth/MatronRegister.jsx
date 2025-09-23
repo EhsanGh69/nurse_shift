@@ -12,6 +12,7 @@ import { useRegister } from '../../api/auth.api';
 import handleApiErrors from '../../utils/apiErrors';
 import BackButton from '../../components/BackButton';
 import { textFieldStyle } from '../../styles/globalStyles';
+import ProvinceCounties from '../../components/auth/ProvinceCounties';
 
 
 export default function MatronRegister() {
@@ -71,38 +72,15 @@ export default function MatronRegister() {
                                 />
                             ))}
 
-                            <TextField
-                                fullWidth
-                                select
-                                label="استان"
-                                name='province'
-                                value={values.province}
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                error={touched.province && Boolean(errors.province)}
-                                helperText={touched.province && errors.province}
-                                sx={{ mb: 2,...textFieldStyle(preferDark) }}
-                            >
-                                <MenuItem value="markazi">
-                                    مرکزی
-                                </MenuItem>
-                            </TextField>
-                            <TextField
-                                fullWidth
-                                select
-                                label="شهرستان"
-                                name='county'
-                                value={values.county}
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                error={touched.county && Boolean(errors.county)}
-                                helperText={touched.county && errors.county}
-                                sx={{ mb: 2,...textFieldStyle(preferDark) }}
-                            >
-                                <MenuItem value="arak">
-                                    اراک
-                                </MenuItem>
-                            </TextField>
+                            <ProvinceCounties
+                                values={values}
+                                handleChange={handleChange}
+                                handleBlur={handleBlur}
+                                touched={touched}
+                                errors={errors}
+                                preferDark={preferDark}
+                            />
+
                             <TextField
                                 fullWidth
                                 label="بیمارستان"

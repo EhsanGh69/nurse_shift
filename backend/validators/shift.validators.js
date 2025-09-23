@@ -17,7 +17,8 @@ const shiftDaysKeys = [
     "MH", "EH", "NH", "MEH", "MNH", "NEH", "ENH", "NMH", "NMEH", "MENH"
 ]
 const personSettingKeys = ["M", "E", "N", "MH", "EH", "NH"]
-const hourSettingKeys = ["NPM", "NPE", "NPN", "PM", "PE", "PN", "PMH", "PEH", "PNH"]
+// const hourSettingKeys = ["NPM", "NPE", "NPN", "PM", "PE", "PN", "PMH", "PEH", "PNH"]
+const hourSettingKeys = ["NPM", "NPE", "NPN", "PM", "PE", "PN"]
 
 
 const keysValidator = (value, validKeys, helpers) => {

@@ -3,5 +3,6 @@ export const shiftDays = [
     "MH", "EH", "NH", "MEH", "MNH", "NEH", "ENH", "NMH", "NMEH", "MENH"
 ]
 export const personShifts = ["M", "E", "N", "MH", "EH", "NH"]
-export const hourShifts = ["NPM", "NPE", "NPN", "PM", "PE", "PN", "PMH", "PEH", "PNH"]
+// export const hourShifts = ["NPM", "NPE", "NPN", "PM", "PE", "PN", "PMH", "PEH", "PNH"]
+export const hourShifts = ["NPM", "NPE", "NPN", "PM", "PE", "PN"]
 export const jobInfoKeys = ["post", "employment", "experience", "hourReduction", "promotionDuty", "nonPromotionDuty"]

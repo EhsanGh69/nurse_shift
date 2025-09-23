@@ -7,13 +7,16 @@ export default function CalendarGrid() {
     const weekDays = useMemo(() => [ "شنبه", "یک شنبه", "دو شنبه", "سه‌ شنبه", "چهار شنبه", "پنج‌ شنبه", "جمعه"]);
     const { 
         monthGrid, selectedDay, setSelectedDay, checkHoliday, 
-        getSelectedShiftDay, setCollapseOpen, userShift
+        getSelectedShiftDay, setCollapseOpen, userShift, collapseOpen
     } = useContext(ShiftsContext)
 
     const handleDayClick = (day) => {
+        if(collapseOpen) {
+            setCollapseOpen(false)
+        } 
         if (day) {
             setSelectedDay(day);
-            setCollapseOpen(true)
+            setTimeout(() => setCollapseOpen(true), 100)
         }
     };
 

@@ -415,9 +415,11 @@ exports.setJobInfo = async (req, res) => {
     nonPromotionDuty,
   } = req.body;
 
-  const userGroup = await groupModel.findOne({ _id: groupId, matron: matronId });
-  if (!userGroup)
-    return res.status(404).json({ error: "User group not found" });
+  const userGroup = await groupModel.findOne({
+    _id: groupId,
+    $and: [{ members: { $all: [userId] } }, { matron: matronId }],
+  });
+  if (!userGroup) return res.status(404).json({ error: "User group not found" });
 
   const jobInfo = await jobInfoModel.findOneAndUpdate({ group: groupId, user: userId }, {
     post,

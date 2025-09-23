@@ -15,4 +15,13 @@ router.get("/holidays", (req, res) => {
     })
 })
 
+router.get("/provinces", (req, res) => {
+    const filePath = path.join(__dirname, "provinces.json")
+
+    fs.readFile(filePath, 'utf-8', (err, data) => {
+        if(err) throw err;
+        res.json(JSON.parse(data))
+    })
+})
+
 module.exports = router;

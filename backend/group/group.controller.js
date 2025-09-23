@@ -1,9 +1,11 @@
 const crypto = require("crypto");
-const { isValidObjectId } = require("mongoose");
+const { isValidObjectId, Types: mongooseTypes } = require("mongoose");
 
 const inviteCodeModel = require('./inviteCode.model');
 const groupModel = require('./group.model');
 const userModel = require('../user/user.model');
+const subGroupModel = require('./subGroup.model');
+const jobInfoModel = require('../shift/jobInfo.model');
 
 exports.getGroups = async (req, res) => {
     const user = req.user;
@@ -40,10 +42,12 @@ exports.createGroup = async (req, res) => {
     const user = req.user;
 
     const group = await groupModel.findOne({ matron: user._id, province, county, hospital })
-    if(group)
-        return res.status(409).json({ message: "گروهی با مشخصات وارد شده از قبل وجود دارد" })
+    if(group) return res.status(409).json({ message: "گروهی با مشخصات وارد شده از قبل وجود دارد" })
 
-    await groupModel.create({ matron: user._id, province, county, hospital, department })
+        
+    const newGroup = await groupModel.create({ matron: user._id, province, county, hospital, department })
+    await subGroupModel.create({ group: newGroup._id })
+
     res.status(201).json({ message: "New group created successfully" })
 }
 
@@ -76,3 +80,101 @@ exports.getGroupInvitees = async (req, res) => {
 
     res.json(invitees);
 }
+
+exports.setSubGroup = async (req, res) => {
+    const { groupId, order, shiftCount } = req.body;
+    const user = req.user;
+    
+    const group = await groupModel.findOne({ _id: groupId, matron: user._id })
+    if(!group) return res.status(404).json({ error: "Group not found!" })
+        
+    const subGroups = await subGroupModel.findOneAndUpdate({ group: groupId }, {
+        $push: { subs: { order, shiftCount } }
+    })
+    if(!subGroups) return res.status(404).json({ error: "Sub Group not found!" })
+            
+    // const { groupId } = req.body;
+    // await subGroupModel.create({ group: groupId })
+    res.json({ message: "Sub group created successfully" })
+}
+
+exports.addSubGroupMember = async (req, res) => {
+    const user = req.user;
+    const { groupId, order, memberId, rank } = req.body
+
+    const group = await groupModel.findOne({ _id: groupId, matron: user._id })
+    if(!group) return res.status(404).json({ error: "Group not found!" })
+    
+    const subGroups = await subGroupModel.findOne({ group: groupId })
+    if(!subGroups) return res.status(404).json({ error: "Subgroup not found!" })
+
+    const subGroup = subGroups.subs.find(sub => sub.order === order)
+    if(!subGroup) return res.status(404).json({ error: "Subgroup order not found!" })
+
+    const memberExists = subGroup.members.some(m => String(m.user) === memberId)
+    if(memberExists) return res.status(409).json({ error: "This user already exists in this subgroup" })
+
+    const memberObjectId = new mongooseTypes.ObjectId(String(memberId))
+    subGroup.members.push({ user: memberObjectId, rank })
+
+    await subGroups.save()
+    return res.json({ message: "Subgroup member added successfully" })
+}
+
+exports.getSubGroups = async (req, res) => {
+    const user = req.user;
+    const { groupId } = req.params;
+
+    if(!isValidObjectId(groupId)) return res.status(422).json({ error: "Group id is not valid" });
+    const group = await groupModel.findOne({ _id: groupId, matron: user._id })
+    if(!group) return res.status(404).json({ error: "Group not found!" })
+
+    const subGroups = await subGroupModel.findOne({ group: groupId })
+    .populate({ path: "subs.members.user", select: "firstName lastName", model: "User" })
+    .lean()
+    if(!subGroups) return res.status(404).json({ error: "Subgroup not found!" })
+
+    res.json(subGroups);
+}           
+
+exports.unassignedSubgroupMembers = async (req, res) => {
+    const user = req.user;
+    const { groupId } = req.params;
+
+    if(!isValidObjectId(groupId)) return res.status(422).json({ error: "Group id is not valid" });
+    const group = await groupModel.findOne({ _id: groupId, matron: user._id }).populate('members')
+    if(!group) return res.status(404).json({ error: "Group not found!" })
+
+    const subGroup = await subGroupModel.findOne({ group: groupId })
+    if(!subGroup) return res.status(404).json({ error: "Subgroup not found!" })
+
+    const assignedUserIds = new Set()
+
+    for(const sub of subGroup.subs){
+        for(const member of sub.members){
+            assignedUserIds.add(member.user.toString())
+        }
+    }
+
+    const unassigned = group.members.filter(member => !assignedUserIds.has(member._id.toString()))
+
+    const jobInfos = await jobInfoModel.find({ group: groupId }).populate('user', 'firstName lastName')
+    if(!jobInfos) return res.status(404).json({ message: "اطلاعات پرستاران وارد نشده است" })
+
+    const unassignedMembers = []
+
+    unassigned.forEach(unMember => {
+        jobInfos.forEach(jInfo => {
+            if(unMember._id.toString() === jInfo.user._id.toString()){
+                unassignedMembers.push({
+                    fullName: `${jInfo.user.firstName} ${jInfo.user.lastName}`,
+                    employment: jInfo.employment,
+                    experience: jInfo.experience
+                })
+            }
+        })
+    })
+
+    res.json(unassignedMembers)
+}
+

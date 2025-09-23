@@ -4,7 +4,9 @@ const groupController = require('./group.controller');
 const verifyToken = require('../middlewares/verifyToken');
 const permission = require('../middlewares/permission');
 const validate = require('../middlewares/joiValidator');
-const { inviteCodeSchema, createGroupSchema } = require('../validators/groupValidators');
+const { 
+    inviteCodeSchema, createGroupSchema, createSubGroupSchema, addSubGroupMemberSchema
+} = require('../validators/groupValidators');
 
 const router = Router()
 
@@ -33,6 +35,28 @@ router.post('/create',
     permission(['ADMIN', 'MATRON']),
     validate(createGroupSchema),
     groupController.createGroup
+)
+router.post('/subs',
+    verifyToken,
+    permission(['ADMIN', 'MATRON']),
+    validate(createSubGroupSchema),
+    groupController.setSubGroup
+)
+router.put('/subs/member',
+    verifyToken,
+    permission(['ADMIN', 'MATRON']),
+    validate(addSubGroupMemberSchema),
+    groupController.addSubGroupMember
+)
+router.get('/subs/:groupId',
+    verifyToken,
+    permission(['ADMIN', 'MATRON']),
+    groupController.getSubGroups
+)
+router.get('/subs/unassigned/:groupId',
+    verifyToken,
+    permission(['ADMIN', 'MATRON']),
+    groupController.unassignedSubgroupMembers
 )
 
 module.exports = router;

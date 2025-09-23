@@ -17,7 +17,7 @@ export default function ShiftCalendar() {
     const { groupId: shiftGroupId } = useShiftStore()
     const { mutateAsync: saveMutate, isPending: savePending } = useSaveShift()
     
-    const { formOpen, selectedShifts, shiftYear, shiftMonth, userShift, setCollapseOpen } 
+    const { formOpen, setFormOpen, selectedShifts, shiftYear, shiftMonth, userShift, setCollapseOpen } 
     = useContext(ShiftsContext)
 
     useEffect(() => {
@@ -55,7 +55,7 @@ export default function ShiftCalendar() {
       <CalendarGrid />
 
       {anyDayHasShift() && (
-        <Grid size={{ xs: 12 }} mt={2}>
+        <Grid size={{ xs: 12 }} mt={2} display="flex">
           <Button
             sx={{
               py: "8px",
@@ -69,6 +69,24 @@ export default function ShiftCalendar() {
           >
             ذخیره تغییرات
           </Button>
+          {!formOpen && (
+            <Button
+              sx={{
+                py: "8px",
+                px: "16px",
+                ml: 1,
+                bgcolor: "secondary.dark",
+                color: "whitesmoke",
+                display: !!userShift && (!userShift?.temporal || userShift?.expired) ? "none" : "inherit"
+              }}
+              onClick={() => {
+                setFormOpen(true)
+                setCollapseOpen(false) 
+              }}
+            >
+              ارسال تغییرات
+            </Button>
+          )}
         </Grid>
       )}
 

@@ -46,16 +46,16 @@ app.use((req, res, next) => {
 
 
 // 500 handler
-// app.use((err, req, res, next) => {
-//   if (err instanceof multer.MulterError) {
-//       return res.status(400).json({ message: "حجم فایل بیش از حد مجاز است" });
-//     }
-//   if (err.message === 'File type is not valid') {
-//       return res.status(400).json({ message: "نوع فایل نامعتبر می باشد" });
-//     }
+app.use((err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+      return res.status(400).json({ message: "حجم فایل بیش از حد مجاز است" });
+    }
+  if (err.message === 'File type is not valid') {
+      return res.status(400).json({ message: "نوع فایل نامعتبر می باشد" });
+    }
    
-//     return res.status(500).json({ error: err.message || 'Server Error' });
-// });
+    return res.status(500).json({ error: err.message || 'Server Error' });
+});
 
 
 module.exports = app;
