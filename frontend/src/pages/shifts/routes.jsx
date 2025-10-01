@@ -10,6 +10,7 @@ import NurseDayShifts from "./NurseDayShifts";
 import NursesInfos from "./NursesInfos";
 import TablesArchive from "./TablesArchive";
 import ShiftsTable from "./ShiftsTable";
+import SubGroups from "./SubGroups";
 
 const shiftRoutes = [{
     path: "/shifts", element: <PrivateRoute />, children:
@@ -24,6 +25,7 @@ const shiftRoutes = [{
             { path: "matron/infos", element: <ShiftsProvider><NursesInfos /></ShiftsProvider> },
             { path: "matron/tables", element: <ShiftsProvider><TablesArchive /></ShiftsProvider> },
             { path: "matron/tables/:tableId", element: <ShiftsProvider><ShiftsTable /></ShiftsProvider> },
+            { path: "matron/subgroups", element: <ShiftsProvider><SubGroups /></ShiftsProvider> },
         ]
 }]
 

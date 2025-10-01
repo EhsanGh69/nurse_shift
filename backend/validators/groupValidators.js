@@ -30,3 +30,14 @@ exports.addSubGroupMemberSchema = Joi.object({
     memberId: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).required(),
     rank: Joi.number().required()
 })
+
+exports.removeSubGroupMemberSchema = Joi.object({
+    groupId: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).required(),
+    order: Joi.number().required(),
+    memberId: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).required()
+})
+
+exports.removeSubGroupSchema = Joi.object({
+    groupId: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).required(),
+    order: Joi.number().required()
+})

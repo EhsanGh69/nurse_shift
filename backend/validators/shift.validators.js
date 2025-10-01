@@ -13,7 +13,7 @@ const Joi = require("joi");
 // PMH --> Promotion Morning Holiday
 
 const shiftDaysKeys = [
-    "M", "E", "N", "OFF", "V", "ME", "MN", "NE", "EN", "NM", "NME", "MEN",
+    "M", "E", "N", "OFF", "V", "CS", "ME", "MN", "NE", "EN", "NM", "NME", "MEN",
     "MH", "EH", "NH", "MEH", "MNH", "NEH", "ENH", "NMH", "NMEH", "MENH"
 ]
 const personSettingKeys = ["M", "E", "N", "MH", "EH", "NH"]
@@ -39,6 +39,7 @@ exports.createShiftSchema = Joi.object({
             ])
         )
     ).required().custom((value, helpers) => keysValidator(value, shiftDaysKeys, helpers)),
+    favCS: Joi.string().pattern(/^(ME|MN|NE|EN|NM|NME|MEN|MH|EH|NH|MEH|MNH|NEH|ENH|NMH|NMEH|MENH)$/).required(),
     month: Joi.string().required(),
     year: Joi.string().required(),
     description: Joi.string().allow("")

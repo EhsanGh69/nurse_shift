@@ -60,7 +60,7 @@ export default function Groups() {
 					))
 					: (
 						<Alert color="error" severity="error">
-							<Typography variant="h3">گروهی وجود ندارد</Typography>
+							<Typography variant="h5">گروهی وجود ندارد</Typography>
 						</Alert>
 					)
 				}

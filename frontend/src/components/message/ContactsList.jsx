@@ -1,8 +1,9 @@
+import { useState } from "react";
 import { PersonOff } from "@mui/icons-material";
 import {
-    Dialog, DialogTitle, DialogContent, TextField, List, ListItem, ListItemText, Avatar, ListItemIcon, Typography
+    Dialog, DialogTitle, DialogContent, TextField, List, ListItemButton, 
+    ListItemText, Avatar, ListItemIcon, Typography
 } from "@mui/material";
-import { useState } from "react";
 
 
 export default function ContactsList({ open, setOpen, handleSelect, contacts }) {
@@ -15,11 +16,11 @@ export default function ContactsList({ open, setOpen, handleSelect, contacts }) 
     );
 
     return (
-        <Dialog open={open}
+        <Dialog open={open} fullWidth
             onClose={() => {
                 setSearch("")
                 setOpen(false)
-            }} fullWidth>
+            }}>
             <DialogTitle>انتخاب مخاطب</DialogTitle>
             <DialogContent>
                 <TextField
@@ -32,7 +33,7 @@ export default function ContactsList({ open, setOpen, handleSelect, contacts }) 
                 <List sx={{ maxHeight: 300, overflowY: "auto" }}>
                     {filteredContacts.length
                         ? filteredContacts.map((contact) => (
-                            <ListItem button sx={{ cursor: "pointer" }}
+                            <ListItemButton button sx={{ cursor: "pointer" }}
                                 key={contact._id}
                                 onClick={() => handleSelect(contact)}
                             >
@@ -46,7 +47,7 @@ export default function ContactsList({ open, setOpen, handleSelect, contacts }) 
                                     primary={`${contact.firstName} ${contact.lastName}`}
                                     secondary={contact.mobile}
                                 />
-                            </ListItem>
+                            </ListItemButton>
                         ))
                         : (
                             <Typography color='error' fontSize="1.2rem" fontWeight="800" display="flex">
@@ -57,7 +58,6 @@ export default function ContactsList({ open, setOpen, handleSelect, contacts }) 
                     }
                 </List>
             </DialogContent>
-
         </Dialog>
     )
 }

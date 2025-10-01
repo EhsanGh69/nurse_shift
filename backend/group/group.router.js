@@ -5,7 +5,8 @@ const verifyToken = require('../middlewares/verifyToken');
 const permission = require('../middlewares/permission');
 const validate = require('../middlewares/joiValidator');
 const { 
-    inviteCodeSchema, createGroupSchema, createSubGroupSchema, addSubGroupMemberSchema
+    inviteCodeSchema, createGroupSchema, createSubGroupSchema, addSubGroupMemberSchema,
+    removeSubGroupMemberSchema, removeSubGroupSchema
 } = require('../validators/groupValidators');
 
 const router = Router()
@@ -42,11 +43,35 @@ router.post('/subs',
     validate(createSubGroupSchema),
     groupController.setSubGroup
 )
-router.put('/subs/member',
+router.post('/subs/shifts',
+    verifyToken,
+    permission(['ADMIN', 'MATRON']),
+    validate(removeSubGroupSchema),
+    groupController.getSubGroupShiftCount
+)
+router.put('/subs/remove',
+    verifyToken,
+    permission(['ADMIN', 'MATRON']),
+    validate(removeSubGroupSchema),
+    groupController.removeSubGroup
+)
+router.put('/subs/update',
+    verifyToken,
+    permission(['ADMIN', 'MATRON']),
+    validate(createSubGroupSchema),
+    groupController.updateSubGroup
+)
+router.put('/subs/member/add',
     verifyToken,
     permission(['ADMIN', 'MATRON']),
     validate(addSubGroupMemberSchema),
     groupController.addSubGroupMember
+)
+router.put('/subs/member/remove',
+    verifyToken,
+    permission(['ADMIN', 'MATRON']),
+    validate(removeSubGroupMemberSchema),
+    groupController.removeSubGroupMember
 )
 router.get('/subs/:groupId',
     verifyToken,

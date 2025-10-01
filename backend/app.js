@@ -3,9 +3,9 @@ const express = require("express");
 const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
 const cors = require('cors')
-const multer = require("multer");
 require("dotenv").config();
 
+const { notFoundErrorHandler, serverErrorHandler } = require('./middlewares/handleError');
 const authRouter = require("./auth/auth.router");
 const accountRouter = require("./account/account.router");
 const groupRouter = require("./group/group.router");
@@ -34,28 +34,7 @@ app.use('/polls', pollRouter)
 app.use('/shifts', shiftRouter)
 app.use('/json', jsonRouter)
 
-
-// 404 handler
-app.use((req, res, next) => {
-    return res.status(404).json({
-      error: {
-        message: "404 | Not Found!",
-      },
-    });
-});
-
-
-// 500 handler
-app.use((err, req, res, next) => {
-  if (err instanceof multer.MulterError) {
-      return res.status(400).json({ message: "حجم فایل بیش از حد مجاز است" });
-    }
-  if (err.message === 'File type is not valid') {
-      return res.status(400).json({ message: "نوع فایل نامعتبر می باشد" });
-    }
-   
-    return res.status(500).json({ error: err.message || 'Server Error' });
-});
-
+app.use(notFoundErrorHandler);
+// app.use(serverErrorHandler);
 
 module.exports = app;

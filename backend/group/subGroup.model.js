@@ -9,10 +9,6 @@ const memberSchema = new mongoose.Schema({
     rank: {
         type: Number,
         required: true
-    },
-    favCS: {
-        type: Boolean,
-        default: false
     }
 }, { _id: false })
 

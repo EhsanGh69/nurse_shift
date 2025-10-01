@@ -6,7 +6,9 @@ const groupModel = require("../group/group.model");
 const shiftSettingModel = require("./shiftSetting.model");
 const jobInfoModel = require("./jobInfo.model");
 const shiftsTableModel = require("./shiftsTable.model");
+const subGroupModel = require('../group/subGroup.model')
 const { getShiftDays, generateShiftsTable, getHourCountDay } = require("../utils/shiftDays");
+const { generateShiftSchedule, getUserShiftCount } = require('../utils/shiftSchedule')
 
 const currentYear = moment(new Date()).locale("fa").format("jYYYY");
 const currentMonth = moment(new Date()).locale("fa").format("jMM");
@@ -124,41 +126,38 @@ exports.saveShift = async (req, res) => {
 
 exports.createShift = async (req, res) => {
   const userId = req.user._id;
-  const { groupId, shiftDays, month, year, description } = req.body;
+  const { groupId, shiftDays, month, year, description, favCS } = req.body;
 
   if(!isValidObjectId(groupId)) return res.status(422).json({ error: "Group id is not valid" })
-
-  const userGroup = await groupModel.findOne({
-    _id: groupId,
+  const userGroup = await groupModel.findOne({ _id: groupId,
     $or: [{ members: { $all: [userId] } }, { matron: userId }],
   });
-  if (!userGroup)
-    return res.status(404).json({ error: "User group not found" });
+  if (!userGroup) return res.status(404).json({ error: "User group not found" });
 
   const shiftSetting = await shiftSettingModel.findOne({ group: groupId });
-  if (!shiftSetting)
+  if (!shiftSetting) return res.status(400).json({ message: "ارسال شیفت امکان پذیر نمی باشد" });
+
+  const subGroup = await subGroupModel.findOne({ group: groupId }).lean()
+  if (!subGroup || !getUserShiftCount(userId.toString(), subGroup.subs)) 
     return res.status(400).json({ message: "ارسال شیفت امکان پذیر نمی باشد" });
 
   if (Number(currentMonth) >= Number(month) || Number(currentDay) > shiftSetting.dayLimit)
     return res.status(400).json({ message: "مهلت ارسال شیفت به پایان رسیده است" });
 
+  const shiftDaysSchedule = generateShiftSchedule(
+    shiftDays, getUserShiftCount(userId.toString(), subGroup.subs), year, month, favCS
+  )
+  
   const shiftExist = await shiftModel.findOne({ user: userId, group: groupId, month, year })
-
   if(shiftExist && !shiftExist.temporal)
     return res.status(409).json({ message: "شیفت برای این گروه قبلا ارسال شده است" });
   else if(shiftExist && shiftExist.temporal) {
-    await shiftExist.updateOne({ shiftDays, description, temporal: false })
+    await shiftExist.updateOne({ shiftDays: shiftDaysSchedule, description, temporal: false })
     return res.json({ message: "Your shift created successfully" })
   }
   else if(!shiftExist) {
-    await shiftModel.create({
-      user: userId,
-      group: groupId,
-      shiftDays,
-      month,
-      year,
-      description,
-      temporal: false
+    await shiftModel.create({ user: userId, group: groupId, shiftDays: shiftDaysSchedule,
+      month, year, description, temporal: false
     });
     return res.status(201).json({ message: "Shift created successfully" });
   }
@@ -365,12 +364,7 @@ exports.setShiftSettings = async (req, res) => {
     { personCount, hourCount, dayLimit }
   );
   if (!shiftSetting){
-    await shiftSettingModel.create({
-      group: groupId,
-      personCount,
-      hourCount,
-      dayLimit,
-    });
+    await shiftSettingModel.create({ group: groupId,personCount,hourCount,dayLimit });
     return res.status(201).json({ message: "Shift settings created successfully" });
   }
   res.json({ message: "Shift settings updated successfully" });
@@ -404,15 +398,8 @@ exports.getJobInfos = async (req, res) => {
 
 exports.setJobInfo = async (req, res) => {
   const matronId = req.user._id;
-  const {
-    userId,
-    groupId,
-    post,
-    employment,
-    experience,
-    hourReduction,
-    promotionDuty,
-    nonPromotionDuty,
+  const { 
+    userId, groupId, post, employment, experience, hourReduction, promotionDuty, nonPromotionDuty,
   } = req.body;
 
   const userGroup = await groupModel.findOne({
@@ -421,26 +408,15 @@ exports.setJobInfo = async (req, res) => {
   });
   if (!userGroup) return res.status(404).json({ error: "User group not found" });
 
-  const jobInfo = await jobInfoModel.findOneAndUpdate({ group: groupId, user: userId }, {
-    post,
-    employment,
-    experience,
-    hourReduction,
-    promotionDuty,
-    nonPromotionDuty,
-  });
+  const jobInfo = await jobInfoModel.findOneAndUpdate(
+    { group: groupId, user: userId }, 
+    { post, employment, experience, hourReduction, promotionDuty, nonPromotionDuty}
+  );
   if (!jobInfo){
     await jobInfoModel.create({
-      user: userId,
-      group: groupId,
-      post,
-      employment,
-      experience,
-      hourReduction,
-      promotionDuty,
-      nonPromotionDuty
+      user: userId,group: groupId,post,employment,experience,hourReduction,promotionDuty,nonPromotionDuty
     });
-  return res.status(201).json({ message: "Job info created successfully" });
+    return res.status(201).json({ message: "Job info created successfully" });
   }
   res.json({ message: "Job info updated successfully" });
 };

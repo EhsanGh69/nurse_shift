@@ -15,6 +15,7 @@ import { useGroupDetails } from '../../api/group.api';
 import JobInfoBox from '../../components/manageShift/JobInfoBox';
 import { jobInfoKeys } from '../../constants/shifts';
 import { personCountSchema as jobInfoSchema } from '../../validations/shiftSettingsValidation';
+import handleApiErrors from '../../utils/apiErrors';
 
 
 export default function NursesInfos() {
