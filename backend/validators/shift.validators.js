@@ -12,12 +12,12 @@ const Joi = require("joi");
 // PM --> Promotion Morning (non holiday)
 // PMH --> Promotion Morning Holiday
 
-const shiftDaysKeys = [
-    "M", "E", "N", "OFF", "V", "CS", "ME", "MN", "NE", "EN", "NM", "NME", "MEN",
-    "MH", "EH", "NH", "MEH", "MNH", "NEH", "ENH", "NMH", "NMEH", "MENH"
-]
+const shiftDaysKeys = ["M", "E", "N", "OFF", "V", "MH", "EH", "NH"]
+// const shiftDaysKeys = [
+//     "M", "E", "N", "OFF", "V", "ME", "MN", "NE", "EN", "NM", "NME", "MEN",
+//     "MH", "EH", "NH", "MEH", "MNH", "NEH", "ENH", "NMH", "NMEH", "MENH"
+// ]
 const personSettingKeys = ["M", "E", "N", "MH", "EH", "NH"]
-// const hourSettingKeys = ["NPM", "NPE", "NPN", "PM", "PE", "PN", "PMH", "PEH", "PNH"]
 const hourSettingKeys = ["NPM", "NPE", "NPN", "PM", "PE", "PN"]
 
 
@@ -29,6 +29,19 @@ const keysValidator = (value, validKeys, helpers) => {
     }
     return value;
 }
+
+exports.saveShiftSchema = Joi.object({
+    groupId: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).required(),
+    shiftDays: Joi.object().keys(
+        Object.fromEntries(
+            shiftDaysKeys.map(key => [
+                key, Joi.array().items(Joi.number().integer().min(1).max(31).required())
+            ])
+        )
+    ).required().custom((value, helpers) => keysValidator(value, shiftDaysKeys, helpers)),
+    month: Joi.string().required(),
+    year: Joi.string().required()
+})
 
 exports.createShiftSchema = Joi.object({
     groupId: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).required(),

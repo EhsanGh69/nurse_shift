@@ -6,11 +6,15 @@ import ShiftsContext from "../../context/ShiftsContext";
 export default function CalendarGrid() {
     const weekDays = useMemo(() => [ "شنبه", "یک شنبه", "دو شنبه", "سه‌ شنبه", "چهار شنبه", "پنج‌ شنبه", "جمعه"]);
     const { 
-        monthGrid, selectedDay, setSelectedDay, checkHoliday, 
+        monthGrid, selectedDay, setSelectedDay, checkHoliday, formOpen, setFormOpen,
         getSelectedShiftDay, setCollapseOpen, userShift, collapseOpen
     } = useContext(ShiftsContext)
 
     const handleDayClick = (day) => {
+        if(formOpen){
+            setTimeout(() => setFormOpen(false), 100)
+        }
+
         if(collapseOpen) {
             setCollapseOpen(false)
         } 

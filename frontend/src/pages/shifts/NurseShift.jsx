@@ -1,4 +1,4 @@
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Backdrop, Button, CircularProgress, Grid, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -9,7 +9,7 @@ import AppHeader from "../../components/AppHeader";
 import ShiftCalendar from "../../components/shift/ShiftCalendar";
 import ShiftSelect from "../../components/shift/ShiftSelect";
 import ShiftsContext from "../../context/ShiftsContext";
-import { useUserShift, useShiftExpire } from "../../api/shift.api";
+import { useUserShift, useShiftExpire, useDayLimit } from "../../api/shift.api";
 import useShiftStore from "../../store/shiftStore";
 
 export default function NurseShift() {
@@ -20,7 +20,9 @@ export default function NurseShift() {
     const { shiftId } = useParams()
     const { isLoading, data, isError, error } = useUserShift(shiftId)
     const { mutate: mutateExpire } = useShiftExpire()
-    const { groupTitle } = useShiftStore()
+    const [shiftLimit, setShiftLimit] = useState(null)
+    const { groupTitle, groupId } = useShiftStore()
+    const { isLoading: limitLoading, data: limitData } = useDayLimit(groupId)
 
     useEffect(() => {
         if(!isLoading && isError && error.status === 404)
@@ -28,6 +30,11 @@ export default function NurseShift() {
         else if(!isLoading && data)
             setUserShift(data)
     }, [isLoading, data, isError, error])
+
+    useEffect(() => {
+    if(!limitLoading && limitData)
+        setShiftLimit(limitData)
+  }, [limitLoading, limitData])
 
     useEffect(() => {
         if(userShift && !userShift?.expired) 
@@ -78,15 +85,25 @@ export default function NurseShift() {
                         گروه : {' '}{groupTitle}
                     </Typography>
                     {userShift?.temporal && (
-                        <Typography
+                        <>
+                            <Typography
                             variant="subtitle1"
                             align="center"
                             gutterBottom
-                            mb={5}
                             color={isDark ? "#f5f5f5" : "#1e1e1e"}
-                        >
+                            >
                             برای انتخاب شیفت بر روی روز مورد نظر کلیک کنید
-                        </Typography>
+                            </Typography>
+                            <Typography
+                                variant="subtitle1"
+                                align="center"
+                                gutterBottom
+                                mb={5}
+                                color="warning"
+                            >
+                                {shiftLimit && <b>آخرین مهلت ارسال شیفت ها {shiftLimit.dayLimit} ام ماه جاری می باشد</b>}
+                            </Typography>
+                        </>
                     )}
                     
                     <ShiftCalendar />

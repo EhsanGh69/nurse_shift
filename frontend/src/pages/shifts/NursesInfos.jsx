@@ -134,7 +134,7 @@ export default function NursesInfos() {
                             </Typography>
                         </Grid>
 
-                        {Object.keys(nurseInfos).length && groupMembers?.map(member => (
+                        {!!Object.keys(nurseInfos).length && groupMembers?.map(member => (
                             <JobInfoBox
                                 key={member._id}
                                 member={member}

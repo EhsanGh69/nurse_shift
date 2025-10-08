@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Avatar, Box, Divider, Grid, Input, Paper, Typography, Button } from '@mui/material';
+import { Avatar, Box, Divider, Grid, Input, Paper, Typography, Button, TextField, MenuItem } from '@mui/material';
 import { useTheme } from "@mui/material/styles";
-
+import { textFieldStyle } from '../../styles/globalStyles';
+import { postTitles, employTitles } from '../../constants/shifts';
 
 
 export default function JobInfoBox({ 
@@ -65,24 +66,62 @@ export default function JobInfoBox({
                             </Typography>
                             <Divider orientation='vertical' flexItem
                                 sx={{ backgroundColor: "#000" }} />
-                            <Input
-                                type='number'
-                                inputProps={{ min: 1 }}
-                                sx={{ 
-                                    color: "#000", width: 50, ml: 1,
-                                    display: isEdit ? 'inherit' : 'none' 
-                                }}
-                                value={nurseInfos[field.name]}
-                                onChange={(e) => handleChangeInfos(field.name, Number(e.target.value))}
-                            />
 
+                            {field.name === 'post' && (
+                                <TextField
+                                    fullWidth
+                                    select
+                                    name='post'
+                                    value={nurseInfos[field.name]}
+                                    onChange={(e) => handleChangeInfos(field.name, Number(e.target.value))}
+                                    sx={{...textFieldStyle(isDark),display: isEdit ? 'inherit' : 'none'}}
+                                >
+                                {postTitles.map((pTitle, index) => (
+                                    <MenuItem key={index} value={index + 1}>
+                                        {pTitle}
+                                    </MenuItem>
+                                ))}
+                                </TextField>
+                            )}
+
+                            {field.name === 'employment' && (
+                                <TextField
+                                    fullWidth
+                                    select
+                                    name='employment'
+                                    value={nurseInfos[field.name]}
+                                    onChange={(e) => handleChangeInfos(field.name, Number(e.target.value))}
+                                    sx={{...textFieldStyle(isDark), display: isEdit ? 'inherit' : 'none'}}
+                                >
+                                    {employTitles.map((eTitle, index) => (
+                                        <MenuItem key={index} value={index + 1}>
+                                            {eTitle}
+                                        </MenuItem>
+                                    ))}
+                                </TextField>
+                            )}
+
+                            {field.name !== 'employment' && field.name !== 'post' && (
+                                <Input
+                                    type='number'
+                                    inputProps={{ min: 1 }}
+                                    sx={{ 
+                                        color: "#000", width: 50, ml: 1,
+                                        display: isEdit ? 'inherit' : 'none' 
+                                    }}
+                                    value={nurseInfos[field.name]}
+                                    onChange={(e) => handleChangeInfos(field.name, Number(e.target.value))}
+                                />
+                            )}
                             <Typography 
                                 sx={{ 
-                                    fontWeight: 'bold', color: "#726d6dff", pr: 3, pl: 1, width: 10,
+                                    fontWeight: 'bold', color: "#726d6dff", pr: 2, pl: 1,
                                     display: isEdit ? 'none' : 'inherit'
                                 }}
                             >
-                                {nurseInfos[field.name]}
+                                {field.name === 'post' && postTitles[nurseInfos[field.name] - 1]}
+                                {field.name === 'employment' && employTitles[nurseInfos[field.name] - 1]}
+                                {field.name !== 'employment' && field.name !== 'post' && nurseInfos[field.name]}
                             </Typography>
                         </Box>
                     ))}

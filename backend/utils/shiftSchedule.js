@@ -13,101 +13,6 @@ const totalDays = (month, year) => {
     }
 }
 
-exports.generateShiftSchedule = (shiftDaysInput, stdShiftCount, year, month, favCS="") => {
-  const schedule = {};
-  const usedDays = new Set(Object.values(shiftDaysInput).flat());
-
-  // مرحله ۱: ثبت شیفت‌های انتخاب‌شده
-  for (const [shift, days] of Object.entries(shiftDaysInput)) {
-    for (const day of days) {
-      schedule[day] = shift;
-    }
-  }
-
-  // مرحله ۲: محاسبه تعداد انتخاب‌شده برای هر شیفت
-  const selectedCount = { M: 0, E: 0, N: 0, CS: 0 };
-  const isCombinedShift = (shift) => {
-    const base = ['M', 'E', 'N'];
-    return (
-      shift !== 'OFF' &&
-      shift.split('').every((c) => base.includes(c)) &&
-      shift.length >= 2
-    );
-  };
-
-  for (const [shift, days] of Object.entries(shiftDaysInput)) {
-    if (['M', 'E', 'N'].includes(shift)) {
-      selectedCount[shift] += days.length;
-    } else if (isCombinedShift(shift)) {
-      selectedCount.CS += days.length;
-    }
-  }
- 
-  // مرحله ۳: محاسبه باقی‌مانده
-  const remaining = {};
-  for (const [shift, stdCount] of Object.entries(stdShiftCount)) {
-    const current = selectedCount[shift] || 0;
-    remaining[shift] = Math.max(stdCount - current, 0);
-  }
-
-  // مرحله ۴: روزهای خالی
-  const allDays = Array.from({ length: totalDays(month, year) }, (_, i) => i + 1);
-  const unassignedDays = allDays.filter((day) => !usedDays.has(day));
-
-  // مرحله ۵: ساخت لیست OFF و CS
-  const totalUnassigned = unassignedDays.length;
-  const totalCS = remaining.CS;
-
-  const offDays = [];
-  const csDays = [];
-
-  const spacing = Math.floor(totalUnassigned / (totalCS + 1));
-  let csInserted = 0;
-  for (let i = spacing; csInserted < totalCS && i < totalUnassigned; i += spacing + 1) {
-    csDays.push(unassignedDays[i]);
-    csInserted++;
-  }
-
-  for (const day of unassignedDays) {
-    if (!csDays.includes(day)) offDays.push(day);
-  }
-
-  // مرحله ۶: ساخت لیست نهایی شیفت‌ها
-  const remainingShifts = [];
-  for (const [shift, count] of Object.entries(remaining)) {
-    if (shift !== 'CS') {
-      for (let i = 0; i < count; i++) {
-        remainingShifts.push(shift);
-      }
-    }
-  }
-
-  // مرحله ۷: تخصیص نهایی
-  const result = { ...schedule };
-  for (const day of csDays) {
-    // result[day] = 'CS';
-    result[day] = favCS;
-  }
-  for (const day of offDays) {
-    result[day] = 'OFF';
-  }
-
-  const remainingDays = allDays.filter((d) => !Object.keys(result).includes(d.toString()));
-  for (let i = 0; i < remainingDays.length; i++) {
-    result[remainingDays[i]] = remainingShifts[i] || 'OFF';
-  }
-
-  // مرحله ۸: تبدیل به shiftDays
-  const finalShiftDays = {};
-  for (const [dayStr, shift] of Object.entries(result)) {
-    const day = parseInt(dayStr);
-    if (!finalShiftDays[shift]) finalShiftDays[shift] = [];
-    finalShiftDays[shift].push(day);
-  }
-
-  return finalShiftDays;
-}
-
 exports.getUserShiftCount = (userId, subs=[]) => {
   if(!subs.length) return false
   let userSub = null
@@ -117,4 +22,92 @@ exports.getUserShiftCount = (userId, subs=[]) => {
   })
   if(!userSub) return false
   return userSub.shiftCount
+}
+
+exports.generateShiftSchedule = (shiftDays, stdShiftCount, year, month, favCS="") => {
+  // ✅ آماده‌سازی ساختار خروجی اولیه
+  const result = {
+    M: shiftDays.M ? [...shiftDays.M] : [],
+    E: shiftDays.E ? [...shiftDays.E] : [],
+    N: shiftDays.N ? [...shiftDays.N] : [],
+    V: shiftDays.V ? [...shiftDays.V] : [],
+    OFF: shiftDays.OFF ? [...shiftDays.OFF] : [],
+    CS: [] // به صورت موقت
+  }
+
+  const schedule = Array(totalDays(month, year)).fill(null)
+
+  // --- 1️⃣ پر کردن روزهای کاربر
+  for (const [key, days] of Object.entries(shiftDays)) {
+    days.forEach(d => {
+      if (d >= 1 && d <= totalDays(month, year)) schedule[d - 1] = key
+    })
+  }
+
+  // --- 2️⃣ محاسبه تعداد باقی‌مانده‌ی شیفت‌ها
+  const remaining = { ...stdShiftCount }
+  for (const [key, days] of Object.entries(shiftDays)) {
+    if (remaining[key]) remaining[key] -= days.length
+    if (remaining[key] < 0) remaining[key] = 0
+  }
+
+  // --- 3️⃣ توزیع اولیه شیفت‌ها
+  const shiftTypes = Object.keys(stdShiftCount).filter(k => k !== 'OFF')
+  const emptyDays = schedule.map((v, i) => (v ? null : i + 1)).filter(Boolean)
+
+  const canPlace = (type, i) => {
+    if (type === 'N' && schedule[i - 1] === 'N') return false
+    return !schedule[i]
+  }
+
+  for (const type of shiftTypes) {
+    let count = remaining[type]
+    let i = 0
+    while (count > 0 && i < emptyDays.length) {
+      const day = emptyDays[i]
+      const idx = day - 1
+      if (canPlace(type, idx)) {
+        const actualType = type === 'CS' ? favCS : type
+        schedule[idx] = actualType
+        result[type].push(day)
+        emptyDays.splice(i, 1)
+        count--
+      } else i++
+    }
+  }
+
+  // --- 4️⃣ پخش یکنواخت OFF بین بقیه شیفت‌ها
+  const remainingOffDays = emptyDays
+  const distributedOffDays = []
+  if (remainingOffDays.length) {
+    const gap = Math.floor(totalDays(month, year) / (remainingOffDays.length + 1))
+    let pos = gap
+
+    for (let i = 0; i < remainingOffDays.length; i++) {
+      while (pos <= totalDays(month, year) && schedule[pos - 1]) pos++
+      if (pos > totalDays(month, year)) pos = remainingOffDays[i]
+      distributedOffDays.push(pos)
+      pos += gap
+    }
+
+    for (const d of distributedOffDays) {
+      if (d >= 1 && d <= totalDays(month, year) && !schedule[d - 1]) {
+        schedule[d - 1] = 'OFF'
+        result.OFF.push(d)
+      }
+    }
+  }
+
+  // --- 5️⃣ جایگزینی favCS به جای CS در خروجی نهایی
+  if (result.CS.length > 0) {
+    result[favCS] = (result[favCS] || []).concat(result.CS)
+  }
+  delete result.CS
+
+  // --- 6️⃣ مرتب‌سازی نهایی
+  for (const key of Object.keys(result)) {
+    result[key] = [...new Set(result[key])].sort((a, b) => a - b)
+  }
+
+  return result
 }

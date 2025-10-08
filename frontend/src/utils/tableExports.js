@@ -2,10 +2,10 @@ import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-import autoTable from "jspdf-autotable";
 import pdfMake from "pdfmake/build/pdfmake"
 
 import pdfFonts from "./pdfFonts";
+import { postTitles, employTitles } from '../constants/shifts';
 
 
 export const printScreen = async (elRef, filename) => {
@@ -147,6 +147,22 @@ export const pdfExport = async (monthDays=[], weekDays=[], tableData={}, counts=
                             ...Object.values(totalPromotions).reverse(),
                             ...Object.values(tableData.totalHourDay).slice(0, monthDays.length).reverse(),
                             { text: "شیفت ساعات کل جمع", fillColor: '#eeeeee' },
+                        ]
+                    ]
+                },
+                layout: layoutLine
+            },
+            {
+                table: {
+                    widths: [
+                        300, 100, 600, 100
+                    ],
+                    body: [
+                        [
+                            employTitles.reverse().toString().replaceAll(',', ' '),
+                            { text: "استخدام نوع", fillColor: '#eeeeee' },
+                            postTitles.reverse().toString().replaceAll(',', ' '),
+                            { text: "ها سمت", fillColor: '#eeeeee' },
                         ]
                     ]
                 },

@@ -72,10 +72,10 @@ export default function SetSubgroupModal({
                 </Typography>
                 <Divider orientation='vertical' flexItem
                     sx={{ backgroundColor: "#000" }} />
-
                 <Typography variant='body1'
                     sx={{ fontWeight: 'bold', color: "#000", ml: 1 }}>
-                    {handler === "set" ? subsLength + 1 : selectedOrder}
+                    {isNaN(subsLength) ? 1
+                    : handler === "set" ? subsLength + 1 : selectedOrder}
                 </Typography>
             </Box>
             <Box
@@ -119,7 +119,10 @@ export default function SetSubgroupModal({
             </Box>
             <Button 
                 onClick={() => {
-                    if(handler === "set") setUpdateSubgroup(shiftCount, subsLength + 1)
+                    if(handler === "set") {
+                        if(isNaN(subsLength)) setUpdateSubgroup(shiftCount, 1)
+                        else setUpdateSubgroup(shiftCount, subsLength + 1)
+                    }
                     else setUpdateSubgroup(shiftCount, selectedOrder)
                 }}
                 color='primary' sx={{ mr: 2, fontSize: "20px" }} variant='contained'>تایید</Button>

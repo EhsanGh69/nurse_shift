@@ -166,7 +166,7 @@ export default function TablePageHeader({
                                 <Typography component='span'fontSize={12} fontWeight={800} color='#000'>MH</Typography>
                             </TableCell>
                             <TableCell align='center' size='small' padding='none' sx={{ border: "1px solid #000" }}>
-                                <Typography component='span'fontSize={12} fontWeight={800} color='#000'>/</Typography>
+                                <Typography component='span'fontSize={12} fontWeight={800} color='#000'>OFF</Typography>
                             </TableCell>
                             <TableCell align='center' size='small' padding='none' sx={{ border: "1px solid #000" }}>
                                 <Typography component='span'fontSize={12} fontWeight={800} color='#000'>V</Typography>
@@ -188,7 +188,7 @@ export default function TablePageHeader({
                                 <Typography component='span'fontSize={12} fontWeight={500} color='#000'>صبح تعطیل</Typography>
                             </TableCell>
                             <TableCell align='center' size='small' padding='none' sx={{ border: "1px solid #000" }}>
-                                <Typography component='span'fontSize={12} fontWeight={500} color='#000'>OFF</Typography>
+                                <Typography component='span'fontSize={12} fontWeight={500} color='#000'>بدون شیفت</Typography>
                             </TableCell>
                             <TableCell align='center' size='small' padding='none' sx={{ border: "1px solid #000" }}>
                                 <Typography component='span'fontSize={12} fontWeight={500} color='#000'>مرخصی</Typography>

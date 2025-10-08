@@ -92,7 +92,7 @@ export default function SubGroups() {
                 selectedOrder={selectedOrder}
             />
 
-            {subgroups
+            {subgroups?.length
                 ? subgroups.map(sub => (
                     <SubGroupBox 
                         key={sub.order} 

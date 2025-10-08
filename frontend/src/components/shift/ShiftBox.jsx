@@ -1,5 +1,5 @@
 import { Box, Grid, Typography } from "@mui/material";
-import { DateRange, EventAvailable, EventRepeat } from "@mui/icons-material";
+import { DateRange, EventAvailable, EventRepeat, Save, Outbox, Inbox } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 
 import { clickBox } from '../../styles/globalStyles';
@@ -28,20 +28,20 @@ export default function ShiftBox({ shift }) {
                     {shift.temporal
                         ? (
                             <>
-                                <DateRange fontSize="large" />
-                                <Typography variant='h6' ml={1}>تکمیل نشده</Typography>
+                                <Save fontSize="large" />
+                                <Typography variant='h6' ml={1}>ذخیره شده</Typography>
                             </>
                         )
                         : !shift.expired
                             ? (
                                 <>
-                                    <EventAvailable fontSize="large" />
+                                    <Outbox fontSize="large" />
                                     <Typography variant='h6' ml={1}>ارسال شده</Typography>
                                 </>
                             )
                             : (
                                 <>
-                                    <EventRepeat fontSize="large" />
+                                    <Inbox fontSize="large" />
                                     <Typography variant='h6' ml={1}>منقضی شده</Typography>
                                 </>
                             )

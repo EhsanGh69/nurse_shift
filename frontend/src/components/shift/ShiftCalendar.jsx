@@ -1,5 +1,7 @@
 import { useState, useEffect, useContext } from "react";
-import { Button, Grid } from "@mui/material";
+import { Button, Grid, Typography } from "@mui/material";
+import SaveIcon from "@mui/icons-material/Save";
+import OutboxIcon from '@mui/icons-material/Outbox';
 
 import { shiftDays } from "../../constants/shifts";
 import { useSaveShift } from "../../api/shift.api";
@@ -67,7 +69,8 @@ export default function ShiftCalendar() {
             onClick={() => handleSaveShift(shiftGroupId)}
             disabled={savePending}
           >
-            ذخیره تغییرات
+            <SaveIcon />
+            <Typography fontSize={20} ml={1}>ذخیره تغییرات</Typography>
           </Button>
           {!formOpen && (
             <Button
@@ -84,7 +87,8 @@ export default function ShiftCalendar() {
                 setCollapseOpen(false) 
               }}
             >
-              ارسال تغییرات
+              <OutboxIcon />
+              <Typography fontSize={20} ml={1}>ارسال تغییرات</Typography>
             </Button>
           )}
         </Grid>

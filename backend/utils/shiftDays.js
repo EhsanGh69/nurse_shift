@@ -78,24 +78,13 @@ const getPromotionOperation = (shiftDays, hourCounts) => {
     let promotionOperation = 0;
     for (const [shift, count] of Object.entries(shiftCounts)) {
         if(shift.includes("M")){
-            if(shift.includes("H"))
-                promotionOperation += count * hourCounts.get('PMH')
-            else
-                promotionOperation += count * hourCounts.get('PM')
+            promotionOperation += count * hourCounts.get('PM')
         }
-        
         if(shift.includes("E")){
-            if(shift.includes("H"))
-                promotionOperation += count * hourCounts.get('PEH')
-            else
-                promotionOperation += count * hourCounts.get('PE')
+            promotionOperation += count * hourCounts.get('PE')
         }
-        
         if(shift.includes("N")){
-            if(shift.includes("H"))
-                promotionOperation += count * hourCounts.get('PNH')
-            else
-                promotionOperation += count * hourCounts.get('PN')
+            promotionOperation += count * hourCounts.get('PN') 
         }
     }
     return promotionOperation;

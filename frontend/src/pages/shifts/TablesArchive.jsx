@@ -1,7 +1,5 @@
 import { useState, useEffect, useContext } from "react";
-import { 
-    Grid, Typography, CircularProgress, Backdrop, Alert, Button
-} from '@mui/material';
+import { Grid, Typography, CircularProgress, Backdrop, Alert, Button } from '@mui/material';
 
 import { EditCalendar, EventBusy, PermContactCalendar } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
@@ -89,15 +87,19 @@ export default function TablesArchive() {
                   </Grid>
                 )}
 
-                {shiftsTables?.length
-                    ? shiftsTables.map((sTable, index) => <TableDateBox key={index} table={sTable} />)
-                    : (
-                        <Alert color="error" severity="error" icon={<EventBusy fontSize="large" />}
-                            sx={{ width: "100%", display: "flex", justifyContent: "center" }}>
-                            <Typography variant="h5" textAlign="center">جدولی وجود ندارد</Typography>
-                        </Alert>
-                    )
-                }
+                <Grid container spacing={1} width="100%">
+                    {shiftsTables?.length
+                        ? shiftsTables.map((sTable, index) => (
+                            <TableDateBox key={index} table={sTable} />
+                        ))
+                        : (
+                            <Alert color="error" severity="error" icon={<EventBusy fontSize="large" />}
+                                sx={{ width: "100%", display: "flex", justifyContent: "center" }}>
+                                <Typography variant="h5" textAlign="center">جدولی وجود ندارد</Typography>
+                            </Alert>
+                        )
+                    }
+                </Grid>
             </Grid>
             <SnackAlert snackbar={snackbar} setSnackbar={setSnackbar} />
         </MainLayout>

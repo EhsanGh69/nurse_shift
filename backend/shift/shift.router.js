@@ -6,7 +6,7 @@ const validate = require("../middlewares/joiValidator");
 const permission = require("../middlewares/permission");
 const { 
     createShiftSchema, updateShiftSchema, shiftSettingSchema, rejectShiftDaySchema, jobInfoSchema,
-    refreshShiftsTableSchema
+    refreshShiftsTableSchema, saveShiftSchema
 } = require("../validators/shift.validators");
 
 const router = Router()
@@ -14,7 +14,7 @@ const router = Router()
 //* Shift
 router.post('/save',
     verifyToken,
-    validate(createShiftSchema),
+    validate(saveShiftSchema),
     shiftController.saveShift
 )
 router.post('/create',
@@ -32,6 +32,10 @@ router.get('/report/:groupId/:year/:month',
     verifyToken,
     permission(['ADMIN', 'MATRON']),
     shiftController.getShiftReport
+)
+router.get('/day_limit/:groupId',
+    verifyToken,
+    shiftController.getDayLimit
 )
 router.get('/user/:id',
     verifyToken,

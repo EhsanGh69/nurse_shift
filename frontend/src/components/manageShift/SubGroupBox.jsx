@@ -1,15 +1,14 @@
 import { useEffect, useState } from 'react';
-import { Avatar, Box, Button, Grid, Paper, Typography, IconButton, Alert } from '@mui/material'
-import { DisabledByDefault, PersonAdd, Delete, Edit } from '@mui/icons-material'
+import { Box, Button, Grid, Paper, Typography, Alert } from '@mui/material'
+import { PersonAdd, Delete, Edit } from '@mui/icons-material'
 import { useTheme } from "@mui/material/styles";
 
-import { 
-    useRemoveSubGroupMember, useUnassignedSubGroupMembers
-} from '../../api/group.api'
+import { useRemoveSubGroupMember, useUnassignedSubGroupMembers } from '../../api/group.api'
 import useShiftStore from '../../store/shiftStore';
 import handleApiErrors from '../../utils/apiErrors';
 import MembersList from './MembersList';
 import RemoveSubgroupModal from './RemoveSubgroupModal';
+import SubgroupMember from './SubgroupMember';
 
 
 export default function SubGroupBox({ 
@@ -21,7 +20,7 @@ export default function SubGroupBox({
     const [modalOpen, setModalOpen] = useState(false)
     const [unassignedMembers, setUnassignedMembers] = useState(null)
     const { groupId } = useShiftStore()
-    const { isPending, mutateAsync } = useRemoveSubGroupMember()
+    const { mutateAsync } = useRemoveSubGroupMember()
     const { isLoading, data } = useUnassignedSubGroupMembers(groupId)
     
     useEffect(() => {
@@ -76,63 +75,11 @@ export default function SubGroupBox({
             >
                 {!!members.length
                     ? members.map(member => (
-                        <Box 
-                            key={member.rank}
-                            display="flex" 
-                            bgcolor="secondary.main" alignItems="center"
-                            padding={1}
-                            borderRadius={1}
-                            >
-                                <IconButton
-                                    title='حذف از زیرگروه'
-                                    disabled={isPending}
-                                    sx={{color: "error.dark"}}
-                                    onClick={() => handleRemoveMember(member.id)}
-                                >
-                                    <DisabledByDefault fontSize='large' />
-                                </IconButton>
-                                <Box display="flex" flexDirection="column" borderLeft="1px solid whitesmoke" pl={1}>
-                                    <Box display="flex" alignItems="center">
-                                        <Avatar
-                                            alt={member.fullName}
-                                            src={member.avatar && `http://127.0.0.1:4000${member.avatar}`}
-                                            sx={{ 
-                                                width: 50, height: 50, mr: 1,
-                                                backgroundColor: isDark ? '#9e9b9bff' : null
-                                            }}
-                                        />
-                                        <Typography
-                                            variant='h6'
-                                            sx={{ 
-                                                    textTransform: 'uppercase', 
-                                                    fontWeight: 'bold', color: "whitesmoke" 
-                                                }}>
-                                            {member.fullName}
-                                        </Typography>
-                                    </Box>
-                                    <Box display="flex" mt={0} justifyContent="center">
-                                        <Typography
-                                            variant='body2'
-                                            sx={{ 
-                                                textTransform: 'uppercase', fontWeight: 'bold',
-                                                color: "whitesmoke", borderRight: "2px solid whitesmoke",
-                                                pr: 2
-                                            }}>
-                                            <Typography component="span">سمت: </Typography>
-                                            <Typography component="span">{member.employment}</Typography>
-                                        </Typography>
-                                        <Typography
-                                            variant='body2'
-                                            sx={{ 
-                                                textTransform: 'uppercase', fontWeight: 'bold', pl: 2, 
-                                                color: "whitesmoke" 
-                                            }}>
-                                            <Typography component="span">سابقه: </Typography>
-                                            <Typography component="span">{member.experience}</Typography>
-                                        </Typography>
-                                    </Box>
-                                </Box>
-                        </Box>
+                        <SubgroupMember 
+                            key={member.rank} 
+                            member={member}
+                            handleRemoveMember={handleRemoveMember}
+                        />
                     ))
                     : (
                         <Alert color="warning" severity="info" 
@@ -168,8 +115,11 @@ export default function SubGroupBox({
                 )}
 
                 <Box display="flex" alignItems="center">
-                    <Button variant='contained' color='secondary'
-                        sx={{ fontSize: 20, color: "#0e0e0e", px: 5, mr: 1, mt: 1 }}
+                    <Button variant='contained'
+                        sx={{ 
+                            fontSize: 20, color: "#dbd4d4ff", px: 5, 
+                            mr: 1, mt: 1, bgcolor: "#163696ff" 
+                        }}
                         onClick={() => {
                             setSubOpen(true)
                             setHandler("update")

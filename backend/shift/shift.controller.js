@@ -253,6 +253,21 @@ exports.getUserShifts = async (req, res) => {
   if(!year && !month) return res.status(400).json({ error: "Year query is required" })
 };
 
+exports.getDayLimit = async (req, res) => {
+  const userId = req.user._id;
+  const { groupId } = req.params;
+
+  const userGroup = await groupModel.findOne({ _id: groupId,
+    $or: [{ members: { $all: [userId] } }, { matron: userId }],
+  });
+  if (!userGroup) return res.status(404).json({ error: "User group not found" });
+
+  const shiftSetting = await shiftSettingModel.findOne({ group: groupId });
+  if (!shiftSetting) return res.status(403).json({ message: "انتخاب شیفت امکان پذیر نمی باشد" });
+
+  res.json({ dayLimit: shiftSetting.dayLimit })
+}
+
 exports.getUserShift = async (req, res) => {
   const userId = req.user._id;
   const { id } = req.params;
@@ -402,10 +417,12 @@ exports.setJobInfo = async (req, res) => {
     userId, groupId, post, employment, experience, hourReduction, promotionDuty, nonPromotionDuty,
   } = req.body;
 
-  const userGroup = await groupModel.findOne({
-    _id: groupId,
-    $and: [{ members: { $all: [userId] } }, { matron: matronId }],
-  });
+  const userGroup = String(matronId) === String(userId)
+    ? await groupModel.findOne({ _id: groupId, matron: matronId })
+    : await groupModel.findOne({
+        _id: groupId, 
+        $and: [{ members: { $all: [userId] } }, { matron: matronId  }]
+    })
   if (!userGroup) return res.status(404).json({ error: "User group not found" });
 
   const jobInfo = await jobInfoModel.findOneAndUpdate(

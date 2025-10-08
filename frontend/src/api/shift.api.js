@@ -2,6 +2,19 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 
 import api from './api';
 
+export const useDayLimit = (groupId) => {
+    return useQuery({
+        queryKey: ['dayLimit', groupId],
+        queryFn: async () => {
+            const { data } = await api.get(`/shifts/day_limit/${groupId}`)
+            return data
+        },
+        retry: 0,
+        staleTime: 0,
+        enabled: !!groupId
+    })
+}
+
 export const useSaveShift = () => {
     return useMutation({
         mutationFn: async (formData) => {

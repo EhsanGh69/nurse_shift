@@ -15,7 +15,8 @@ import TableDataHeader from '../../components/shiftTable/TableDataHeader';
 import TableDataBody from '../../components/shiftTable/TableDataBody';
 import TableDataFooter from '../../components/shiftTable/TableDataFooter';
 import { printScreen, excelExport, pdfExport } from '../../utils/tableExports';
-import ExcelSvg from "../../assets/excel.svg"
+import ExcelSvg from "../../assets/excel.svg";
+import TableInfos from '../../components/shiftTable/TableInfos';
 
 
 export default function ShiftsTable() {
@@ -191,6 +192,8 @@ export default function ShiftsTable() {
                     </TableContainer>
                 </Grid>
             </Grid>
+
+            <TableInfos />
         </Box>
     </Box>
   )
