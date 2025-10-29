@@ -5,7 +5,10 @@ const handleApiErrors = (error, options = {}) => {
     
     if(data?.message) return data.message
 
-    if(!error.response) return 'خطا در برقرای ارتباط، لطفا بعدا تلاش کنید'
+    if(!error.response) {
+        console.log(error)
+        return 'خطا در برقرای ارتباط، لطفا بعدا تلاش کنید'
+    }
 
     switch (status) {
         case 400 || 422 || 409:
