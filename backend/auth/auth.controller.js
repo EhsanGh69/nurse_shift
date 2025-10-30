@@ -5,6 +5,7 @@ const groupModel = require('../group/group.model');
 const blockUserModel = require("../user/blockUser.model");
 const inviteCodeModel = require("../group/inviteCode.model");
 const settingModel = require("../setting/setting.model");
+const subGroupModel = require("../group/subGroup.model");
 const { generateAccessToken, generateRefreshToken } = require('../utils/token');
 
 
@@ -59,9 +60,10 @@ exports.matronRegister = async (req, res) => {
         role: "MATRON"
     })
 
-    await groupModel.create({ matron: matron._id, province, county, hospital, department })
+    const group = await groupModel.create({ matron: matron._id, province, county, hospital, department })
 
     await settingModel.create({ user: matron._id })
+    await subGroupModel.create({ group: group._id })
 
     res.status(201).json({ message: 'You registered successfully' })
 }

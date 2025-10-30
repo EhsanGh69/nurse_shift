@@ -131,13 +131,22 @@ exports.getHourCountDay = (shifts, hourCount) => {
         allShiftToDays.map(stDay => {
             if(stDay[mDay]){
                 if(stDay[mDay].includes('M')){
-                    totalHourDay[mDay] += hourCount.get('PM') 
+                    if(stDay[mDay].includes('H'))
+                        totalHourDay[mDay] += hourCount.get('PM')
+                    else
+                        totalHourDay[mDay] += hourCount.get('NPM')
                 }
                 if(stDay[mDay].includes("E")){
-                    totalHourDay[mDay] += hourCount.get('PE')
+                    if(stDay[mDay].includes('H'))
+                        totalHourDay[mDay] += hourCount.get('PE')
+                    else
+                        totalHourDay[mDay] += hourCount.get('NPE')
                 }
                 if(stDay[mDay].includes("N")){
-                    totalHourDay[mDay] += hourCount.get('PN')
+                    if(stDay[mDay].includes('H'))
+                        totalHourDay[mDay] += hourCount.get('PN')
+                    else
+                        totalHourDay[mDay] += hourCount.get('NPN')
                 }
             }
         })

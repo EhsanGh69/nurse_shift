@@ -84,7 +84,10 @@ export default function SubGroupBox({
                     : (
                         <Alert color="warning" severity="info" 
                             sx={{ width: "100%", display: "flex", justifyContent: "center" }}>
-                            <Typography variant="h5">بدون عضو</Typography>
+                            {!!unassignedMembers?.length
+                                ? <Typography variant="h5">بدون عضو</Typography>
+                                : <Typography variant="h5">اطلاعات شغلی پرستاران ثبت نشده اشت</Typography>
+                            }
                         </Alert>
                     )
                 }

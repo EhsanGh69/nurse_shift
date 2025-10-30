@@ -30,6 +30,9 @@ exports.generateShiftSchedule = (shiftDays, stdShiftCount, year, month, favCS=""
     M: shiftDays.M ? [...shiftDays.M] : [],
     E: shiftDays.E ? [...shiftDays.E] : [],
     N: shiftDays.N ? [...shiftDays.N] : [],
+    MH: shiftDays.N ? [...shiftDays.MH] : [],
+    EH: shiftDays.N ? [...shiftDays.EH] : [],
+    NH: shiftDays.N ? [...shiftDays.NH] : [],
     V: shiftDays.V ? [...shiftDays.V] : [],
     OFF: shiftDays.OFF ? [...shiftDays.OFF] : [],
     CS: [] // به صورت موقت

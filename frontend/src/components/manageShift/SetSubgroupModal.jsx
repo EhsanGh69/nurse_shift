@@ -13,7 +13,7 @@ export default function SetSubgroupModal({
 }) {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
-  const [shiftCount, setShiftCount] = useState({ M: 1, E: 1, N: 1, CS: 1 })
+  const [shiftCount, setShiftCount] = useState({ M: 0, E: 0, N: 0, CS: 0 })
   const { groupId } = useShiftStore()
   const { mutateAsync: shiftCountMutate } = useSubGroupShiftCount()
 
@@ -41,7 +41,7 @@ export default function SetSubgroupModal({
 
     useEffect(() => {
         if(handler === "set")
-            setShiftCount({ M: 1, E: 1, N: 1, CS: 1 })
+            setShiftCount({ M: 0, E: 0, N: 0, CS: 0 })
     }, [handler, selectedOrder])
 
   return (
@@ -109,7 +109,7 @@ export default function SetSubgroupModal({
                             sx={{ backgroundColor: "#000" }} />
                         <Input
                             type='number'
-                            inputProps={{ min: 1 }}
+                            inputProps={{ min: 0 }}
                             sx={{ color: "#000", width: 50, ml: 1}}
                             value={shiftCount[shiftItem]}
                             onChange={(e) => handleShiftCount(shiftItem, Number(e.target.value))}

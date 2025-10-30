@@ -45,7 +45,6 @@ exports.createGroup = async (req, res) => {
     const group = await groupModel.findOne({ matron: user._id, province, county, hospital })
     if(group) return res.status(409).json({ message: "گروهی با مشخصات وارد شده از قبل وجود دارد" })
 
-        
     const newGroup = await groupModel.create({ matron: user._id, province, county, hospital, department })
     await subGroupModel.create({ group: newGroup._id })
 
