@@ -25,10 +25,6 @@ export default function SendShift({ setSnackbar, filledShifts, formOpen }) {
     const { groupId: shiftGroupId } = useShiftStore()
 
     const handleCreateShift = async (groupId) => {
-      if(!favCS){
-        setSnackbar({ open: true, message: 'لطفا شیفت ترکیبی مورد علاقه خود را انتخاب نمایید', severity: 'error' })
-        return
-      }
       try {
         await createMutate({ 
           groupId, shiftDays: filledShifts, description: shiftsDesc,

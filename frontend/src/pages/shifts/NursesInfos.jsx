@@ -54,6 +54,7 @@ export default function NursesInfos() {
                 const msg = handleApiErrors(error);
                 setSnackbar({ open: true, message: msg, severity: 'error' })
             }
+            setResetInfos(true)
         }
     }
 

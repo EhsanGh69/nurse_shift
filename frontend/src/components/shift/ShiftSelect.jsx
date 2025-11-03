@@ -8,7 +8,8 @@ import ShiftsContext from "../../context/ShiftsContext";
 
 export default function ShiftSelect() {
     const { selectedDay, setSelectedDay, collapseOpen, checkHoliday, getSelectedShiftDay,
-      selectedShifts, shiftYear, shiftMonth, setCollapseOpen, setSelectedShifts, selectBox, userShift
+      selectedShifts, shiftYear, shiftMonth, setCollapseOpen, setSelectedShifts, 
+      selectBox, userShift, weekDay
     } = useContext(ShiftsContext)
 
     useEffect(() => {
@@ -66,8 +67,8 @@ export default function ShiftSelect() {
               {`${shiftYear}/${shiftMonth}/${selectedDay}`}
             </Typography>
             <Typography variant="body1" component="span" color="error">
-              {checkHoliday(selectedDay) &&
-                `تعطیل - ${checkHoliday(selectedDay).title}`}
+              {checkHoliday(selectedDay) && `تعطیل - ${checkHoliday(selectedDay).title}`}
+              {weekDay === 6 && "جمعه - تعطیل"}
             </Typography>
           </Box>
 
@@ -84,9 +85,9 @@ export default function ShiftSelect() {
               const isChecked = !isEqual && getSelectedShiftDay(selectedDay) === shiftDay || isEqual && checkUserShift;
               const isOffOrV = shiftDay === "OFF" || shiftDay === "V";
               const notHolidayInclude =
-                !checkHoliday(selectedDay) && shiftDay.includes("H");
+                (!checkHoliday(selectedDay) && weekDay !== 6) && shiftDay.includes("H");
               const holidayNotInclude =
-                checkHoliday(selectedDay) && !shiftDay.includes("H");
+                (checkHoliday(selectedDay) || weekDay === 6) && !shiftDay.includes("H");
 
               return (
                 <Grid key={shiftDay}>

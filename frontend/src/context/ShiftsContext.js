@@ -14,6 +14,8 @@ const ShiftsContext = createContext({
     shiftMonth: 1,
     selectedDay: null,
     setSelectedDay: () => {},
+    weekDay: null,
+    setWeekDay: () => {},
     collapseOpen: false,
     setCollapseOpen: () => {},
     selectedShifts: null,

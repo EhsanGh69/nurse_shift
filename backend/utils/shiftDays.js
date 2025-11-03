@@ -148,6 +148,9 @@ exports.getHourCountDay = (shifts, hourCount) => {
                     else
                         totalHourDay[mDay] += hourCount.get('NPN')
                 }
+                if(stDay[mDay].includes("V")){
+                    totalHourDay[mDay] += 7
+                }
             }
         })
     })

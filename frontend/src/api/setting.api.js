@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from './api';
 
 
-export const useCurrentSettings = () => {
+export const useCurrentSettings = (enabled) => {
     return useQuery({
         queryKey: ['currentSettings'],
         queryFn: async () => {
@@ -11,7 +11,7 @@ export const useCurrentSettings = () => {
             return data
         },
         retry: 1,
-        enabled: !!localStorage.getItem("refreshToken")
+        enabled
     })
 }
 

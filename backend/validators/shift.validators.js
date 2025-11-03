@@ -12,11 +12,10 @@ const Joi = require("joi");
 // PM --> Promotion Morning (non holiday)
 // PMH --> Promotion Morning Holiday
 
-const shiftDaysKeys = ["M", "E", "N", "OFF", "V", "MH", "EH", "NH"]
-// const shiftDaysKeys = [
-//     "M", "E", "N", "OFF", "V", "ME", "MN", "NE", "EN", "NM", "NME", "MEN",
-//     "MH", "EH", "NH", "MEH", "MNH", "NEH", "ENH", "NMH", "NMEH", "MENH"
-// ]
+const shiftDaysKeys = [
+    "M", "E", "N", "OFF", "V", "ME", "MN", "NE", "EN", "NM", "NME", "MEN",
+    "MH", "EH", "NH", "MEH", "MNH", "NEH", "ENH", "NMH", "NMEH", "MENH"
+]
 const personSettingKeys = ["M", "E", "N", "MH", "EH", "NH"]
 const hourSettingKeys = ["NPM", "NPE", "NPN", "PM", "PE", "PN"]
 
@@ -52,7 +51,7 @@ exports.createShiftSchema = Joi.object({
             ])
         )
     ).required().custom((value, helpers) => keysValidator(value, shiftDaysKeys, helpers)),
-    favCS: Joi.string().pattern(/^(ME|MN|NE|EN|NM|NME|MEN|MH|EH|NH|MEH|MNH|NEH|ENH|NMH|NMEH|MENH)$/).required(),
+    favCS: Joi.string().pattern(/^(ME|MN|NE|EN|NM|NME|MEN|MH|EH|NH|MEH|MNH|NEH|ENH|NMH|NMEH|MENH)$/).allow(""),
     month: Joi.string().required(),
     year: Joi.string().required(),
     description: Joi.string().allow("")
@@ -93,7 +92,7 @@ exports.shiftSettingSchema = Joi.object({
     ).required().custom((value, helpers) => keysValidator(value, personSettingKeys, helpers)),
     hourCount: Joi.object().keys(
         Object.fromEntries(
-            hourSettingKeys.map(key => [ key, Joi.number().integer().required() ])
+            hourSettingKeys.map(key => [ key, Joi.number().required() ])
         )
     ).required().custom((value, helpers) => keysValidator(value, hourSettingKeys, helpers)),
     dayLimit: Joi.number().integer().max(31).required()

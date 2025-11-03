@@ -1,5 +1,6 @@
 const { isValidObjectId } = require("mongoose")
 const moment = require("jalali-moment");
+const { orderBy } = require("lodash")
 
 const shiftModel = require("./shift.model");
 const groupModel = require("../group/group.model");
@@ -44,14 +45,16 @@ exports.refreshShiftsTables = async (req, res) => {
       if(!allShifts.length)
         return res.status(400).json({ message: "هیچ شیفتی برای ماه مورد نظر وجود ندارد" })
 
+      const shiftsTableRows = generateShiftsTable(allShifts, allJobInfos, shiftSetting)
+
       if(!shiftsTable){
         await shiftsTableModel.create({ 
           group: groupId, month, year,
-          rows: generateShiftsTable(allShifts, allJobInfos, shiftSetting),
+          rows: orderBy(shiftsTableRows, ['experience'], ['desc']),
           totalHourDay: getHourCountDay(allShifts, shiftSetting.hourCount)
         })
       }else {
-        shiftsTable.rows = generateShiftsTable(allShifts, allJobInfos, shiftSetting)
+        shiftsTable.rows = orderBy(shiftsTableRows, ['experience'], ['desc'])
         shiftsTable.totalHourDay = getHourCountDay(allShifts, shiftSetting.hourCount)
         shiftsTable.save()
       }
@@ -144,8 +147,13 @@ exports.createShift = async (req, res) => {
   if (Number(currentMonth) >= Number(month) || Number(currentDay) > shiftSetting.dayLimit)
     return res.status(400).json({ message: "مهلت ارسال شیفت به پایان رسیده است" });
 
+  const userShiftCount = getUserShiftCount(userId.toString(), subGroup.subs)
+
+  if(userShiftCount.CS > 0 && !favCS)
+    return res.status(400).json({ message: "انتخاب شیفت ترکیبی مورد علاقه الزامی می باشد" });
+
   const shiftDaysSchedule = generateShiftSchedule(
-    shiftDays, getUserShiftCount(userId.toString(), subGroup.subs), year, month, favCS
+    shiftDays, userShiftCount, year, month, favCS
   )
   
   const shiftExist = await shiftModel.findOne({ user: userId, group: groupId, month, year })

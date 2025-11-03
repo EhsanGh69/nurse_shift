@@ -9,6 +9,7 @@ import { useUserGroups } from "../../api/group.api";
 
 export default function ShiftsProvider ({ children }) {
     const [selectedDay, setSelectedDay] = useState(null);
+    const [weekDay, setWeekDay] = useState(null);
     const [collapseOpen, setCollapseOpen] = useState(false);
     const [selectedShifts, setSelectedShifts] = useState({});
     const [holidays, setHolidays] = useState(null);
@@ -74,6 +75,8 @@ export default function ShiftsProvider ({ children }) {
             shiftMonth,
             selectedDay,
             setSelectedDay,
+            weekDay,
+            setWeekDay,
             collapseOpen,
             setCollapseOpen,
             selectedShifts,

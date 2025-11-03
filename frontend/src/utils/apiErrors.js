@@ -2,16 +2,10 @@ const handleApiErrors = (error, options = {}) => {
     const status = error?.status
     const data = error?.response?.data
     const fallback = options.fallback || '❌ خطایی رخ داد'
-    
     if(data?.message) return data.message
-
-    if(!error.response) {
-        console.log(error)
-        return 'خطا در برقرای ارتباط، لطفا بعدا تلاش کنید'
-    }
-
+    if(!error.response) return 'خطا در برقرای ارتباط، لطفا بعدا تلاش کنید'
     switch (status) {
-        case 400 || 422 || 409:
+        case 400 || 409 || 422:
             return 'درخواست نامعتبر بود'
         case 401:
             return 'لطفا مجددا وارد شوید'
@@ -22,7 +16,7 @@ const handleApiErrors = (error, options = {}) => {
         case 500 || 504:
             return 'خطای سرور، لطفا با پشتیبانی تماس بگیرید'
         default:
-            fallback
+            return fallback
     }
 }
 

@@ -15,6 +15,7 @@ import { personShifts, hourShifts } from '../../constants/shifts';
 import SettingBox from '../../components/manageShift/SettingBox';
 import DayLimitBox from '../../components/manageShift/DayLimitBox';
 import { personCountSchema, hourCountSchema, dayLimitSchema } from "../../validations/shiftSettingsValidation";
+import handleApiErrors from '../../utils/apiErrors';
 
 
 export default function ShiftSettings() {
@@ -23,8 +24,7 @@ export default function ShiftSettings() {
     const navigate = useNavigate()
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
     const initialPersonCount = useMemo(() => ({ M: 1, E: 1, N: 1, MH: 1, EH: 1, NH: 1 }))
-    const initialHourCount = 
-    useMemo(() => ({ NPM: 1, NPE: 1, NPN: 1, PM: 1, PE: 1, PN: 1 }))
+    const initialHourCount = useMemo(() => ({ NPM: 1, NPE: 1, NPN: 1, PM: 1, PE: 1, PN: 1 }))
     const [personCount, setPersonCount] = useState({ ...initialPersonCount })
     const [hourCount, setHourCount] = useState({ ...initialHourCount })
     const [dayLimit, setDayLimit] = useState(1)
@@ -43,7 +43,6 @@ export default function ShiftSettings() {
             await personCountSchema(personShifts).validate(personCount)
             await hourCountSchema(hourShifts).validate(hourCount)
             await dayLimitSchema.validate(dayLimit)
-            
             await mutateAsync({ groupId, personCount, hourCount, dayLimit })
             setSnackbar({ open: true, message: 'تغییرات با موفقیت ذخیره شد', severity: 'success' })
             setTimeout(() => navigate('/shifts/matron'), 500)

@@ -97,7 +97,7 @@ export default function ShiftsTable() {
         return totalPromotions
     }
 
-    // document.body.style.backgroundColor = "#bbb"
+    document.body.style.backgroundColor = "#bbb"
 
   return (
     <Box>

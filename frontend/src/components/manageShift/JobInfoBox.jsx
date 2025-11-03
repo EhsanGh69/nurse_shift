@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Avatar, Box, Divider, Grid, Input, Paper, Typography, Button, TextField, MenuItem } from '@mui/material';
 import { useTheme } from "@mui/material/styles";
 import { textFieldStyle } from '../../styles/globalStyles';
@@ -14,6 +14,7 @@ export default function JobInfoBox({
 
     const handleChangeInfos = (field, value) => {
         setNurseInfos(prev => ({ ...prev, [member._id]: { ...prev[member._id], [field]: value } }))
+        setIsEdit(true)
     }
 
     return (
@@ -74,7 +75,11 @@ export default function JobInfoBox({
                                     name='post'
                                     value={nurseInfos[field.name]}
                                     onChange={(e) => handleChangeInfos(field.name, Number(e.target.value))}
-                                    sx={{...textFieldStyle(isDark),display: isEdit ? 'inherit' : 'none'}}
+                                    sx={{
+                                            ...textFieldStyle(isDark),
+                                            display: isEdit ? 'inherit' : 'none',
+                                            p: 0
+                                        }}
                                 >
                                 {postTitles.map((pTitle, index) => (
                                     <MenuItem key={index} value={index + 1}>

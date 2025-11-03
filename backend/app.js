@@ -18,7 +18,7 @@ const jsonRouter = require("./json/json.router");
 
 const app = express();
 
-app.use(cors({ origin: "http://192.168.1.101:8000", credentials: true }))
+app.use(cors({ origin: "http://localhost:8000", credentials: true }))
 app.use(cookieParser("ghgnkjiredrsedfxhbfdbrserseok"))
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
@@ -35,6 +35,6 @@ app.use('/shifts', shiftRouter)
 app.use('/json', jsonRouter)
 
 app.use(notFoundErrorHandler);
-app.use(serverErrorHandler);
+// app.use(serverErrorHandler);
 
 module.exports = app;
