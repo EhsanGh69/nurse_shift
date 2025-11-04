@@ -29,7 +29,7 @@ export default function ShiftGroup() {
             const shiftGroup = groups.find(group => group._id === groupId)
             useShiftStore.getState().setParams({
                 groupId,
-                groupTitle: `${shiftGroup.province}-${shiftGroup.county} | ${shiftGroup.hospital}-${shiftGroup.department}`
+                groupTitle: `${shiftGroup?.province}-${shiftGroup?.county} | ${shiftGroup?.hospital}-${shiftGroup?.department}`
             })
         }
     }, [groupId, groups])
