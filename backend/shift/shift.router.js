@@ -67,22 +67,22 @@ router.get('/reject/:groupId/:id',
 )
 
 //* Table
-router.post('/tables/refresh',
-    verifyToken,
-    permission(['ADMIN', 'MATRON']),
-    validate(refreshShiftsTableSchema),
-    shiftController.refreshShiftsTables
-)
-router.get('/tables/all/:groupId',
-    verifyToken,
-    permission(['ADMIN', 'MATRON']),
-    shiftController.getAllShiftsTables
-)
-router.get('/tables/:id',
-    verifyToken,
-    permission(['ADMIN', 'MATRON']),
-    shiftController.getShiftsTable
-)
+// router.post('/tables/refresh',
+//     verifyToken,
+//     permission(['ADMIN', 'MATRON']),
+//     validate(refreshShiftsTableSchema),
+//     shiftController.refreshShiftsTables
+// )
+// router.get('/tables/all/:groupId',
+//     verifyToken,
+//     permission(['ADMIN', 'MATRON']),
+//     shiftController.getAllShiftsTables
+// )
+// router.get('/tables/:id',
+//     verifyToken,
+//     permission(['ADMIN', 'MATRON']),
+//     shiftController.getShiftsTable
+// )
 
 //* Settings
 router.post('/settings',

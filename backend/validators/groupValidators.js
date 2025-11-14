@@ -1,6 +1,6 @@
 const Joi = require('joi');
 
-const shiftKeys = ["M", "E", "N", "CS"]
+const shiftKeys = ["N", "CS", "OFF"]
 
 exports.inviteCodeSchema = Joi.object({
     firstName: Joi.string().required(),
@@ -20,7 +20,9 @@ exports.createSubGroupSchema = Joi.object({
     groupId: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).required(),
     order: Joi.number().required(),
     shiftCount: Joi.object().keys(
-        Object.fromEntries(shiftKeys.map(key => [key, Joi.number().required()]))
+        Object.fromEntries(shiftKeys.map(key => 
+            [key, Joi.array().items(Joi.number().integer().required()).length(2)]
+        ))
     ).required()
 })
 

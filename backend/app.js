@@ -13,6 +13,7 @@ const messageRouter = require("./message/message.router");
 const settingRouter = require("./setting/setting.router");
 const pollRouter = require("./poll/poll.router");
 const shiftRouter = require("./shift/shift.router");
+const scheduleRouter = require("./schedule/schedule.router");
 const jsonRouter = require("./json/json.router");
 
 
@@ -32,6 +33,7 @@ app.use('/messages', messageRouter)
 app.use('/settings', settingRouter)
 app.use('/polls', pollRouter)
 app.use('/shifts', shiftRouter)
+app.use('/schedule', scheduleRouter)
 app.use('/json', jsonRouter)
 
 app.use(notFoundErrorHandler);

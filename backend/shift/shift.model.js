@@ -27,6 +27,10 @@ const shiftSchema = new mongoose.Schema({
         type: String,
         default: ""
     },
+    favCS: {
+        type: String,
+        default: ""
+    },
     rejects: {
         type: [String],
         default: []

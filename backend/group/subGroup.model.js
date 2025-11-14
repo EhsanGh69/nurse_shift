@@ -13,10 +13,9 @@ const memberSchema = new mongoose.Schema({
 }, { _id: false })
 
 const shiftCountSchema = new mongoose.Schema({
-    M: { type: Number, default: 0 },
-    E: { type: Number, default: 0 },
-    N: { type: Number, default: 0 },
-    CS: { type: Number, default: 0 }
+    N: { type: [Number], default: [0, 0] },
+    OFF: { type: [Number], default: [0, 0] },
+    CS: { type: [Number], default: [0, 0] }
 }, { _id: false })
 
 const subSchema = new mongoose.Schema({

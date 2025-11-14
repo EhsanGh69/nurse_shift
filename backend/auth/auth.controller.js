@@ -6,6 +6,7 @@ const blockUserModel = require("../user/blockUser.model");
 const inviteCodeModel = require("../group/inviteCode.model");
 const settingModel = require("../setting/setting.model");
 const subGroupModel = require("../group/subGroup.model");
+const shiftScheduleModel = require("../schedule/shiftSchedule.model")
 const { generateAccessToken, generateRefreshToken } = require('../utils/token');
 
 
@@ -64,6 +65,7 @@ exports.matronRegister = async (req, res) => {
 
     await settingModel.create({ user: matron._id })
     await subGroupModel.create({ group: group._id })
+    await shiftScheduleModel.create({ group: group._id })
 
     res.status(201).json({ message: 'You registered successfully' })
 }
