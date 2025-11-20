@@ -1,21 +1,20 @@
 import { useState, useEffect, useContext } from 'react'
 import { Backdrop, Button, CircularProgress, Grid, Typography, useMediaQuery, Drawer, Paper } from '@mui/material'
 import { useTheme } from "@mui/material/styles";
-import { EventNote } from '@mui/icons-material'
+import { Check, Clear, EventNote, Warning, LockOutline, LockOpen } from '@mui/icons-material'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 
 import MainLayout from '../../mui/MainLayout'
 import AppHeader from '../../components/AppHeader'
 import { useNursesShifts } from "../../api/shiftManagement.api";
 import RejectModal from '../../components/manageShift/RejectModal';
-import ChangeModal from '../../components/manageShift/ChangeModal';
-import NurseDescModal from '../../components/manageShift/NurseDescModal';
+import EditShiftModal from '../../components/manageShift/EditShiftModal';
+import ChangeTemporalModal from '../../components/manageShift/ChangeTemporalModal';
 import useShiftStore from '../../store/shiftStore';
 import ShiftsContext from '../../context/ShiftsContext';
 import ShiftDataBox from '../../components/manageShift/ShiftDataBox';
 import ShiftsCountBox from '../../components/manageShift/ShiftsCountBox';
 import SnackAlert from '../../components/SnackAlert';
-import { getShiftDay } from "../../utils/shiftsData";
 
 
 export default function NurseDayShifts() {
@@ -23,36 +22,36 @@ export default function NurseDayShifts() {
     const isDark = theme.palette.mode === "dark";
     const isDownLg = useMediaQuery(theme.breakpoints.down('lg'))
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
-    const [dayShifts, setDayShifts] = useState(null)
+    const [nurseShifts, setNurseShifts] = useState(null)
     const [selectedShift, setSelectedShift] = useState({ shiftId: '', shiftDay: '', shiftUser: '' })
     const [drawerOpen, setDrawerOpen] = useState(false)
-    const [descModalOpen, setDescModalOpen] = useState(false)
-    const [changeModalOpen, setChangeModalOpen] = useState(false)
+    const [temporalModalOpen, setTemporalModalOpen] = useState(false)
+    const [editModalOpen, setEditModalOpen] = useState(false)
     const [rejectModalOpen, setRejectModalOpen] = useState(false)
     const { groupId, groupTitle } = useShiftStore()
     const { shiftMonth, shiftYear } = useContext(ShiftsContext)
     const { data, isLoading } = useNursesShifts(groupId, String(shiftYear), String(shiftMonth))
-    const { day } = useParams()
+    const { shiftId } = useParams()
     const navigate = useNavigate()
 
     useEffect(() => {
         if(!isLoading && data){
-            const filterData = data.filter(item => getShiftDay(item.shiftDay)[1] === Number(day))
-            if(!!filterData.length) setDayShifts(filterData)
+            const shiftData = data.find(item => item.shiftId === shiftId)
+            if(!!shiftData) setNurseShifts(shiftData)
             else navigate('/shifts/matron/manage')
         }
     }, [data, isLoading])
 
-    const handleSelectShift = (shiftData) => {
+    const handleSelectShift = (dayShift) => {
         setSelectedShift({
-            shiftId: shiftData.shiftId,
-            shiftDay: shiftData.shiftDay,
-            shiftUser: shiftData.shiftUser
+            shiftId,
+            shiftDay: `${dayShift[1]}${dayShift[0]}`,
+            shiftUser: nurseShifts?.fullname
         });
     };
 
     return (
-        <MainLayout title={`شیفت های ${shiftYear}/${shiftMonth}/${day}`}>
+        <MainLayout title={`شیفت های درخواست شده`}>
             <AppHeader />
             <Backdrop open={isLoading} sx={{ zIndex: (them) => them.zIndex.drawer + 1 }}>
                 <CircularProgress color="inherit" />
@@ -74,22 +73,23 @@ export default function NurseDayShifts() {
 
                 <Grid size={{ xs: 12 }}>
                     <Typography
-                        variant='h4' align='center' gutterBottom
-                        sx={{ color: isDark ? '#f5f5f5' : '#1e1e1e' }}
-                    >
-                        {day} / {shiftMonth} / {shiftYear}
-                    </Typography>
-                    <Typography
                         variant='h5' align='center' gutterBottom
                         sx={{ color: isDark ? '#f5f5f5' : '#1e1e1e' }}
                     >
                         {groupTitle}
                     </Typography>
+                    <Typography
+                        variant='h4' align='center' gutterBottom
+                        sx={{ color: isDark ? '#f5f5f5' : '#1e1e1e' }}
+                    >
+                        {nurseShifts?.fullname}
+                    </Typography>
                 </Grid>
 
-                {dayShifts && (
+                {nurseShifts && (
                     <>
-                        <Grid 
+                       {/* 
+                       <Grid 
                             width="100%"
                             display="flex" justifyContent="space-between"
                             flexDirection={{ xs: 'column', md: 'row' }}
@@ -98,7 +98,7 @@ export default function NurseDayShifts() {
                             zIndex={1000}
                             bgcolor={isDark ? "#373434" : "#d3d3d3"}
                         >
-                            {isDownLg
+                             {isDownLg
                                 ? (
                                     <>
                                         <Grid size={{ xs: 12 }} display="flex" justifyContent="space-around" mt={2} p={2}>
@@ -113,9 +113,29 @@ export default function NurseDayShifts() {
                                     </>
                                 )
                                 : <ShiftsCountBox dayShifts={dayShifts} />
-                            }
+                            } 
                         </Grid>
+                        */}
 
+                        {nurseShifts.temporal && (
+                            <Grid size={{ xs: 12 }} mt={1}>
+                                <Paper
+                                    elevation={3}
+                                    sx={{ p: 2, border: '2px solid #1976d2' }}
+                                >
+                                    <Typography
+                                        variant='h6'
+                                        color='error'
+                                        sx={{ display: 'flex', alignItems: 'center' }}>
+                                            <Warning fontSize='large'/>
+                                            <span>
+                                                <b>توجه : </b>
+                                                ویرایش پرستار فعال می باشد. امکان رد یا تغییر شیفت وجود ندارد.   
+                                            </span>
+                                    </Typography>
+                                </Paper>
+                            </Grid>
+                        )}
                         <Grid size={{ xs: 12 }} mt={1}>
                             <Paper
                                 elevation={3}
@@ -131,34 +151,57 @@ export default function NurseDayShifts() {
                         </Grid>
 
                         <Grid size={{ xs: 12 }}>
-                            {dayShifts.map(dayShift => (
-                                <ShiftDataBox
-                                    key={dayShift.shiftDay}
-                                    shiftData={dayShift}
-                                    handleSelectShift={handleSelectShift}
-                                    setRejectModalOpen={setRejectModalOpen}
-                                    setChangeModalOpen={setChangeModalOpen}
-                                    setDescModalOpen={setDescModalOpen}
-                                />
-                            ))}
+                            <ShiftDataBox
+                                nurseShifts={nurseShifts}
+                                handleSelectShift={handleSelectShift}
+                                setRejectModalOpen={setRejectModalOpen}
+                                setEditModalOpen={setEditModalOpen}
+                            />
                         </Grid>
                     </>
                 )}
+
+                <Grid size={{ xs: 12 }}>
+                    <Button 
+                        color={nurseShifts?.temporal ? "warning" : "secondary"}
+                        variant="contained"
+                        sx={{ mt: 2, fontSize: "1.3rem" }}
+                        size="large"
+                        onClick={() => setTemporalModalOpen(true)}
+                    >
+                        {nurseShifts?.temporal 
+                            ? (
+                                <span style={{ display: "flex", alignItems: "center" }}> 
+                                    <LockOpen />
+                                    <span>غیرفعال سازی ویرایش پرستار</span>
+                                </span>
+                            )
+                            : (
+                                <span style={{ display: "flex", alignItems: "center" }}> 
+                                    <LockOutline />
+                                    <span>فعال سازی ویرایش پرستار</span>
+                                </span>
+                            )
+                        }
+                    </Button>
+                </Grid>
             </Grid>
+            <ChangeTemporalModal 
+                open={temporalModalOpen}
+                closeHandler={() => setTemporalModalOpen(false)}
+                shiftId={shiftId}
+                temporal={nurseShifts?.temporal}
+                setSnackbar={setSnackbar}
+            />
             <RejectModal 
                 open={rejectModalOpen}
                 closeHandler={() => setRejectModalOpen(false)}
                 selectedShift={selectedShift}
             />
-            <ChangeModal 
-                open={changeModalOpen}
-                setChangeModalOpen={setChangeModalOpen}
+            <EditShiftModal 
+                open={editModalOpen}
+                setEditModalOpen={setEditModalOpen}
                 setSnackbar={setSnackbar}
-                selectedShift={selectedShift}
-            />
-            <NurseDescModal
-                open={descModalOpen}
-                setModalOpen={setDescModalOpen}
                 selectedShift={selectedShift}
             />
             <SnackAlert snackbar={snackbar} setSnackbar={setSnackbar} />

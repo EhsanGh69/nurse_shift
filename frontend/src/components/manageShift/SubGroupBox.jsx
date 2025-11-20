@@ -58,7 +58,10 @@ export default function SubGroupBox({
                             textTransform: 'uppercase', fontWeight: 'bold', mr: 2, pl: 2,
                             borderLeft: isDark ? "2px solid white" : "2px solid gray"
                         }}>
-                        {shift[0] === 'CS' ? 'شیفت ترکیبی' : shift[0] }: {shift[1]}
+                        {shift[0] === 'CS' ? 'شیفت ترکیبی' : shift[0] }: {" "}
+                        
+                        {!shift[1][0] && !shift[1][0] ? 0 : `[ ${shift[1][0]} تا ${shift[1][1]} ]`}
+                        
                     </Typography>
                 ))}
             </Box>

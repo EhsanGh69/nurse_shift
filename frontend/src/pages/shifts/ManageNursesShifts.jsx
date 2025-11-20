@@ -1,14 +1,13 @@
 import { useContext, useState, useEffect } from 'react';
 import { Typography, Button, Grid, Backdrop, CircularProgress, Alert, Box } from '@mui/material';
+import { ListAlt, PermContactCalendar, Person } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 
 import ShiftGroup from '../../components/shift/ShiftGroup';
 import MainLayout from '../../mui/MainLayout';
 import AppHeader from '../../components/AppHeader';
-import { ListAlt, PermContactCalendar } from '@mui/icons-material';
 import ShiftsContext from '../../context/ShiftsContext';
 import { clickBox } from '../../styles/globalStyles';
-import { getShiftDay } from "../../utils/shiftsData";
 import useShiftStore from '../../store/shiftStore';
 import { useNursesShifts } from "../../api/shiftManagement.api";
 
@@ -18,12 +17,6 @@ export default function ManageNursesShifts() {
     const [shiftsData, setShiftsData] = useState(null)
     const { groupId } = useShiftStore()
     const { data, isLoading } = useNursesShifts(groupId, String(shiftYear), String(shiftMonth))
-
-    const shiftDataDays = (shifts=[]) => {
-        const days = []
-        shifts.forEach(shift => days.push(getShiftDay(shift.shiftDay)[1]))
-        return [...new Set(days)].sort((a, b) => a - b)
-    }
 
     useEffect(() => {
         if(!isLoading && data) setShiftsData(data)
@@ -56,19 +49,18 @@ export default function ManageNursesShifts() {
             {shiftsData?.length
                 ? (
                     <Grid container spacing={3} width="100%" mt={3}>
-                        {shiftDataDays(shiftsData).map(shiftDataDay => (
+                        {shiftsData.map(shiftData => (
                             <Grid
                                 size={{ xs: 6, md: 4 }}
-                                key={shiftDataDay}
+                                key={shiftData.shiftId}
                                 sx={clickBox}
                                 component={Link}
-                                to={`/shifts/matron/manage/${shiftDataDay}`}
+                                to={`/shifts/matron/manage/${shiftData.shiftId}`}
                             >
                                 <Box sx={{ mb: 1 }}>
+                                    <Person fontSize='large' />
                                     <Typography variant='h6'>
-                                        {shiftDataDay} / 
-                                        {shiftMonth} / 
-                                        {shiftYear}
+                                        {shiftData.fullname}
                                     </Typography>
                                 </Box>
                             </Grid>
@@ -79,7 +71,7 @@ export default function ManageNursesShifts() {
                 : (
                     <Alert color="error" severity="error" icon={<ListAlt fontSize="large" />}
                         sx={{ width: "100%", display: "flex", justifyContent: "center", mt: 2 }}>
-                        <Typography variant="h5" textAlign="center">در حال حاضر شیفتی وجود ندارد</Typography>
+                        <Typography variant="h5" textAlign="center">در حال حاضر هیچ درخواست شیفتی وجود ندارد</Typography>
                     </Alert>
                 )
             }

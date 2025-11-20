@@ -24,7 +24,7 @@ export default function ShiftSettings() {
     const navigate = useNavigate()
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
     const initialPersonCount = useMemo(() => ({ M: 1, E: 1, N: 1, MH: 1, EH: 1, NH: 1 }))
-    const initialHourCount = useMemo(() => ({ NPM: 1, NPE: 1, NPN: 1, PM: 1, PE: 1, PN: 1 }))
+    const initialHourCount = useMemo(() => ({ NPM: 1, NPE: 1, NPN: 1, PM: 1, PE: 1, PN: 1, V: 1 }))
     const [personCount, setPersonCount] = useState({ ...initialPersonCount })
     const [hourCount, setHourCount] = useState({ ...initialHourCount })
     const [dayLimit, setDayLimit] = useState(1)

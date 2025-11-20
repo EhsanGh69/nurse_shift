@@ -21,7 +21,7 @@ const shiftRoutes = [{
             { path: "matron", element: <ShiftsProvider><ShiftsManagement /></ShiftsProvider> },
             { path: "matron/settings", element: <ShiftsProvider><ShiftSettings /></ShiftsProvider> },
             { path: "matron/manage", element: <ShiftsProvider><ManageNursesShifts /></ShiftsProvider> },
-            { path: "matron/manage/:day", element: <ShiftsProvider><NurseDayShifts /></ShiftsProvider> },
+            { path: "matron/manage/:shiftId", element: <ShiftsProvider><NurseDayShifts /></ShiftsProvider> },
             { path: "matron/infos", element: <ShiftsProvider><NursesInfos /></ShiftsProvider> },
             { path: "matron/tables", element: <ShiftsProvider><TablesArchive /></ShiftsProvider> },
             { path: "matron/tables/:tableId", element: <ShiftsProvider><ShiftsTable /></ShiftsProvider> },

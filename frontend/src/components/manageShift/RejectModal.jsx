@@ -6,6 +6,7 @@ import { modalBox } from '../../styles/globalStyles'
 import { useRejectShift, useRejectedShifts } from '../../api/shiftManagement.api'
 import useShiftStore from "../../store/shiftStore";
 import handleApiErrors from '../../utils/apiErrors';
+import { getShiftDay } from '../../utils/shiftsData'
 
 
 export default function RejectModal({ open, closeHandler, selectedShift, setSnackbar }) {
@@ -21,6 +22,8 @@ export default function RejectModal({ open, closeHandler, selectedShift, setSnac
       if (data.rejects.length){
         setRejectModalMsg(
             <>
+                <p style={{ color: "red" }}>رد شیفت {getShiftDay(selectedShift.shiftDay)[0]} {" "}
+                  روز {getShiftDay(selectedShift.shiftDay)[1]} ام</p>
                 <p>شیفت {selectedShift.shiftUser} را قبلا رد کرده اید</p>
                 <p>آیا باز هم می خواهید رد کنید؟</p>
             </>

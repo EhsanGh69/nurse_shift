@@ -15,7 +15,7 @@ import useShiftStore from "../../store/shiftStore";
 export default function NurseShift() {
     const theme = useTheme();
     const isDark = theme.palette.mode === "dark";
-    const { setUserShift, userShift } = useContext(ShiftsContext)
+    const { setUserShift, userShift, setPrevDesc } = useContext(ShiftsContext)
     const navigate = useNavigate()
     const { shiftId } = useParams()
     const { isLoading, data, isError, error } = useUserShift(shiftId)
@@ -37,8 +37,10 @@ export default function NurseShift() {
   }, [limitLoading, limitData])
 
     useEffect(() => {
-        if(userShift && !userShift?.expired) 
+        if(userShift && !userShift?.expired) {
             mutateExpire(userShift?._id)
+            setPrevDesc(userShift?.description)
+        }
     }, [userShift])
 
     return (

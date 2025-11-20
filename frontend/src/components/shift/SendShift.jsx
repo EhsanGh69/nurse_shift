@@ -1,4 +1,4 @@
-import { useState, useContext, useMemo } from 'react'
+import { useState, useContext, useMemo, useEffect } from 'react'
 import { Box, Button, Collapse, MenuItem, Paper, TextField, Typography, useMediaQuery } from '@mui/material';
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
@@ -19,7 +19,7 @@ export default function SendShift({ setSnackbar, filledShifts, formOpen }) {
     const [favCS, setFavCS] = useState('')
     const { mutateAsync: createMutate, isPending: createPending } = useCreateShift()
     const navigate = useNavigate()
-    const { shiftMonth, shiftYear, setFormOpen, sendBox } = useContext(ShiftsContext)
+    const { shiftMonth, shiftYear, setFormOpen, sendBox, prevDesc } = useContext(ShiftsContext)
     const { getData } = useContext(GlobalContext)
     const user = getData("userData")
     const { groupId: shiftGroupId } = useShiftStore()
@@ -43,6 +43,10 @@ export default function SendShift({ setSnackbar, filledShifts, formOpen }) {
       if(sendBox.current)
         sendBox.current.scrollIntoView({ behavior: "smooth", block: "start" })
     }
+
+    useEffect(() => {
+      if(prevDesc) setShiftsDesc(prevDesc)
+    }, [prevDesc])
 
     return (
       <Box mt={2} width="100%" ref={sendBox}>

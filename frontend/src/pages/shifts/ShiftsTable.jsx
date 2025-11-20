@@ -7,7 +7,8 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useParams, useNavigate, Link } from "react-router-dom"
 
 import TablePageHeader from '../../components/shiftTable/TablePageHeader';
-import { useShiftsTable, useShiftSettings } from '../../api/shiftManagement.api';
+import { useShiftSettings } from '../../api/shiftManagement.api';
+import { useShiftsTable } from '../../api/shiftSchedule.api';
 import { useYearHolidays } from '../../api/json.api';
 import ShiftsContext from '../../context/ShiftsContext';
 import { checkLeapYear } from '../../utils/shiftsData';

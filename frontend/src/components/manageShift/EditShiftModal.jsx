@@ -11,7 +11,7 @@ import ShiftsContext from '../../context/ShiftsContext';
 import { shiftDays } from '../../constants/shifts'
 
 
-export default function ChangeModal({ open, setChangeModalOpen, selectedShift, setSnackbar }) {
+export default function ChangeModal({ open, setEditModalOpen, selectedShift, setSnackbar }) {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const monthDays = useMemo(() => [...Array(31).keys()].map(i => String(i + 1)))
@@ -32,10 +32,12 @@ export default function ChangeModal({ open, setChangeModalOpen, selectedShift, s
 
   const generateShiftDays = () => {
     if(monthDay){
-        if(checkHoliday(Number(monthDay))) return shiftDays.filter(sd => sd.includes("H"))
+        if(checkHoliday(Number(monthDay))) 
+          return shiftDays.filter(sd => sd.includes("H") || sd.includes("OFF") || sd.includes("V"))
         else return shiftDays.filter(sd => !sd.includes("H"))
     }else if(selectedShift.shiftDay){
-        if(checkHoliday(Number(getShiftDay(selectedShift.shiftDay)[1]))) return shiftDays.filter(sd => sd.includes("H"))
+        if(checkHoliday(Number(getShiftDay(selectedShift.shiftDay)[1]))) 
+          return shiftDays.filter(sd => sd.includes("H") || sd.includes("OFF") || sd.includes("V"))
         else return shiftDays.filter(sd => !sd.includes("H"))
     }
   }
@@ -52,9 +54,9 @@ export default function ChangeModal({ open, setChangeModalOpen, selectedShift, s
             groupId, shiftDay: {update: updateShift, current: selectedShift.shiftDay} 
         })
         setSnackbar({ open: true, message: 'شیفت پرستار با موفقیت ویرایش شد', severity: 'success' })
-        setTimeout(() => setChangeModalOpen(false), 500)
+        setTimeout(() => setEditModalOpen(false), 500)
       }else {
-        setChangeModalOpen(false)
+        setEditModalOpen(false)
       }
     } catch (error) {
       const msg = handleApiErrors(error);

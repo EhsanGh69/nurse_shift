@@ -1,5 +1,5 @@
 export const shiftDays = [
-    "M", "E", "N", "OFF", "V", "ME", "MN", "NE", "EN", "NM", "NME", "MEN",
+    "M", "E", "N", "OFF", "V", "ME", "MN", "EN", "NM", "NME", "MEN",
     "MH", "EH", "NH", "MEH", "MNH", "NEH", "ENH", "NMH", "NMEH", "MENH"
 ]
 export const personShifts = ["M", "E", "N", "MH", "EH", "NH"]

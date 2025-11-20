@@ -8,9 +8,7 @@ exports.applyShiftsCounts = (nurseShiftDays = {}, stdShiftsCounts = {}, year, mo
   // Insert provided shifts
   Object.entries(nurseShiftDays).forEach(([key, days]) => {
     days.forEach(day => {
-      schedule.forEach((item, index) => {
-        if (index === day - 1) schedule[index] = [day, key]
-      })
+      schedule[day - 1] = [day, key]
     })
   })
 

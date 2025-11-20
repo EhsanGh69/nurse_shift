@@ -43,7 +43,7 @@ export default function ChangeSettings() {
     }, [isLoading, data])
 
     return (
-        <MainLayout title="ویرایش حساب کاربری">
+        <MainLayout title="تنظیمات برنامه">
             <AppHeader />
             <Backdrop open={isLoading} sx={{ zIndex: (them) => them.zIndex.drawer + 1 }}>
                 <CircularProgress color="inherit" />

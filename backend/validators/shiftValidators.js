@@ -13,11 +13,11 @@ const Joi = require("joi");
 // PMH --> Promotion Morning Holiday
 
 const shiftDaysKeys = [
-    "M", "E", "N", "OFF", "V", "ME", "MN", "NE", "EN", "NM", "NME", "MEN",
+    "M", "E", "N", "OFF", "V", "ME", "MN", "EN", "NM", "NME", "MEN",
     "MH", "EH", "NH", "MEH", "MNH", "NEH", "ENH", "NMH", "NMEH", "MENH"
 ]
 const personSettingKeys = ["M", "E", "N", "MH", "EH", "NH"]
-const hourSettingKeys = ["NPM", "NPE", "NPN", "PM", "PE", "PN"]
+const hourSettingKeys = ["NPM", "NPE", "NPN", "PM", "PE", "PN", "V"]
 
 
 const keysValidator = (value, validKeys, helpers) => {
@@ -51,7 +51,7 @@ exports.createShiftSchema = Joi.object({
             ])
         )
     ).required().custom((value, helpers) => keysValidator(value, shiftDaysKeys, helpers)),
-    favCS: Joi.string().pattern(/^(ME|MN|NE|EN|NM|NME|MEN|MH|EH|NH|MEH|MNH|NEH|ENH|NMH|NMEH|MENH)$/).allow(""),
+    favCS: Joi.string().pattern(/^(ME|MN|EN|NM|NME|MEN)$/).allow(""),
     month: Joi.string().required(),
     year: Joi.string().required(),
     description: Joi.string().allow("")
@@ -63,7 +63,7 @@ exports.updateShiftSchema = Joi.object({
         Object.fromEntries(
             ["current", "update"].map(key => [
                 key, Joi.string()
-                    .pattern(/^(M|E|N|OFF|V|ME|MN|NE|EN|NM|NME|MEN|MH|EH|NH|MEH|MNH|NEH|ENH|NMH|NMEH|MENH)([1-9]|[12]\d|3[01])$/)
+                    .pattern(/^(M|E|N|OFF|V|ME|MN|EN|NM|NME|MEN|MH|EH|NH|MEH|MNH|NEH|ENH|NMH|NMEH|MENH)([1-9]|[12]\d|3[01])$/)
                     .required()
             ])
         )
@@ -73,14 +73,8 @@ exports.updateShiftSchema = Joi.object({
 exports.rejectShiftDaySchema = Joi.object({
     groupId: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).required(),
     shiftDay: Joi.string()
-    .pattern(/^(M|E|N|OFF|V|ME|MN|NE|EN|NM|NME|MEN|MH|EH|NH|MEH|MNH|NEH|ENH|NMH|NMEH|MENH)([1-9]|[12]\d|3[01])$/)
+    .pattern(/^(M|E|N|OFF|V|ME|MN|EN|NM|NME|MEN|MH|EH|NH|MEH|MNH|NEH|ENH|NMH|NMEH|MENH)([1-9]|[12]\d|3[01])$/)
     .required()
-})
-
-exports.refreshShiftsTableSchema = Joi.object({
-    groupId: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).required(),
-    month: Joi.string().required(),
-    year: Joi.string().required()
 })
 
 exports.shiftSettingSchema = Joi.object({

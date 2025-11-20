@@ -13,14 +13,16 @@ export default function SetSubgroupModal({
 }) {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
-  const [shiftCount, setShiftCount] = useState({ M: 0, E: 0, N: 0, CS: 0 })
+  const [shiftCount, setShiftCount] = useState({ OFF: [0, 0], N: [0, 0], CS: [0, 0] })
   const { groupId } = useShiftStore()
   const { mutateAsync: shiftCountMutate } = useSubGroupShiftCount()
 
-    const handleShiftCount = (shiftKey, value) => {
+    const handleShiftCount = (shiftKey, inputValue, index) => {
+        const minValue = shiftCount[shiftKey][0]
+        const maxValue = shiftCount[shiftKey][1]
         setShiftCount(prev => ({
             ...prev,
-            [shiftKey]: value
+            [shiftKey]: index === 0 ? [inputValue, maxValue] : [minValue, inputValue]
         }));
     };
 
@@ -41,7 +43,7 @@ export default function SetSubgroupModal({
 
     useEffect(() => {
         if(handler === "set")
-            setShiftCount({ M: 0, E: 0, N: 0, CS: 0 })
+            setShiftCount({ OFF: [0, 0], N: [0, 0], CS: [0, 0] })
     }, [handler, selectedOrder])
 
   return (
@@ -89,7 +91,7 @@ export default function SetSubgroupModal({
                     mb: 2
                 }}
             >
-                {["M", "E", "N", "CS"].map((shiftItem, idx) => (
+                {["N", "OFF", "CS"].map((shiftItem, idx) => (
                     <Box
                         key={idx}
                         sx={{
@@ -110,9 +112,17 @@ export default function SetSubgroupModal({
                         <Input
                             type='number'
                             inputProps={{ min: 0 }}
-                            sx={{ color: "#000", width: 50, ml: 1}}
-                            value={shiftCount[shiftItem]}
-                            onChange={(e) => handleShiftCount(shiftItem, Number(e.target.value))}
+                            sx={{ color: "#000", width: 50, mx: 1}}
+                            value={shiftCount[shiftItem][0]}
+                            onChange={(e) => handleShiftCount(shiftItem, Number(e.target.value), 0)}
+                        />
+                        <Typography variant='body1'>تا</Typography>
+                        <Input
+                            type='number'
+                            inputProps={{ min: 0 }}
+                            sx={{ color: "#000", width: 50, mx: 1}}
+                            value={shiftCount[shiftItem][1]}
+                            onChange={(e) => handleShiftCount(shiftItem, Number(e.target.value), 1)}
                         />
                     </Box>
                 ))}

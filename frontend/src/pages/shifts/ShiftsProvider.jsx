@@ -16,8 +16,9 @@ export default function ShiftsProvider ({ children }) {
     const [formOpen, setFormOpen] = useState(false);
     const [userShift, setUserShift] = useState(null)
     const [userGroups, setUserGroups] = useState(null)
+    const [prevDesc, setPrevDesc] = useState(null)
 
-    const { monthGrid, shiftMonth, shiftYear, daysInMonth } = generateMonthGrid();
+    const { monthGrid, shiftMonth, shiftYear } = generateMonthGrid();
     const { data: holidaysData, isLoading: holidaysLoading } = useYearHolidays();
     const { data: groupsData, isLoading: groupsLoading } = useUserGroups()
     const selectBox = useRef();
@@ -35,20 +36,6 @@ export default function ShiftsProvider ({ children }) {
         return null;
     };
 
-    // const allDaysHaveShift = () => {
-    //     for (let i = 1; i <= daysInMonth; i++) {
-    //         if (!getSelectedShiftDay(i)) return false;
-    //     }
-    //     return true
-    // }
-
-    // useEffect(() => {
-    //     if (allDaysHaveShift()) {
-    //         setFormOpen(true)
-    //         setCollapseOpen(false)
-    //     }
-    // }, [selectedShifts]);
-
     useEffect(() => {
         if (!holidaysLoading && holidaysData)
             setHolidays(holidaysData.holidays.filter((item) => item.month === shiftMonth));
@@ -64,6 +51,8 @@ export default function ShiftsProvider ({ children }) {
         value={{
             userGroups,
             userShift,
+            prevDesc,
+            setPrevDesc,
             setUserShift,
             selectBox,
             sendBox,

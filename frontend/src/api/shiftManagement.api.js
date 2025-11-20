@@ -55,7 +55,7 @@ export const useNursesShifts = (groupId, year, month) => {
     return useQuery({
         queryKey: ['nursesShifts', groupId, year, month],
         queryFn: async () => {
-            const { data } = await api.get(`/shifts/report/${groupId}/${year}/${month}`)
+            const { data } = await api.get(`/shifts/requests/${groupId}/${year}/${month}`)
             return data
         },
         retry: 0,
@@ -75,19 +75,6 @@ export const useRejectedShifts = (shiftId, groupId) => {
         retry: 0,
         staleTime: 0,
         enabled: !!shiftId && !!groupId
-    })
-}
-
-export const useNurseDescription = (shiftId) => {
-    return useQuery({
-        queryKey: ['nurseDescription', shiftId],
-        queryFn: async () => {
-            const { data } = await api.get(`/shifts/user/desc/${shiftId}`)
-            return data
-        },
-        retry: 0,
-        staleTime: 0,
-        enabled: !!shiftId
     })
 }
 
@@ -113,39 +100,13 @@ export const useChangeShift = (shiftId) => {
     })
 }
 
-export const useShiftsTables = (groupId, year, month) => {
-    return useQuery({
-        queryKey: ['shiftsTables', groupId, year, month],
-        queryFn: async () => {
-            const { data } = await api.get(`/shifts/tables/all/${groupId}`, { params: { year, month } })
-            return data
-        },
-        retry: 0,
-        staleTime: 0,
-        enabled: !!groupId
-    })
-}
-
-export const useShiftsTable = (tableId) => {
-    return useQuery({
-        queryKey: ['shiftsTable', tableId],
-        queryFn: async () => {
-            const { data } = await api.get(`/shifts/tables/${tableId}`)
-            return data
-        },
-        retry: 0,
-        staleTime: 0,
-        enabled: !!tableId
-    })
-}
-
-export const useRefreshShiftsTables = () => {
+export const useChangeTemporal = () => {
     const queryClient = useQueryClient()
 
     return useMutation({
         mutationFn: async (data) => {
-            await api.post(`/shifts/tables/refresh`, data)
+            await api.put('/shifts/temporal', data)
         },
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['shiftsTables'] })
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['nursesShifts'] })
     })
 }

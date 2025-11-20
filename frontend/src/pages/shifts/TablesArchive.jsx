@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 
 import MainLayout from '../../mui/MainLayout';
 import AppHeader from '../../components/AppHeader';
-import { useShiftsTables, useRefreshShiftsTables } from "../../api/shiftManagement.api";
+import { useShiftsTables, useRefreshShiftsTables } from "../../api/shiftSchedule.api";
 import ShiftsFilter from "../../components/shift/ShiftsFilter";
 import ShiftGroup from "../../components/shift/ShiftGroup";
 import useShiftStore from '../../store/shiftStore';

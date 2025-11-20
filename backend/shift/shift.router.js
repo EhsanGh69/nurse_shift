@@ -5,9 +5,8 @@ const verifyToken = require("../middlewares/verifyToken");
 const validate = require("../middlewares/joiValidator");
 const permission = require("../middlewares/permission");
 const { 
-    createShiftSchema, updateShiftSchema, shiftSettingSchema, rejectShiftDaySchema, jobInfoSchema,
-    refreshShiftsTableSchema, saveShiftSchema
-} = require("../validators/shift.validators");
+    createShiftSchema, updateShiftSchema, shiftSettingSchema, rejectShiftDaySchema, jobInfoSchema, saveShiftSchema
+} = require("../validators/shiftValidators");
 
 const router = Router()
 
@@ -28,10 +27,15 @@ router.put('/update/:id',
     validate(updateShiftSchema),
     shiftController.updateShift
 )
-router.get('/report/:groupId/:year/:month',
+router.get('/requests/:groupId/:year/:month',
     verifyToken,
     permission(['ADMIN', 'MATRON']),
-    shiftController.getShiftReport
+    shiftController.getRequestedShifts
+)
+router.put('/temporal',
+    verifyToken,
+    permission(['ADMIN', 'MATRON']),
+    shiftController.changeShiftsTemporal
 )
 router.get('/day_limit/:groupId',
     verifyToken,
@@ -40,11 +44,6 @@ router.get('/day_limit/:groupId',
 router.get('/user/:id',
     verifyToken,
     shiftController.getUserShift
-)
-router.get('/user/desc/:id',
-    verifyToken,
-    permission(['ADMIN', 'MATRON']),
-    shiftController.getUserShiftDescription
 )
 router.get('/user/all/:groupId',
     verifyToken,
@@ -65,24 +64,6 @@ router.get('/reject/:groupId/:id',
     permission(['ADMIN', 'MATRON']),
     shiftController.getRejectedShiftDays
 )
-
-//* Table
-// router.post('/tables/refresh',
-//     verifyToken,
-//     permission(['ADMIN', 'MATRON']),
-//     validate(refreshShiftsTableSchema),
-//     shiftController.refreshShiftsTables
-// )
-// router.get('/tables/all/:groupId',
-//     verifyToken,
-//     permission(['ADMIN', 'MATRON']),
-//     shiftController.getAllShiftsTables
-// )
-// router.get('/tables/:id',
-//     verifyToken,
-//     permission(['ADMIN', 'MATRON']),
-//     shiftController.getShiftsTable
-// )
 
 //* Settings
 router.post('/settings',
