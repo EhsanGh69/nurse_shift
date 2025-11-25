@@ -3,15 +3,14 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from './api';
 
 
-export const useCurrentSettings = (enabled) => {
+export const useCurrentSettings = () => {
     return useQuery({
         queryKey: ['currentSettings'],
         queryFn: async () => {
             const { data } = await api.get('/settings')
             return data
         },
-        retry: 1,
-        enabled
+        retry: 1
     })
 }
 

@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext } from 'react'
-import { Backdrop, Button, CircularProgress, Grid, Typography, useMediaQuery, Drawer, Paper } from '@mui/material'
+import { Backdrop, Button, CircularProgress, Grid, Typography, Paper } from '@mui/material'
 import { useTheme } from "@mui/material/styles";
-import { Check, Clear, EventNote, Warning, LockOutline, LockOpen } from '@mui/icons-material'
+import { EventNote, Warning, LockOutline, LockOpen } from '@mui/icons-material'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 
 import MainLayout from '../../mui/MainLayout'
@@ -13,18 +13,15 @@ import ChangeTemporalModal from '../../components/manageShift/ChangeTemporalModa
 import useShiftStore from '../../store/shiftStore';
 import ShiftsContext from '../../context/ShiftsContext';
 import ShiftDataBox from '../../components/manageShift/ShiftDataBox';
-import ShiftsCountBox from '../../components/manageShift/ShiftsCountBox';
 import SnackAlert from '../../components/SnackAlert';
 
 
 export default function NurseDayShifts() {
     const theme = useTheme();
     const isDark = theme.palette.mode === "dark";
-    const isDownLg = useMediaQuery(theme.breakpoints.down('lg'))
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
     const [nurseShifts, setNurseShifts] = useState(null)
     const [selectedShift, setSelectedShift] = useState({ shiftId: '', shiftDay: '', shiftUser: '' })
-    const [drawerOpen, setDrawerOpen] = useState(false)
     const [temporalModalOpen, setTemporalModalOpen] = useState(false)
     const [editModalOpen, setEditModalOpen] = useState(false)
     const [rejectModalOpen, setRejectModalOpen] = useState(false)
@@ -88,35 +85,6 @@ export default function NurseDayShifts() {
 
                 {nurseShifts && (
                     <>
-                       {/* 
-                       <Grid 
-                            width="100%"
-                            display="flex" justifyContent="space-between"
-                            flexDirection={{ xs: 'column', md: 'row' }}
-                            position="sticky"
-                            top={-50}
-                            zIndex={1000}
-                            bgcolor={isDark ? "#373434" : "#d3d3d3"}
-                        >
-                             {isDownLg
-                                ? (
-                                    <>
-                                        <Grid size={{ xs: 12 }} display="flex" justifyContent="space-around" mt={2} p={2}>
-                                            <Button onClick={() => setDrawerOpen(true)}
-                                                variant='contained' color='primary' sx={{ p: 2, fontSize: 20 }}>
-                                                آمار درخواست ها - چیدمان شیفت ها
-                                            </Button>
-                                        </Grid>
-                                        <Drawer anchor='top' open={drawerOpen} onClose={() => setDrawerOpen(false)}>
-                                            <ShiftsCountBox dayShifts={dayShifts} />
-                                        </Drawer>
-                                    </>
-                                )
-                                : <ShiftsCountBox dayShifts={dayShifts} />
-                            } 
-                        </Grid>
-                        */}
-
                         {nurseShifts.temporal && (
                             <Grid size={{ xs: 12 }} mt={1}>
                                 <Paper

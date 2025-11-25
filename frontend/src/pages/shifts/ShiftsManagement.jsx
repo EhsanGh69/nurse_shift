@@ -14,7 +14,7 @@ export default function ShiftsManagement() {
         { title: 'اطلاعات پرستاران', icon: <SwitchAccount fontSize='large' />, route: '/shifts/matron/infos' },
         { title: 'زیر گروه ها', icon: <Groups3 fontSize='large' />, route: '/shifts/matron/subgroups' },
         { title: 'شیفت های پرستاران', icon: <EventNote fontSize='large' />, route: '/shifts/matron/manage' },
-        { title: 'چینش پرستاران', icon: <ReduceCapacity fontSize='large' />, route: '/shifts/matron/tables' },
+        { title: 'چینش پرستاران', icon: <ReduceCapacity fontSize='large' />, route: '/shifts/matron/arrange' },
         { title: 'آرشیو جداول', icon: <TableChart fontSize='large' />, route: '/shifts/matron/tables' },
         { title: 'شیفت های من', icon: <CalendarMonth fontSize='large' />, route: '/shifts' },
     ])

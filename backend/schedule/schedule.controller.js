@@ -12,6 +12,7 @@ const shiftScheduleModel = require("./shiftSchedule.model")
 const { generateShiftsTable, getHourCountDay } = require("../utils/shiftDays");
 const { applyShiftsCounts, getUserShiftCount } = require('../utils/schedule/shiftCounts')
 const { applyPersonCounts } = require('../utils/schedule/personCounts')
+const { checkShiftManagers, checkDayShiftManagers } = require('../utils/schedule/shiftManagers')
 
 const currentYear = moment(new Date()).locale("fa").format("jYYYY");
 const currentMonth = moment(new Date()).locale("fa").format("jMM");
@@ -132,7 +133,8 @@ exports.createShiftsSchedule = async (req, res) => {
         allMonthShifts.push({ user: shift.user._id, monthShifts })
     })
 
-    const monthSchedule = applyPersonCounts(allMonthShifts, shiftSetting.personCount, year, month)
+    const personCountSch = applyPersonCounts(allMonthShifts, shiftSetting.personCount, year, month)
+    const monthSchedule = checkShiftManagers(personCountSch, allJobInfos, year, month)
 
     const shiftSchedule = await shiftScheduleModel.findOneAndUpdate({ group: groupId }, { monthSchedule })
     if(!shiftSchedule) {
@@ -180,6 +182,15 @@ exports.getShiftSchedule = async (req, res) => {
   const userGroup = await groupModel.findOne({ _id: groupId, matron: userId });
   if (!userGroup) return res.status(404).json({ error: "User group not found" });
 
+  const shiftSetting = await shiftSettingModel.findOne({ group: groupId });
+  if (!shiftSetting) return res.status(400).json({ message: "تنظیمات شیفت انجام نشده است" });
+
+  const allJobInfos = await jobInfoModel.find({ group: groupId }).lean();
+  if (!allJobInfos.length) return res.status(400).json({ message: "اطلاعات شغلی پرستاران تنظیم نشده است" });
+
+  const subGroup = await subGroupModel.findOne({ group: groupId }).lean()
+  if (!subGroup) return res.status(400).json({ message: "هیچ زیرگروهی تعیین نشده است" });
+
   const shiftSchedule = await shiftScheduleModel.findOne({ group: groupId })
   .populate("monthSchedule.user", "firstName lastName")
   .lean()
@@ -196,17 +207,7 @@ exports.getShiftSchedule = async (req, res) => {
     })
   })
 
-  res.json(shiftDaySchedule)
-}
+  const nonShiftManagers = checkDayShiftManagers(shiftDaySchedule, allJobInfos)
 
-/*
-{
-    "E": [
-        {
-            "_id": "6866a8866c710cfe7e5fe6bd",
-            "firstName": "Ehsan",
-            "lastName": "Ghanbari"
-        }
-    ]
+  res.json({ shiftDaySchedule, nonShiftManagers })
 }
-*/

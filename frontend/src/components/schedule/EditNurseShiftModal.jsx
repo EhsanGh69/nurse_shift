@@ -2,29 +2,26 @@ import { useState } from 'react'
 import { Modal, Button, Grid } from '@mui/material';
 
 import { modalBox } from '../../styles/globalStyles'
-import { useChangeShift } from '../../api/shiftManagement.api'
+import { useEditShiftSchedule } from '../../api/shiftSchedule.api'
 import useShiftStore from "../../store/shiftStore";
 import handleApiErrors from '../../utils/apiErrors';
-import { getShiftDay } from '../../utils/shiftsData';
-import ShiftDayInput from '../schedule/ShiftDayInput';
+import ShiftDayInput from './ShiftDayInput';
 
-export default function EditShiftModal({ open, setEditModalOpen, selectedShift, setSnackbar }) {
+export default function EditNurseShiftModal({ open, setEditModalOpen, selectedNurse, setSnackbar }) {
   const [shiftType, setShiftType] = useState('')
   const [monthDay, setMonthDay] = useState('')
   const { groupId } = useShiftStore();
-  const { mutateAsync, isPending } = useChangeShift(selectedShift.shiftId)
+  const { mutateAsync, isPending } = useEditShiftSchedule()
 
   const handleChangeShift = async () => {
-    let updateShift = ""
-    if(!shiftType && monthDay) updateShift = `${getShiftDay(selectedShift.shiftDay)[0]}${monthDay}`
-    else if(shiftType && !monthDay) updateShift = `${shiftType}${getShiftDay(selectedShift.shiftDay)[1]}`
-    else if(shiftType && monthDay) updateShift = `${shiftType}${monthDay}`
     try {
-      if(selectedShift.shiftId && updateShift){
+      if(selectedNurse.nurseId && selectedNurse.shiftDay && selectedNurse.shiftType){
         await mutateAsync({ 
-            groupId, shiftDay: {update: updateShift, current: selectedShift.shiftDay} 
+            groupId, memberId: selectedNurse.nurseId,
+            shiftDay: monthDay ? monthDay : selectedNurse.shiftDay, 
+            shiftType: shiftType ? shiftType : selectedNurse.shiftType
         })
-        setSnackbar({ open: true, message: 'شیفت پرستار با موفقیت ویرایش شد', severity: 'success' })
+        setSnackbar({ open: true, message: 'پرستار با موفقیت منتقل شد ویرایش شد', severity: 'success' })
         setTimeout(() => setEditModalOpen(false), 500)
       }else {
         setEditModalOpen(false)
@@ -39,9 +36,9 @@ export default function EditShiftModal({ open, setEditModalOpen, selectedShift, 
     <Modal open={open}>
         <Grid container sx={modalBox} width={{ xs: "80%", md: "60%", lg: "40%", xl: "35%" }}>
             <ShiftDayInput 
-              selectedNurseName={selectedShift && selectedShift.shiftUser}
-              selectedShiftDay={selectedShift &&  getShiftDay(selectedShift.shiftDay)[1]}
-              selectedShiftType={selectedShift &&  getShiftDay(selectedShift.shiftDay)[0]}
+              selectedNurseName={selectedNurse.nurseName}
+              selectedShiftDay={selectedNurse.shiftDay}
+              selectedShiftType={selectedNurse.shiftType}
               shiftType={shiftType} setShiftType={setShiftType}
               monthDay={monthDay} setMonthDay={setMonthDay}
             />

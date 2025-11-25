@@ -34,6 +34,10 @@ const jobInfoSchema = new mongoose.Schema({
     nonPromotionDuty: {
         type: Number,
         required: true
+    },
+    shiftManager: {
+        type: Boolean,
+        default: false
     }
 })
 

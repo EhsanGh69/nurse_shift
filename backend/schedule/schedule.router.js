@@ -8,7 +8,7 @@ const { updateShiftScheduleSchema, refreshShiftsTableSchema } = require("../vali
 
 const router = Router()
 
-router.get('/:groupId/:day',
+router.get('/get/:groupId/:day',
     verifyToken,
     permission(['ADMIN', 'MATRON']),
     scheduleController.getShiftSchedule
@@ -31,16 +31,16 @@ router.post('/tables/refresh',
     permission(['ADMIN', 'MATRON']),
     validate(refreshShiftsTableSchema),
     scheduleController.refreshShiftsTables
+) 
+router.get('/tables/:id',
+    verifyToken,
+    permission(['ADMIN', 'MATRON']),
+    scheduleController.getShiftsTable
 )
 router.get('/tables/all/:groupId',
     verifyToken,
     permission(['ADMIN', 'MATRON']),
     scheduleController.getAllShiftsTables
-)
-router.get('/tables/:id',
-    verifyToken,
-    permission(['ADMIN', 'MATRON']),
-    scheduleController.getShiftsTable
 )
 
 module.exports = router

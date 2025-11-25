@@ -1,43 +1,25 @@
-import { personShifts } from "../constants/shifts";
-
 export const getShiftDay = (shiftDay) => {
-    const [_, shift, day] = shiftDay.match(/^([A-Z]+)(\d+)$/);
-    return [shift, Number(day)];
+    if(shiftDay){
+        const [_, shift, day] = shiftDay.match(/^([A-Z]+)(\d+)$/);
+        return [shift, Number(day)];
+    }
+    return []
 };
 
-export const getShiftRequestCount = (dayShifts = []) => {
-    const requestCount = {M: 0, E: 0, N: 0, MH: 0, EH: 0, NH: 0}
-    personShifts.forEach(pShift => {
-        dayShifts.forEach(dShift => {
-            if(pShift.includes("H") && dShift.shiftDay.includes("H")){
-                const baseType = pShift.replace('H', '')
-                if(dShift.shiftDay.includes(baseType)){
-                    requestCount[pShift] += dShift.users.length
-                }
-            }else if(dShift.shiftDay.includes(pShift) && !dShift.shiftDay.includes("H")) {
-                requestCount[pShift] += dShift.users.length
+export const getShiftTypeCounts = (shiftDaySchedule = {}) => {
+    const resultCount = {M: 0, E: 0, N: 0, MH: 0, EH: 0, NH: 0}
+    for (const schType in shiftDaySchedule) {
+        for (const resType in resultCount) {
+            if(!schType.includes("H") && schType.includes(resType)) 
+                resultCount[resType] += shiftDaySchedule[schType].length
+            else if(schType.includes("H") && resType.includes("H")) {
+                const baseType = resType.replace('H', '')
+                if(schType.includes(baseType))
+                    resultCount[resType] += shiftDaySchedule[schType].length
             }
-        })
-    })
-    return requestCount;
-}
-
-export const getMatchCount = (shiftData, countObj) => {
-    let matchCount = 0
-    const shiftType = getShiftDay(shiftData.shiftDay)[0]
-    Object.keys(countObj).forEach(key => {
-        if(key.includes("H") && shiftType.includes("H")){
-            const baseType = key.replace('H', '')
-            if(shiftType.includes(baseType)){
-                matchCount = countObj[key]
-                return
-            }
-        }else if(shiftType.includes(key) && !shiftType.includes("H")){
-            matchCount = countObj[key]
-            return
         }
-    })
-    return matchCount
+    }
+    return resultCount;
 }
 
 export const checkLeapYear = (year=1404) => {

@@ -38,3 +38,27 @@ export const useRefreshShiftsTables = () => {
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['shiftsTables'] })
     })
 }
+
+export const useShiftSchedule = (groupId, day) => {
+    return useQuery({
+        queryKey: ['shiftSchedule', groupId, day],
+        queryFn: async () => {
+            const { data } = await api.get(`/get/schedule/${groupId}/${day}`)
+            return data
+        },
+        retry: 0,
+        staleTime: 0,
+        enabled: !!groupId
+    })
+}
+
+export const useEditShiftSchedule = () => {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: async (data) => {
+            await api.put(`/schedule/update`, data)
+        },
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['shiftSchedule'] })
+    })
+}

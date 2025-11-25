@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
-import { Divider, Grid, Paper, Typography, useMediaQuery, Button } from '@mui/material'
+import { Divider, Grid, Paper, Typography, useMediaQuery } from '@mui/material'
 import { useTheme } from "@mui/material/styles";
 
 import { useShiftSettings } from "../../api/shiftManagement.api";
 import useShiftStore from '../../store/shiftStore';
-import { personShifts } from '../../constants/shifts'
-import { getShiftRequestCount } from "../../utils/shiftsData";
+import { getShiftTypeCounts } from "../../utils/shiftsData";
+import { personShifts } from "../../constants/shifts"
 
-export default function ShiftsCountBox({ dayShifts }) {
+export default function ShiftsCountBox({ shiftDaySchedule }) {
     const theme = useTheme();
     const isDark = theme.palette.mode === "dark";
     const isDownMd = useMediaQuery(theme.breakpoints.down('md'))
@@ -30,7 +30,7 @@ export default function ShiftsCountBox({ dayShifts }) {
                     variant='h6' align='center' gutterBottom
                     sx={{ color: isDark ? '#f5f5f5' : '#1e1e1e' }}
                 >
-                    آمار درخواست ها
+                    چیدمان کنونی
                 </Typography>
                 <Grid container spacing={2}>
                     {settingCount &&  personShifts.map(shiftType => (
@@ -48,10 +48,10 @@ export default function ShiftsCountBox({ dayShifts }) {
                                 />
                                 <Typography 
                                     variant="h5" mt={isDownMd ? 0 : 1}
-                                    color={getShiftRequestCount(dayShifts)[shiftType] !== 
+                                    color={getShiftTypeCounts(shiftDaySchedule)[shiftType] !== 
                                         settingCount[shiftType] ? "error" : "success"} 
                                 >
-                                    {getShiftRequestCount(dayShifts)[shiftType]}
+                                    {getShiftTypeCounts(shiftDaySchedule)[shiftType]}
                                 </Typography>
                             </Paper>
                         </Grid>
@@ -69,7 +69,7 @@ export default function ShiftsCountBox({ dayShifts }) {
                     variant='h6' align='center' gutterBottom
                     sx={{ color: isDark ? '#f5f5f5' : '#1e1e1e' }}
                 >
-                    چیدمان شیفت ها
+                    چیدمان تنظیمات
                 </Typography>
                 <Grid container spacing={2}>
                     {settingCount && personShifts.map(shiftType => (
