@@ -7,7 +7,7 @@ export default function CalendarGrid() {
     const weekDays = useMemo(() => [ "شنبه", "یک شنبه", "دو شنبه", "سه‌ شنبه", "چهار شنبه", "پنج‌ شنبه", "جمعه"]);
     const { 
         monthGrid, selectedDay, setSelectedDay, checkHoliday, formOpen, setFormOpen,
-        getSelectedShiftDay, setCollapseOpen, userShift, collapseOpen, setWeekDay
+        getSelectedShiftDay, setCollapseOpen, userShift, collapseOpen, setWeekDay, removedDays
     } = useContext(ShiftsContext)
 
     const handleDayClick = (day) => {
@@ -31,7 +31,7 @@ export default function CalendarGrid() {
             else
                 return userShift?.shiftDays[day]
         }
-        else if(getSelectedShiftDay(day))
+        else if(getSelectedShiftDay(day) || removedDays.includes(day))
             return getSelectedShiftDay(day)
         else
             return userShift?.shiftDays[day]

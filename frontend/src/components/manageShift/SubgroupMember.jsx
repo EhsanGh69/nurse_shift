@@ -47,7 +47,7 @@ export default function SubgroupMember({ member, handleRemoveMember }) {
                             pr: 2
                         }}>
                         <Typography component="span">سمت: </Typography>
-                        <Typography component="span">{member.employment}</Typography>
+                        <Typography component="span">{member.post}</Typography>
                     </Typography>
                     <Typography
                         variant='body2'

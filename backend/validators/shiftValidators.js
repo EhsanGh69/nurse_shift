@@ -100,5 +100,6 @@ exports.jobInfoSchema = Joi.object({
     experience: Joi.number().integer().required(),
     hourReduction: Joi.number().integer().required(),
     promotionDuty: Joi.number().integer().required(),
-    nonPromotionDuty: Joi.number().integer().required()
+    nonPromotionDuty: Joi.number().integer().required(),
+    shiftManager: Joi.boolean().required()
 })

@@ -14,6 +14,7 @@ const ShiftsContext = createContext({
     monthGrid: [],
     shiftYear: 1,
     shiftMonth: 1,
+    daysInMonth: 1,
     selectedDay: null,
     setSelectedDay: () => {},
     weekDay: null,
@@ -22,6 +23,8 @@ const ShiftsContext = createContext({
     setCollapseOpen: () => {},
     selectedShifts: null,
     setSelectedShifts: () => {},
+    removedDays: [],
+    setRemovedDays: () => {},
     checkHoliday: () => {},
     getSelectedShiftDay: () => {}
 })

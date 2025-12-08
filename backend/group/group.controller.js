@@ -5,8 +5,9 @@ const inviteCodeModel = require('./inviteCode.model');
 const groupModel = require('./group.model');
 const userModel = require('../user/user.model');
 const subGroupModel = require('./subGroup.model');
+const shiftScheduleModel = require("../schedule/shiftSchedule.model");
 const jobInfoModel = require('../shift/jobInfo.model');
-const { updateSubgroupChecker } = require('../helpers/subGroup.helper')
+const { updateSubgroupChecker } = require('../helpers/subGroup.helper');
 
 exports.getGroups = async (req, res) => {
     const user = req.user;
@@ -47,6 +48,7 @@ exports.createGroup = async (req, res) => {
 
     const newGroup = await groupModel.create({ matron: user._id, province, county, hospital, department })
     await subGroupModel.create({ group: newGroup._id })
+    await shiftScheduleModel.create({ group: group._id })
 
     res.status(201).json({ message: "New group created successfully" })
 }
@@ -222,7 +224,7 @@ exports.getSubGroups = async (req, res) => {
                             fullName: `${subMember.user.firstName} ${subMember.user.lastName}`,
                             avatar: subMember.user.avatar,
                             rank: subMember.rank,
-                            employment: jInfo.employment,
+                            post: jInfo.post,
                             experience: jInfo.experience
                         })
                     }

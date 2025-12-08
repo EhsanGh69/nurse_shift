@@ -12,14 +12,7 @@ import { cacheRtl } from './mui/themes/theme.js';
 import router from "./router";
 
 function App() {
-  const [enabled, setEnabled] = useState(false)
-
-  useEffect(() => {
-    const token = localStorage.getItem("refreshToken")
-    if (token) setEnabled(true)
-  }, [])
-
-  const { isLoading, data } = useCurrentSettings(enabled)
+  const { isLoading, data } = useCurrentSettings()
 
   const theme = useMemo(() => {
     if (!isLoading && data) {

@@ -16,7 +16,6 @@ const { checkShiftManagers, checkDayShiftManagers } = require('../utils/schedule
 
 const currentYear = moment(new Date()).locale("fa").format("jYYYY");
 const currentMonth = moment(new Date()).locale("fa").format("jMM");
-const currentDay = moment(new Date()).locale("fa").format("jDD");
 const shiftMonth = Number(currentMonth) + 1 > 12 ? 1 : Number(currentMonth) + 1
 const shiftYear = shiftMonth > 12 ? Number(currentYear) + 1 : Number(currentYear)
 
@@ -109,39 +108,49 @@ exports.createShiftsSchedule = async (req, res) => {
     if(!isValidObjectId(groupId)) return res.status(422).json({ error: "Group id is not valid" })
     const userGroup = await groupModel.findOne({ _id: groupId, matron: userId });
     if (!userGroup) return res.status(404).json({ error: "User group not found" });
-    
+
+    const shiftSchedule = await shiftScheduleModel.findOne({ group: groupId })
+    if(shiftSchedule?.monthSchedule.length && shiftSchedule?.month === String(month)) 
+      return res.json({ message: "Shift schedule already created" })
+   
     const shiftSetting = await shiftSettingModel.findOne({ group: groupId });
     if (!shiftSetting) return res.status(400).json({ message: "تنظیمات شیفت انجام نشده است" });
 
     const allJobInfos = await jobInfoModel.find({ group: groupId }).lean();
     if (!allJobInfos.length) return res.status(400).json({ message: "اطلاعات شغلی پرستاران تنظیم نشده است" });
 
-    const subGroup = await subGroupModel.findOne({ group: groupId }).lean()
-    if (!subGroup) return res.status(400).json({ message: "هیچ زیرگروهی تعیین نشده است" });
+    // const subGroup = await subGroupModel.findOne({ group: groupId }).lean()
+    // if (!subGroup) return res.status(400).json({ message: "هیچ زیرگروهی تعیین نشده است" });
 
     const allShifts = await shiftModel.find({ group: groupId, month, year })
-        .populate("user", "firstName lastName").lean();
+      .populate("user", "firstName lastName").lean();
     if(!allShifts.length) return res.status(400).json({ message: "هیچ درخواست شیفتی وجود ندارد" })
 
+    const matronStaff = []
+    allJobInfos.forEach(info => {
+      if(info.post === 1 || info.post === 2) matronStaff.push(String(info.user))
+    })
+
     const allMonthShifts = []
-
     allShifts.forEach(shift => {
-        const stdShiftsCounts = getUserShiftCount(shift.user._id.toString(), subGroup.subs)
-        if(!stdShiftsCounts) return res.status(400).json({ message: "برای همه پرستاران زیرگروه تعیین نشده است" });
-
-        const monthShifts = applyShiftsCounts(shift.shiftDays, stdShiftsCounts, year, month, shift.favCS)
+        // const stdShiftsCounts = getUserShiftCount(shift.user._id.toString(), subGroup.subs)
+        // if(!stdShiftsCounts) return res.status(400).json({ message: "برای همه پرستاران زیرگروه تعیین نشده است" });
+        const isMatronStaff = matronStaff.includes(String(shift.user._id))
+        const monthShifts = applyShiftsCounts(shift.shiftDays, isMatronStaff, year, month)
         allMonthShifts.push({ user: shift.user._id, monthShifts })
     })
 
     const personCountSch = applyPersonCounts(allMonthShifts, shiftSetting.personCount, year, month)
-    const monthSchedule = checkShiftManagers(personCountSch, allJobInfos, year, month)
+    // const monthSchedule = checkShiftManagers(personCountSch, allJobInfos, year, month)
 
-    const shiftSchedule = await shiftScheduleModel.findOneAndUpdate({ group: groupId }, { monthSchedule })
-    if(!shiftSchedule) {
-        await shiftScheduleModel.create({ group: groupId, monthSchedule })
-        return res.status(201).json({ message: "Shift schedule created successful" })
-    }
-    return res.json({ message: "Shift schedule updated successful" })
+    // await shiftScheduleModel.create({ group: groupId, month, monthSchedule: personCountSch })
+    await shiftScheduleModel.updateOne({ group: groupId, month }, { monthSchedule: personCountSch })
+ 
+    // shiftSchedule.monthSchedule = monthSchedule
+    // shiftSchedule.month = month
+    // shiftSchedule.save()
+    return res.status(201).json({ message: "Shift schedule updated successful" })
+    // return res.json(personCountSch)
 }
 
 exports.updateShiftsSchedule = async (req, res) => {

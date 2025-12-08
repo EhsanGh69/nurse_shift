@@ -24,9 +24,9 @@ export default function NurseShifts() {
     const [selectedMonth, setSelectedMonth] = useState('')
     const [haveShiftMonth, setHaveShiftMonth] = useState(null)
     const { groupId } = useShiftStore()
-    const { data, isLoading } = useUserShifts(groupId, selectedYear, selectedMonth)
     const { getData } = useContext(GlobalContext)
     const user = getData("userData")
+    const { data, isLoading } = useUserShifts(groupId, selectedYear, selectedMonth)
 
     useEffect(() => {
         if (data && !isLoading){

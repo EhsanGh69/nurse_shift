@@ -9,12 +9,32 @@ import MainLayout from "../../mui/MainLayout";
 import { Link } from "react-router-dom";
 import { clickBox } from "../../styles/globalStyles";
 import useSelectedDaysStore from "../../store/selectedDays"
+import { useCreateShiftSchedule } from "../../api/shiftSchedule.api"
+import useShiftStore from '../../store/shiftStore';
+import SnackAlert from "../../components/SnackAlert";
+import handleApiErrors from "../../utils/apiErrors";
 
 export default function NurseArrangement() {
   const weekDays = useMemo(() => [ "شنبه", "یک شنبه", "دو شنبه", "سه‌ شنبه", "چهار شنبه", "پنج‌ شنبه", "جمعه"]);
   const { monthGrid, shiftMonth, shiftYear, checkHoliday } = useContext(ShiftsContext)
   const { selectedDays } = useSelectedDaysStore()
   const [checkedDays, setCheckedDays] = useState(selectedDays || [])
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
+  const { groupId } = useShiftStore()
+  const { mutateAsync } = useCreateShiftSchedule()
+
+  const createShiftSchedule = async () => {
+    try {
+      await mutateAsync({ groupId, month: shiftMonth, year: shiftYear })
+    } catch (error) {
+      const msg = handleApiErrors(error);
+      setSnackbar({ open: true, message: msg, severity: 'error' })
+    }
+  }
+
+  useEffect(() => {
+    if(groupId) createShiftSchedule()
+  }, [groupId])
 
   const checkHandler = (dayKey) => {
     if(!checkedDays.includes(dayKey))
@@ -78,6 +98,7 @@ export default function NurseArrangement() {
               )}
           </Grid>
       </Grid>
+      <SnackAlert snackbar={snackbar} setSnackbar={setSnackbar} />
     </MainLayout>
   )
 }

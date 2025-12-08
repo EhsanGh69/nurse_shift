@@ -1,19 +1,23 @@
-import { useState, useEffect } from 'react';
-import { Avatar, Box, Divider, Grid, Input, Paper, Typography, Button, TextField, MenuItem } from '@mui/material';
+import { useState } from 'react';
+import { 
+    Avatar, Box, Divider, Grid, Input, Paper, Typography, Button, TextField, MenuItem, Checkbox, FormControlLabel
+} from '@mui/material';
 import { useTheme } from "@mui/material/styles";
 import { textFieldStyle } from '../../styles/globalStyles';
 import { postTitles, employTitles } from '../../constants/shifts';
+import { Check, Clear } from '@mui/icons-material';
 
 
 export default function JobInfoBox({ 
-    member, fields, nurseInfos, setNurseInfos, handleSetJobInfo, onCancel
+    member, fields, nurseInfos, setNurseInfos, shiftManager, setShiftManagers, handleSetJobInfo, onCancel
 }) {
     const theme = useTheme();
     const isDark = theme.palette.mode === "dark";
     const [isEdit, setIsEdit] = useState(false)
 
     const handleChangeInfos = (field, value) => {
-        setNurseInfos(prev => ({ ...prev, [member._id]: { ...prev[member._id], [field]: value } }))
+        if(field === "shiftManager") setShiftManagers(prev => ({ ...prev, [member._id]: value }))
+        else setNurseInfos(prev => ({ ...prev, [member._id]: { ...prev[member._id], [field]: value } }))
         setIsEdit(true)
     }
 
@@ -106,16 +110,33 @@ export default function JobInfoBox({
                                 </TextField>
                             )}
 
-                            {field.name !== 'employment' && field.name !== 'post' && (
+                            {field.name !== 'employment' && field.name !== 'post' && field.name !== 'shiftManager' 
+                            && (
                                 <Input
-                                    type='number'
+                                    type='text'
                                     inputProps={{ min: 1 }}
                                     sx={{ 
                                         color: "#000", width: 50, ml: 1,
                                         display: isEdit ? 'inherit' : 'none' 
                                     }}
                                     value={nurseInfos[field.name]}
-                                    onChange={(e) => handleChangeInfos(field.name, Number(e.target.value))}
+                                    onChange={(e) => {
+                                        if(isNaN(e.target.value))
+                                            handleChangeInfos(field.name, 0)
+                                        else
+                                            handleChangeInfos(field.name, Number(e.target.value))
+                                    }}
+                                />
+                            )}
+                            {field.name === 'shiftManager' 
+                            && (
+                                <Checkbox
+                                    checked={shiftManager}
+                                    sx={{ 
+                                        color: "#000", width: 50, ml: 1,
+                                        display: isEdit ? 'inherit' : 'none'
+                                    }}
+                                    onChange={(e) => handleChangeInfos(field.name, e.target.checked)}
                                 />
                             )}
                             <Typography 
@@ -126,7 +147,14 @@ export default function JobInfoBox({
                             >
                                 {field.name === 'post' && postTitles[nurseInfos[field.name] - 1]}
                                 {field.name === 'employment' && employTitles[nurseInfos[field.name] - 1]}
-                                {field.name !== 'employment' && field.name !== 'post' && nurseInfos[field.name]}
+                                {field.name !== 'employment' && field.name !== 'post' 
+                                && field.name !== 'shiftManager' && nurseInfos[field.name]}
+                                {field.name === 'shiftManager' && (
+                                    <>
+                                        {shiftManager 
+                                        ? <Check color='success' /> : <Clear color='error' />}
+                                    </>
+                                )}
                             </Typography>
                         </Box>
                     ))}

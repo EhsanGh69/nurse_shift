@@ -21,7 +21,7 @@ export default function NurseDayArrange() {
     const theme = useTheme();
     const isDark = theme.palette.mode === "dark";
     const isDownLg = useMediaQuery(theme.breakpoints.down('lg'))
-    const { shiftMonth, shiftYear, checkHoliday } = useContext(ShiftsContext)
+    const { shiftMonth, shiftYear, checkHoliday, daysInMonth } = useContext(ShiftsContext)
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
     const [drawerOpen, setDrawerOpen] = useState(false)
     const [nurseSchedule, setNurseSchedule] = useState(null)
@@ -34,7 +34,8 @@ export default function NurseDayArrange() {
     const navigate = useNavigate()
 
     useEffect(() => {
-        if(!isLoading && isError && error.status === 404)
+        const invalidDay = isNaN(day) || Number(day) > daysInMonth
+        if(invalidDay)
             navigate('/404', { state: { backTo: "/shifts/matron/arrange" } })
         else if(!isLoading && data) {
             setNurseSchedule(data.shiftDaySchedule)

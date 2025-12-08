@@ -43,12 +43,23 @@ export const useShiftSchedule = (groupId, day) => {
     return useQuery({
         queryKey: ['shiftSchedule', groupId, day],
         queryFn: async () => {
-            const { data } = await api.get(`/get/schedule/${groupId}/${day}`)
+            const { data } = await api.get(`/schedule/get/${groupId}/${day}`)
             return data
         },
         retry: 0,
         staleTime: 0,
         enabled: !!groupId
+    })
+}
+
+export const useCreateShiftSchedule = () => {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: async (data) => {
+            await api.post(`/schedule/create`, data)
+        },
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['shiftSchedule'] })
     })
 }
 

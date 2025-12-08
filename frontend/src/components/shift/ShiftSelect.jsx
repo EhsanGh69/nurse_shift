@@ -1,6 +1,6 @@
 import { useContext, useEffect } from "react";
-import { Check, Close, EventAvailable } from "@mui/icons-material";
-import { Box, Collapse, Grid, IconButton, Paper, Typography } from "@mui/material";
+import { Check, Close, EventAvailable, CancelPresentation } from "@mui/icons-material";
+import { Box, Collapse, Grid, IconButton, Paper, Typography, Button } from "@mui/material";
 
 import { shiftDays } from "../../constants/shifts";
 import ShiftsContext from "../../context/ShiftsContext";
@@ -8,14 +8,29 @@ import ShiftsContext from "../../context/ShiftsContext";
 
 export default function ShiftSelect() {
     const { selectedDay, setSelectedDay, collapseOpen, checkHoliday, getSelectedShiftDay,
-      selectedShifts, shiftYear, shiftMonth, setCollapseOpen, setSelectedShifts, 
-      selectBox, userShift, weekDay
+      selectedShifts, shiftYear, shiftMonth, setCollapseOpen, setSelectedShifts, setRemovedDays,
+      removedDays, selectBox, userShift, weekDay
     } = useContext(ShiftsContext)
 
     useEffect(() => {
-      if(userShift)
+      if(userShift) 
         setSelectedShifts({ ...userShift?.currentShiftDays })
     }, [userShift])
+
+    useEffect(() => {
+      console.log(getSelectedShiftDay(selectedDay))
+      console.log(removedDays)
+    }, [selectedDay])
+
+    const handleShiftRemove = () => {
+      if (!selectedDay) return;
+
+      const currentShift = getSelectedShiftDay(selectedDay)
+      const updated = { ...selectedShifts };
+      updated[currentShift] = (updated[currentShift] || []).filter((day) => day !== selectedDay);
+      setSelectedShifts(updated);
+      setRemovedDays(prev => [...prev, selectedDay])
+    }
 
     const handleShiftSelect = (shift) => {
         if (!selectedDay) return;
@@ -23,7 +38,7 @@ export default function ShiftSelect() {
         const currentShift = getSelectedShiftDay(selectedDay)
         const updated = { ...selectedShifts };
         if(currentShift === shift) {
-        updated[shift] = (updated[shift] || []).filter((day) => day !== selectedDay);
+          updated[shift] = (updated[shift] || []).filter((day) => day !== selectedDay);
         }else {
           shiftDays.forEach((shiftDay) => {
               updated[shiftDay] = (selectedShifts[shiftDay] || []).filter((day) => day !== selectedDay);
@@ -77,6 +92,16 @@ export default function ShiftSelect() {
               M: صبح | E: عصر | N: شب | V: مرخصی | H: تعطیل
             </Typography>
           </Box>
+
+          {(
+            getSelectedShiftDay(selectedDay) || !!removedDays.length && !removedDays.includes(selectedDay)
+          ) && (
+            <Box width="100%" mb={1.5}>
+              <Button variant="contained" color="error" onClick={handleShiftRemove}>
+                <CancelPresentation />
+              </Button>
+            </Box>
+          )}
 
           <Grid container>
             {shiftDays.map((shiftDay) => {

@@ -67,7 +67,7 @@ exports.createShift = async (req, res) => {
 
   const userShiftCount = getUserShiftCount(userId.toString(), subGroup.subs)
 
-  if(userShiftCount.CS > 0 && !favCS)
+  if(userShiftCount.CS[0] >= 0 && userShiftCount.CS[1] > 1 && !favCS)
     return res.status(400).json({ message: "انتخاب شیفت ترکیبی مورد علاقه الزامی می باشد" });
   
   const shiftExist = await shiftModel.findOne({ user: userId, group: groupId, month, year })
@@ -341,9 +341,9 @@ exports.getJobInfos = async (req, res) => {
 exports.setJobInfo = async (req, res) => {
   const matronId = req.user._id;
   const { 
-    userId, groupId, post, employment, experience, hourReduction, promotionDuty, nonPromotionDuty,
+    userId, groupId, post, employment, shiftManager,
+    experience, hourReduction, promotionDuty, nonPromotionDuty,
   } = req.body;
-
   const userGroup = String(matronId) === String(userId)
     ? await groupModel.findOne({ _id: groupId, matron: matronId })
     : await groupModel.findOne({
@@ -354,11 +354,12 @@ exports.setJobInfo = async (req, res) => {
 
   const jobInfo = await jobInfoModel.findOneAndUpdate(
     { group: groupId, user: userId }, 
-    { post, employment, experience, hourReduction, promotionDuty, nonPromotionDuty}
+    { post, employment, experience, hourReduction, promotionDuty, nonPromotionDuty, shiftManager}
   );
   if (!jobInfo){
     await jobInfoModel.create({
-      user: userId,group: groupId,post,employment,experience,hourReduction,promotionDuty,nonPromotionDuty
+      user: userId,group: groupId, post, employment, shiftManager,
+      experience,hourReduction,promotionDuty,nonPromotionDuty
     });
     return res.status(201).json({ message: "Job info created successfully" });
   }

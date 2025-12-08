@@ -28,13 +28,16 @@ export default function NursesInfos() {
         {title: "تقلیل ساعت", name: "hourReduction"},
         {title: "موظفی با ارتقاء", name: "promotionDuty"},
         {title: "موظفی بدون ارتقاء", name: "nonPromotionDuty"},
+        {title: "مسئول شیفت", name: "shiftManager"}
     ])
     const initialInfos = useMemo(() => ({
-        post: 1, employment: 1, experience: 1, hourReduction: 1, promotionDuty: 1, nonPromotionDuty: 1
+        post: 1, employment: 1, experience: 1,
+        hourReduction: 1, promotionDuty: 1, nonPromotionDuty: 1
     }))
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
     const [allInfos, setAllInfos] = useState(null)
     const [nurseInfos, setNurseInfos] = useState({})
+    const [shiftManagers, setShiftManagers] = useState({})
     const [groupMembers, setGroupMembers] = useState(null)
     const [resetInfos, setResetInfos] = useState(false)
     const { groupId } = useShiftStore()
@@ -45,9 +48,10 @@ export default function NursesInfos() {
     const handleSetJobInfo = async (userId) => {
         try {
             await jobInfoSchema(jobInfoKeys).validate(nurseInfos[userId])
-            await mutateAsync({ userId, groupId, ...nurseInfos[userId] })
+            await mutateAsync({ userId, groupId, ...nurseInfos[userId], shiftManager: shiftManagers[userId] })
             setSnackbar({ open: true, message: 'تغییرات با موفقیت ذخیره شد', severity: 'success' })
         } catch (error) {
+            console.log(error)
             if(error instanceof Yup.ValidationError){
                 setSnackbar({ open: true, message: "مقدار وارد شده نامعتبر می باشد", severity: 'error' })
             }else {
@@ -87,8 +91,12 @@ export default function NursesInfos() {
                 const foundNurse = allInfos?.find(info => info.user._id === member._id)
                 if(foundNurse){
                     initialNurseInfos[member._id] = { ...extractInfos(foundNurse) }
+                    shiftManagers[member._id] = foundNurse.shiftManager
                 } 
-                else initialNurseInfos[member._id] = { ...initialInfos }
+                else {
+                    initialNurseInfos[member._id] = { ...initialInfos }
+                    shiftManagers[member._id] = false
+                }
             })
             setNurseInfos(initialNurseInfos)
         }
@@ -142,6 +150,8 @@ export default function NursesInfos() {
                                 fields={nurseInfos[member._id] && fields}
                                 nurseInfos={nurseInfos[member._id]}
                                 setNurseInfos={setNurseInfos}
+                                shiftManager={shiftManagers[member._id]}
+                                setShiftManagers={setShiftManagers}
                                 handleSetJobInfo={handleSetJobInfo}
                                 onCancel={(bool) => setResetInfos(bool)}
                             />

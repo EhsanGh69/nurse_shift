@@ -60,7 +60,7 @@ export default function SubGroupBox({
                         }}>
                         {shift[0] === 'CS' ? 'شیفت ترکیبی' : shift[0] }: {" "}
                         
-                        {!shift[1][0] && !shift[1][0] ? 0 : `[ ${shift[1][0]} تا ${shift[1][1]} ]`}
+                        {!shift[1][0] && !shift[1][1] ? 0 : `[ ${shift[1][0]} تا ${shift[1][1]} ]`}
                         
                     </Typography>
                 ))}

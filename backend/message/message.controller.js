@@ -51,6 +51,8 @@ exports.userConversations = async (req, res) => {
         $or: [{ from: user._id }, { to: user._id }]
     }).lean()
 
+    if(!messages.length) return res.json(messages)
+
     const groups = await groupModel.find({ 
         $or: [{ members: { $all: [user._id] } }, { matron: user._id }]
      })

@@ -6,7 +6,7 @@ import EventBusyIcon  from '@mui/icons-material/EventBusy'
 import EditCalendarIcon  from '@mui/icons-material/EditCalendar'
 
 import ShiftsContext from "../../context/ShiftsContext";
-
+import moment from "jalali-moment";
 
 export default function ShiftDataBox({
   nurseShifts,
@@ -25,6 +25,12 @@ export default function ShiftDataBox({
   }
   const handleMenuClose = () => setAnchorEl(null)
   const { checkHoliday, shiftMonth, shiftYear } = useContext(ShiftsContext);
+
+  const setDayColor = (day) => {
+    const weekDay = moment(`${shiftYear}/${shiftMonth}/${day}`, 'jYYYY/jM/jD').locale("fa").weekday()
+    if(checkHoliday(day) || weekDay === 6) return "red"
+    return '#323131ff'
+  }
 
   return (
     <Box>
@@ -61,7 +67,7 @@ export default function ShiftDataBox({
               <Typography
                 component="p"
                 variant="body1"
-                color={!!checkHoliday(dayShift[0]) ? "error" : "#323131ff"}
+                color={setDayColor(Number(dayShift[0]))}
                 sx={{ fontWeight: "bold", display: "flex", flexDirection: "column", alignItems: "center" }}
               >
                 <span>{dayShift[0]} / {shiftMonth} / {shiftYear}</span>

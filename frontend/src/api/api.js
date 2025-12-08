@@ -52,8 +52,8 @@ api.interceptors.response.use(
             }
 
             return new Promise((resolve) => {
-                addSubscriber((token) => {
-                    originalRequest.headers.Authorization = `Bearer ${token}`
+                addSubscriber(() => {
+                    // originalRequest.headers.Authorization = `Bearer ${token}`
                     resolve(api(originalRequest))
                 })
             })
@@ -62,5 +62,17 @@ api.interceptors.response.use(
         return Promise.reject(error)
     }
 )
+
+export const logout = async () => {
+  try {
+    await api.post("/auth/logout");
+  } catch (err) {
+    console.error("Logout request failed:", err);
+  } finally {
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("shift-storage");
+    currentAccessToken = null; // ریست کردن توکن فعلی
+  }
+};
 
 export default api;

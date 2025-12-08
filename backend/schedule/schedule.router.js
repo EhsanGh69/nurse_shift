@@ -12,7 +12,7 @@ router.get('/get/:groupId/:day',
     verifyToken,
     permission(['ADMIN', 'MATRON']),
     scheduleController.getShiftSchedule
-)
+) 
 router.post('/create',
     verifyToken,
     permission(['ADMIN', 'MATRON']),

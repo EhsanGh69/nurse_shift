@@ -12,13 +12,14 @@ export default function ShiftsProvider ({ children }) {
     const [weekDay, setWeekDay] = useState(null);
     const [collapseOpen, setCollapseOpen] = useState(false);
     const [selectedShifts, setSelectedShifts] = useState({});
+    const [removedDays, setRemovedDays] = useState([]);
     const [holidays, setHolidays] = useState(null);
     const [formOpen, setFormOpen] = useState(false);
     const [userShift, setUserShift] = useState(null)
     const [userGroups, setUserGroups] = useState(null)
     const [prevDesc, setPrevDesc] = useState(null)
 
-    const { monthGrid, shiftMonth, shiftYear } = generateMonthGrid();
+    const { monthGrid, shiftMonth, shiftYear, daysInMonth } = generateMonthGrid();
     const { data: holidaysData, isLoading: holidaysLoading } = useYearHolidays();
     const { data: groupsData, isLoading: groupsLoading } = useUserGroups()
     const selectBox = useRef();
@@ -62,6 +63,7 @@ export default function ShiftsProvider ({ children }) {
             monthGrid,
             shiftYear,
             shiftMonth,
+            daysInMonth,
             selectedDay,
             setSelectedDay,
             weekDay,
@@ -70,6 +72,8 @@ export default function ShiftsProvider ({ children }) {
             setCollapseOpen,
             selectedShifts,
             setSelectedShifts,
+            removedDays,
+            setRemovedDays,
             checkHoliday,
             getSelectedShiftDay
         }}

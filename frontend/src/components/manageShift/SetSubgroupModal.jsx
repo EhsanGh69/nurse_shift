@@ -39,9 +39,7 @@ export default function SetSubgroupModal({
     useEffect(() => {
         if(handler === "update" && selectedOrder)
             getShiftCount(selectedOrder)
-    }, [handler, selectedOrder])
 
-    useEffect(() => {
         if(handler === "set")
             setShiftCount({ OFF: [0, 0], N: [0, 0], CS: [0, 0] })
     }, [handler, selectedOrder])
@@ -110,19 +108,29 @@ export default function SetSubgroupModal({
                         <Divider orientation='vertical' flexItem
                             sx={{ backgroundColor: "#000" }} />
                         <Input
-                            type='number'
+                            type='text'
                             inputProps={{ min: 0 }}
                             sx={{ color: "#000", width: 50, mx: 1}}
                             value={shiftCount[shiftItem][0]}
-                            onChange={(e) => handleShiftCount(shiftItem, Number(e.target.value), 0)}
+                            onChange={(e) => {
+                                if(isNaN(e.target.value))
+                                    handleShiftCount(shiftItem, 0, 0)
+                                else
+                                    handleShiftCount(shiftItem, Number(e.target.value), 0)
+                            }}
                         />
                         <Typography variant='body1'>تا</Typography>
                         <Input
-                            type='number'
+                            type='text'
                             inputProps={{ min: 0 }}
                             sx={{ color: "#000", width: 50, mx: 1}}
                             value={shiftCount[shiftItem][1]}
-                            onChange={(e) => handleShiftCount(shiftItem, Number(e.target.value), 1)}
+                            onChange={(e) => {
+                                if(isNaN(e.target.value))
+                                    handleShiftCount(shiftItem, 0, 1)
+                                else
+                                    handleShiftCount(shiftItem, Number(e.target.value), 1)
+                            }}
                         />
                     </Box>
                 ))}

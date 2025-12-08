@@ -10,7 +10,8 @@ export const useCurrentSettings = () => {
             const { data } = await api.get('/settings')
             return data
         },
-        retry: 1
+        retry: 1,
+        enabled: !!localStorage.getItem("refreshToken")
     })
 }
 

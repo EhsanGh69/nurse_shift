@@ -41,6 +41,10 @@ const shiftScheduleSchema = new mongoose.Schema({
     monthSchedule: {
         type: [monthScheduleSchema],
         default: []
+    },
+    month: {
+        type: String,
+        default: ""
     }
 })
 

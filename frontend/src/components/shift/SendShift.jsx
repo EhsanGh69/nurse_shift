@@ -14,7 +14,7 @@ export default function SendShift({ setSnackbar, filledShifts, formOpen }) {
     const theme = useTheme();
     const isDark = theme.palette.mode === "dark";
     const isUpMd = useMediaQuery(theme.breakpoints.up('md'))
-    const favCSItems = useMemo(() => ["ME", "MN", "NE", "EN", "NM"])
+    const favCSItems = useMemo(() => ["ME", "MN", "EN", "NM"])
     const [shiftsDesc, setShiftsDesc] = useState('')
     const [favCS, setFavCS] = useState('')
     const { mutateAsync: createMutate, isPending: createPending } = useCreateShift()

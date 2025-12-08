@@ -3,6 +3,7 @@ import { Avatar, Box, Typography, Grid, Button, Menu, MenuItem } from '@mui/mate
 import { useTheme } from '@mui/material/styles'
 import { Sunny, LockReset, Logout, Home, Bedtime } from '@mui/icons-material';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 
 import SnackAlert from './SnackAlert';
 import { headerButton } from "../styles/globalStyles";
@@ -27,10 +28,12 @@ export default function AppHeader() {
 
     const handleOpen = (event) => setAnchorEl(event.currentTarget)
     const handleClose = () => setAnchorEl(null)
+    const queryClient = useQueryClient()
 
     const handleLogout = async () => {
         try {
             await mutateAsync()
+            queryClient.clear()
             setSnackbar({ open: true, message: 'با موفقیت خارج شدید', severity: 'success' })
             setTimeout(() => navigate('/login'), 500)
         } catch (error) {

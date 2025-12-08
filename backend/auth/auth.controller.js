@@ -93,7 +93,7 @@ const cookieOptions = {
     secure: true,
     sameSite: 'none',
     path: '/'
-}
+}    
 
 exports.login = async (req, res) => {
     const { nationalCode, password } = req.body;

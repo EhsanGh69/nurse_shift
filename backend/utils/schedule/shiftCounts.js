@@ -1,7 +1,17 @@
 const { daysInJalaliMonth, stripH, getIsHolidaysMap } = require("./helpers")
 
 
-exports.applyShiftsCounts = (nurseShiftDays = {}, stdShiftsCounts = {}, year, month, favCS = '') => {
+const checkStdCount = (stdCounts) => {
+  const result = []
+  for (const type in stdCounts) {
+    if(!stdCounts[type][0] && !stdCounts[type][1]) result.push(0)
+    else result.push(1)
+  }
+  return result.some(i => i)
+}
+
+
+exports.applyShiftsCounts = (nurseShiftDays = {}, isMatronStaff=false, year, month) => {
   const totalDays = daysInJalaliMonth(year, month)
   const schedule = Array(totalDays).fill(null)
 
@@ -14,15 +24,17 @@ exports.applyShiftsCounts = (nurseShiftDays = {}, stdShiftsCounts = {}, year, mo
 
   // normalize provided shifts
   schedule.forEach((item, index) => {
-    if (item) {
-      if (
-        (stripH(item[1]).includes("N") && !schedule[index + 1]) ||
-        (item[1] !== 'OFF' && stripH(item[1]).length > 1 && !schedule[index + 1])
-      ) {
-        schedule[index + 1] = [index + 2, 'OFF']
-      }
-    }
+    if (item && (stripH(item[1]).includes("N") && !schedule[index + 1] && index + 2 <= totalDays))
+      schedule[index + 1] = [index + 2, 'OFF']
+    if(isMatronStaff && !item)
+      schedule[index] = [index + 1, 'M']
   })
+
+  return schedule
+
+ /*
+  if(!checkStdCount(stdShiftsCounts)) return schedule;
+
 
   // get nurse shift count
   const nurseShiftsCount = { N: 0, CS: 0, OFF: 0 }
@@ -43,6 +55,7 @@ exports.applyShiftsCounts = (nurseShiftDays = {}, stdShiftsCounts = {}, year, mo
     }
   })
 
+ 
   // get remain shift count
   const remainShiftCount = { N: 0, CS: 0, OFF: 0 }
   Object.entries(nurseShiftsCount).forEach(([Nk, Nv]) => {
@@ -62,7 +75,7 @@ exports.applyShiftsCounts = (nurseShiftDays = {}, stdShiftsCounts = {}, year, mo
         const CSCheck = schedule[index - 1] && stripH(schedule[index - 1][1]).length === 1
         if (!schedule[index + 1] && !schedule[index - 1] || NCheck && CSCheck) {
           schedule[index] = isHoliday ? [index + 1, 'NH'] : [index + 1, 'N']
-          schedule[index + 1] = [index + 2, 'OFF']
+          if(index + 2 <= totalDays) schedule[index + 1] = [index + 2, 'OFF']
           remainShiftCount.N += 1
         }
       }
@@ -79,7 +92,7 @@ exports.applyShiftsCounts = (nurseShiftDays = {}, stdShiftsCounts = {}, year, mo
         const beforeCS = !schedule[index - 1] || schedule[index - 1] === "OFF"
         if (beforeCS && afterCS) {
           schedule[index] = isHoliday ? [index + 1, `${favCS}H`] : [index + 1, favCS]
-          schedule[index + 1] = [index + 2, 'OFF']
+          if(index + 2 <= totalDays) schedule[index + 1] = [index + 2, 'OFF']
           remainShiftCount.CS += 1
         }
       }
@@ -108,6 +121,7 @@ exports.applyShiftsCounts = (nurseShiftDays = {}, stdShiftsCounts = {}, year, mo
   })
 
   return schedule;
+  */
 }
 
 exports.getUserShiftCount = (userId, subs = []) => {

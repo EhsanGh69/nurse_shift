@@ -43,7 +43,9 @@ export const useUserShifts = (groupId, year, month) => {
     return useQuery({
         queryKey: ['userShifts', groupId, year, month],
         queryFn: async () => {
-            const { data } = await api.get(`/shifts/user/all/${groupId}`, { params: { year, month } })
+            const { data } = await api.get(`/shifts/user/all/${groupId}`, { 
+                params: { year, month }
+            })
             return data
         },
         retry: 1,
