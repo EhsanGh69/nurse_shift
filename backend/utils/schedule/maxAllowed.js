@@ -2,114 +2,138 @@ const { stripH } = require("./helpers")
 
 const maxAllowed = [
     {
+        // Roodbarani
+        user: "6926b295bff30de5f59c8049",
+        amounts: {N: 0, CS: 0, E: 0, M: 24},
+        monthMax: 24
+    },
+    {
+        // Barari
+        user: "6926c0e4cdb927f2c1695cbe",
+        amounts: {N: 0, CS: 0, E: 0, M: 24},
+        monthMax: 24
+    },
+    {
+        // HoseinAbad
+        user: "6926c20ecdb927f2c1695cc6",
+        amounts: {N: 6, CS: 0, E: 12, M: 0},
+        monthMax: 24
+    },
+    {
+        // Anari
+        user: "6926c29dcdb927f2c1695cd6",
+        amounts: {N: 5, CS: 4, E: 7, M: 8},
+        monthMax: 25
+    },
+    {
+        // Shaabani-Saaid
+        user: "6926c2c6cdb927f2c1695cde",
+        amounts: {N: 6, CS: 0, E: 6, M: 7},
+        monthMax: 25
+    },
+    {
+        // Mohammadi
+        user: "6926c2f2cdb927f2c1695ce6",
+        amounts: {N: 0, CS: 0, E: 0, M: 22},
+        monthMax: 22
+    },
+
+    //*-----------------------------------------------------------
+
+    {
         // NezamAbad
         user: "6926c249cdb927f2c1695cce",
-        amounts: {OFF: 5, N: 5, CS: 1, E: 6, M: 8},
-        monthMax: 21,
-        favCS: "ME"
+        amounts: {N: 5, CS: 2, E: 6, M: 9},
+        monthMax: 25
     },
     {
         // MirzaeiRad
         user: "6926c314cdb927f2c1695cee",
-        amounts: {OFF: 6, N: 7, CS: 2, E: 8, M: 1},
-        monthMax: 20,
-        favCS: "ME"
+        amounts: {N: 6, CS: 3, E: 8, M: 6},
+        monthMax: 26
     },
     {
         // Soofi
         user: "6926c32fcdb927f2c1695cf6",
-        amounts: {OFF: 6, N: 5, CS: 2, E: 10, M: 3},
-        monthMax: 22,
-        favCS: "ME"
+        amounts: {N: 5, CS: 3, E: 10, M: 6},
+        monthMax: 26
     },
     {
         // Rezaei
         user: "6926c34ecdb927f2c1695cfe",
-        amounts: {OFF: 6, N: 5, CS: 2, E: 5, M: 8},
-        monthMax: 22,
-        favCS: "ME"
+        amounts: {N: 5, CS: 3, E: 8, M: 8},
+        monthMax: 26
     },
     {
         // YeganehFard
         user: "6926c373cdb927f2c1695d06",
-        amounts: {OFF: 6, N: 5, CS: 2, E: 6, M: 7},
-        monthMax: 22,
-        favCS: "ME"
+        amounts: {N: 5, CS: 3, E: 8, M: 8},
+        monthMax: 26
     },
     {
         // Alimohammadi
         user: "6926c39ecdb927f2c1695d10",
-        amounts: {OFF: 8, N: 10, CS: 2, E: 4, M: 0},
-        monthMax: 18,
-        favCS: "ME"
+        amounts: {N: 10, CS: 2, E: 4, M: 2},
+        monthMax: 26
     },
     {
         // Akbari
         user: "6926c3d1cdb927f2c1695d18",
-        amounts: {OFF: 5, N: 8, CS: 2, E: 5, M: 3},
-        monthMax: 20,
-        favCS: "ME"
+        amounts: {N: 7, CS: 2, E: 5, M: 7},
+        monthMax: 26
     },
     {
         // Eini
         user: "6926c3f6cdb927f2c1695d20",
-        amounts: {OFF: 5, N: 8, CS: 2, E: 5, M: 3},
-        monthMax: 20,
-        favCS: "ME"
+        amounts: {N: 9, CS: 2, E: 6, M: 2},
+        monthMax: 26
     },
     {
         // Goodarzi
         user: "6926c40fcdb927f2c1695d28",
-        amounts: {OFF: 6, N: 8, CS: 0, E: 8, M: 6},
-        monthMax: 22,
-        favCS: ""
+        amounts: {N: 7, CS: 0, E: 6, M: 6},
+        monthMax: 26
     },
     {
         // Najafi
         user: "6926c43acdb927f2c1695d30",
-        amounts: {OFF: 4, N: 7, CS: 2, E: 7, M: 3},
-        monthMax: 21,
-        favCS: "ME"
+        amounts: {N: 7, CS: 3, E: 9, M: 5},
+        monthMax: 28
     },
     {
         // Zarei
         user: "6926c456cdb927f2c1695d38",
-        amounts: {OFF: 10, N: 10, CS: 0, E: 0, M: 0},
-        monthMax: 10,
-        favCS: ""
+        amounts: {N: 11, CS: 0, E: 0, M: 0},
+        monthMax: 22
     },
     {
         // Hemmati
         user: "6926c477cdb927f2c1695d40",
-        amounts: {OFF: 10, N: 10, CS: 0, E: 0, M: 0},
-        monthMax: 10,
-        favCS: "MN"
+        amounts: {N: 7, CS: 3, E: 9, M: 5},
+        monthMax: 28
     },
     {
         // Shaabani
         user: "6926c496cdb927f2c1695d48",
-        amounts: {OFF: 4, N: 8, CS: 3, E: 4, M: 3},
-        monthMax: 21,
-        favCS: "MN"
+        amounts: {N: 9, CS: 3, E: 7, M: 4},
+        monthMax: 29
     },
     {
         // Shokri
         user: "6926c4cccdb927f2c1695d50",
-        amounts: {OFF: 4, N: 8, CS: 3, E: 4, M: 3},
-        monthMax: 21,
-        favCS: "MN"
+        amounts: {N: 9, CS: 3, E: 7, M: 4},
+        monthMax: 29
     },
 ]
 
 const getRemainAllowedCount = (userId, userShifts) => {
     const userAllowedCount = maxAllowed.find(userMax => userMax.user === String(userId))?.amounts
     if(!userAllowedCount) return false
-
     // get nurse shift count
-  const nurseShiftsCount = { OFF: 0, N: 0, CS: 0, E: 0, M: 0 }
+  const nurseShiftsCount = { N: 0, CS: 0, E: 0, M: 0 }
   userShifts.forEach((item, index) => {
     if (item) {
-        const stripShift = stripH(item[1])
+        const stripShift = stripH(item[1]) 
         switch (stripShift) {
             case 'M':
                 nurseShiftsCount.M += 1
@@ -121,22 +145,24 @@ const getRemainAllowedCount = (userId, userShifts) => {
                 nurseShiftsCount.N += 1
                 break;
             case 'OFF':
-                const NCheck = userShifts[index - 1] && !stripH(userShifts[index - 1][1]).includes("N")
-                if (!userShifts[index - 1] || NCheck) nurseShiftsCount.OFF += 1
+                break;
+            case 'V':
                 break;
             default:
+                if(stripShift.includes("M")) nurseShiftsCount.M += 1
+                if(stripShift.includes("E")) nurseShiftsCount.E += 1
+                if(stripShift.includes("N")) nurseShiftsCount.N += 1
                 nurseShiftsCount.CS += 1
                 break;
         }
     }
   })
-
  
-  // get remain shift count
-  const remainShiftCount = { OFF: 0, N: 0, CS: 0, E: 0, M: 0 }
+//   get remain shift count
+  const remainShiftCount = { N: 0, CS: 0, E: 0, M: 0 }
   Object.entries(nurseShiftsCount).forEach(([Nk, Nv]) => {
     Object.entries(userAllowedCount).forEach(([Ak, Av]) => {
-      if (Nk === Ak) remainShiftCount[Nk] = Nv - Av
+      if (Nk === Ak && Av > 0) remainShiftCount[Nk] = Nv - Av
     })
   })
 
@@ -147,8 +173,11 @@ const getMonthCount = (userShifts) => {
     let monthCount = 0
     userShifts.forEach(item => {
         if(item && item[1] !== "V" && item[1] !== "OFF"){
-            if(stripH(item[1]).length > 1) monthCount += 2
-            else monthCount++
+            const isCS = stripH(item[1]).length > 1
+            const includeN = stripH(item[1]).includes("N")
+            if(isCS && includeN) monthCount += 3
+            else if(isCS && !includeN || !isCS && includeN) monthCount += 2
+            else if(!isCS && !includeN) monthCount++
         } 
     })
     return monthCount

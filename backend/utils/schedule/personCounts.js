@@ -35,20 +35,56 @@ function getRemainPersonCount(dayIndex, allMonthShifts, stdPersonCount, holidayM
     return getRemainCount(providedCount, dayIndex);
 }
 
-exports.applyPersonCounts = (allMonthShifts, stdPersonCount, year, month) => {
+const getRequestedDays = (allMonthShifts=[]) => {
+    const requestedDays = {}
+    for (const user of allMonthShifts) {
+        const checkUser = maxAllowed.find(userMax => userMax.user === String(user.user))
+        if(!checkUser) continue;
+        requestedDays[String(user.user)] = []
+        user.monthShifts.forEach(shiftDay => {
+            if(shiftDay) requestedDays[String(user.user)].push(shiftDay[0])
+        })
+    }
+    return requestedDays
+}
+
+const insertNChecker = (before, after) => {
+    const OFFBefore = before && before[1] === "OFF"
+    const OFFAfter = after && after[1] === "OFF"
+    const NCheck = before && !stripH(before[1]).includes("N")
+    const CSCheck = before && stripH(before[1]).length === 1
+    const beforeCheck = !before || OFFBefore || NCheck && CSCheck 
+    const afterCheck = !after || OFFAfter
+    return beforeCheck && afterCheck
+}
+
+const checkShiftAround = (monthShifts, day, type="") => {
+    let condition = false
+    const notNAround = (!monthShifts[day - 2] || 
+        (monthShifts[day - 2] && !stripH(monthShifts[day - 2][1]).includes("N"))) &&
+        (!monthShifts[day + 2] ||
+          (monthShifts[day + 2] && !stripH(monthShifts[day + 2][1]).includes("N")))
+    const notCSAround = (!monthShifts[day - 1] || (monthShifts[day - 1] &&
+         monthShifts[day - 1] === "OFF" || stripH(monthShifts[day - 1][1]).length === 1)) && 
+        (!monthShifts[day + 1] || (monthShifts[day + 1] &&
+            monthShifts[day + 1] === "OFF" || stripH(monthShifts[day + 1][1]).length === 1))
+    switch (type) {
+        case "N":
+            condition = notNAround
+            break;
+        default:
+            condition = type.includes("N") ? notNAround && notCSAround : notCSAround
+            break;
+    }
+    return condition
+}
+
+const primarySchedule = (allMonthShifts, stdPersonCount, year, month) => {
     const totalDays = daysInJalaliMonth(year, month)
     const holidayMap = getIsHolidaysMap(year, month)
-
-    const insertNChecker = (before) => {
-        const NCheck = before && !stripH(before[1]).includes("N")
-        const beforeCheck = !before || NCheck
-        // const OFFCheck = after && after[1] === 'OFF'
-        // const afterCheck = !after || OFFCheck
-        return beforeCheck
-    }
+    // const requestedDays = getRequestedDays(allMonthShifts)
 
     const nullPerLoops = {}
-
     const getNulls = (allMonthShifts, loop) => {
         let nulls = []
         allMonthShifts.forEach(user => {
@@ -62,162 +98,229 @@ exports.applyPersonCounts = (allMonthShifts, stdPersonCount, year, month) => {
     let nullInfinite = true;
     let nullLoop = 0;
     do {
-        for (let day = 0; day < totalDays; day++) {
-            for(const user of allMonthShifts) {
+        for(const user of allMonthShifts) {
+            // const checkUser = maxAllowed.find(userMax => userMax.user === String(user.user))
+            // if(!checkUser) continue;
+            let nextInsert = "N"
+            for (let day = 0; day < totalDays; day++) {
                 let remainPersonCount = getRemainPersonCount(day, allMonthShifts, stdPersonCount, holidayMap)
                 let remainAllowedCount = getRemainAllowedCount(user.user, user.monthShifts);
-                if(remainAllowedCount === false) continue;
-                const userMonthMax = maxAllowed.find(userMax => userMax.user === String(user.user))?.monthMax
+                const userMaxAllowed = maxAllowed.find(userMax => userMax.user === String(user.user))
                 const userShiftsCount = getMonthCount(user.monthShifts)
                 const shiftDay = user.monthShifts[day]
                 const isHoliday = getIsHolidaysMap(year, month)[day]
                 const YDay = user.monthShifts[day - 1]
-                // const TDay = user.monthShifts[day + 1]
-                const userFavCS = maxAllowed.find(userMax => userMax.user === String(user.user)).favCS
-
-                if (!shiftDay && userShiftsCount <= userMonthMax) {
-                    if(remainAllowedCount.M <= 0 || remainPersonCount.M < 0 || remainPersonCount.MH < 0) {
-                        user.monthShifts[day] = isHoliday ? [day + 1, "MH"] : [day + 1, "M"]
-                        continue;
-                    }
-                    if(remainAllowedCount.E <= 0 || remainPersonCount.E < 0 || remainPersonCount.EH < 0) {
-                        user.monthShifts[day] = isHoliday ? [day + 1, "EH"] : [day + 1, "E"]
-                        continue;
-                    }
-                    if(remainAllowedCount.N <= 0 || remainPersonCount.N < 0 || remainPersonCount.NH < 0) {
-                        if (insertNChecker(YDay)) {
+                const TDay = user.monthShifts[day + 1]
+                // if(requestedDays[String(user.user)].includes(day + 1)) continue;
+                if (!shiftDay) {
+                    const shortageN = (!isHoliday && remainPersonCount.N < 0) 
+                                      || (isHoliday && remainPersonCount.NH < 0)
+                    const shortageE = (!isHoliday && remainPersonCount.E < 0) 
+                                      || (isHoliday && remainPersonCount.EH < 0)
+                    const shortageM = (!isHoliday && remainPersonCount.M < 0) 
+                                      || (isHoliday && remainPersonCount.MH < 0)
+                    if(nextInsert === "N") {
+                        const checkCount = shortageN && userShiftsCount <= userMaxAllowed.monthMax &&
+                         remainAllowedCount.N < 0
+                        const checkShift = insertNChecker(YDay, TDay) && 
+                        checkShiftAround(user.monthShifts, day, "N")
+                        if (checkCount && checkShift) {
                             user.monthShifts[day] = isHoliday ? [day + 1, "NH"] : [day + 1, "N"]
                             user.monthShifts[day + 1] = [day + 2, 'OFF']
+                            nextInsert = "E"
                             continue;
-                        }
+                        }else nextInsert = "E"
                     }
-                    if(remainAllowedCount.CS <= 0) {
-                        const includeME = userFavCS.includes("M") && userFavCS.includes("E")
-                        const includeMN = userFavCS.includes("M") && userFavCS.includes("N")
-                        const includeEN = userFavCS.includes("E") && userFavCS.includes("N")
-
-                        const MECondition = includeME && (remainPersonCount.M < 0 || remainPersonCount.MH < 0) 
-                            && (remainPersonCount.E < 0 || remainPersonCount.EH < 0)
-                        const MNCondition = includeMN && (remainPersonCount.M < 0 || remainPersonCount.MH < 0) 
-                            && (remainPersonCount.N < 0 || remainPersonCount.NH < 0)
-                        const ENCondition = includeEN && (remainPersonCount.E < 0 || remainPersonCount.EH < 0) 
-                            && (remainPersonCount.N < 0 || remainPersonCount.NH < 0)
-                        if(MECondition || MNCondition || ENCondition) {
-                            if(insertNChecker(YDay)){
-                                user.monthShifts[day] = isHoliday 
-                                ? [day + 1, `${userFavCS}H`] : [day + 1, `${userFavCS}`]
-                                if(includeMN || includeEN) user.monthShifts[day + 1] = [day + 2, 'OFF']
-                            }
-                        }
+                    if(nextInsert === "E") {
+                        const checkCount = shortageE && userShiftsCount <= userMaxAllowed.monthMax &&
+                         remainAllowedCount.E <= 0
+                        const checkBefore = !YDay || YDay && !stripH(YDay[1]).includes("N")
+                        if(checkCount && checkBefore){
+                            user.monthShifts[day] = isHoliday ? [day + 1, "EH"] : [day + 1, "E"]
+                            nextInsert = "MN"
+                            continue;
+                        }else nextInsert = "MN"
                     }
-                }
-                else if(shiftDay) {
-                    let extraShift = false;
-                    const stripShift = stripH(shiftDay[1])
-                    switch (stripShift) {
-                        case 'M':
-                            extraShift = remainAllowedCount.M > 0 || remainPersonCount.M > 0 || 
-                                remainPersonCount.MH > 0
-                            break;
-                        case 'E':
-                            extraShift = remainAllowedCount.E > 0 || remainPersonCount.E > 0 || 
-                                remainPersonCount.EH > 0
-                            break;
-                        case 'N':
-                            extraShift = remainAllowedCount.N > 0 || remainPersonCount.N > 0 ||
-                                remainPersonCount.NH > 0
-                            break;
-                        case 'OFF':
-                            break;
-                        default:
-                            extraShift = remainAllowedCount.CS > 0
-                            break;
+                    if(nextInsert === "MN") {
+                        const checkCount = (shortageM && shortageN) && 
+                        userShiftsCount <= userMaxAllowed.monthMax && remainAllowedCount.CS < 0
+                        const checkShift = insertNChecker(YDay) && 
+                        checkShiftAround(user.monthShifts, day, "MN")
+                        if(checkCount && checkShift){
+                            user.monthShifts[day] = isHoliday ? [day + 1, "MNH"] : [day + 1, "MN"]
+                            user.monthShifts[day + 1] = [day + 2, 'OFF']
+                            nextInsert = "M"
+                            continue;
+                        } else nextInsert = "M"
                     }
-                    if(extraShift){
-                        user.monthShifts[day] = [day + 1, "OFF"]
+                    if(nextInsert === "M") {
+                        const checkCount = shortageM && userShiftsCount <= userMaxAllowed.monthMax &&
+                         remainAllowedCount.M <= 0  
+                        const checkBefore = !YDay || YDay && !stripH(YDay[1]).includes("N")
+                        if(checkCount && checkBefore){
+                            user.monthShifts[day] = isHoliday ? [day + 1, "MH"] : [day + 1, "M"]
+                            nextInsert = "N"
+                            continue;
+                        }else nextInsert = "N"
                     }
                 }
             }
         }
         nullLoop++;
         getNulls(allMonthShifts, nullLoop);
+        console.log(`${nullLoop} => `, nullPerLoops[nullLoop].length)
         if(nullLoop > 1 && nullPerLoops[nullLoop].length === nullPerLoops[nullLoop - 1].length) break;
     } while (nullInfinite);
 
+    // console.log(`nullPerLoops -> `, nullPerLoops)
+    return allMonthShifts;
+}
+
+const finalSchedule = (requestedShifts, allMonthShifts, stdPersonCount, year, month) => {
+    const totalDays = daysInJalaliMonth(year, month)
+    const holidayMap = getIsHolidaysMap(year, month)
+    // const requestedDays = getRequestedDays(requestedShifts)
 
     const remainPerLoops = {}
-
     const getRemains = (allMonthShifts, loop) => {
-        const monthSumRemains = {}
+        const monthSumRemains = {shortage: 0, surplus: 0}
         for (let day = 0; day < totalDays; day++) {
             const remainCounts = getRemainPersonCount(day, allMonthShifts, stdPersonCount, holidayMap)
-            monthSumRemains[day + 1]  = lodash.sum(Object.values(remainCounts))
+            Object.values(remainCounts).forEach(value => {
+                if(value > 0) monthSumRemains.surplus += value
+                else if(value < 0) monthSumRemains.shortage += value
+            })
         }
+        // remainPerLoops[loop] = monthSumRemains
         remainPerLoops[loop] = lodash.sum(Object.values(monthSumRemains))
     }
 
     let remainInfinite = true;
     let remainLoop = 0;
-
     do {
         for(const user of allMonthShifts) {
+            const checkUser = maxAllowed.find(userMax => userMax.user === String(user.user))
+            // if(!checkUser) continue;
+            let nextInsert = "N"
             for (let day = 0; day < totalDays; day++) {
-                const checkUser = maxAllowed.find(userMax => userMax.user === String(user.user))
-                if(!checkUser) continue;
                 let remainPersonCount = getRemainPersonCount(day, allMonthShifts, stdPersonCount, holidayMap)
-                
+                let remainAllowedCount = getRemainAllowedCount(user.user, user.monthShifts);
+                const userShiftsCount = getMonthCount(user.monthShifts)
+
                 const shiftDay = user.monthShifts[day]
                 const YDay = user.monthShifts[day - 1]
                 const TDay = user.monthShifts[day + 1]
                 const isHoliday = getIsHolidaysMap(year, month)[day]
-                const allowedOFF = shiftDay[1] === 'OFF' && day === 0 ||
-                    shiftDay[1] === 'OFF' && YDay && !stripH(YDay[1]).includes("N")
-                const userShiftsCount = getMonthCount(user.monthShifts)
-                    
-                if(allowedOFF && userShiftsCount <= checkUser.monthMax){
-                    if(remainPersonCount.M < 0 || remainPersonCount.MH < 0){
-                        user.monthShifts[day] = isHoliday ? [day + 1, "MH"] : [day + 1, "M"]
+                let allowedOFF = false
+                if(shiftDay && YDay) allowedOFF = shiftDay[1] === 'OFF' && !stripH(YDay[1]).includes("N")
+                else if(shiftDay && !YDay) allowedOFF = shiftDay[1] === 'OFF'
+                // if(requestedDays[String(user.user)].includes(day + 1)) continue;
+                if(allowedOFF){
+                    const shortageN = (!isHoliday && remainPersonCount.N < 0) 
+                                      || (isHoliday && remainPersonCount.NH < 0)
+                    const shortageE = (!isHoliday && remainPersonCount.E < 0) 
+                                      || (isHoliday && remainPersonCount.EH < 0)
+                    const shortageM = (!isHoliday && remainPersonCount.M < 0) 
+                                      || (isHoliday && remainPersonCount.MH < 0)
+                            
+                    if(nextInsert === "N"){
+                        const checkCount = shortageN || userShiftsCount <= checkUser.monthMax &&
+                         remainAllowedCount.N < 0 
+                        const checkShift = insertNChecker(YDay, TDay) && 
+                        checkShiftAround(user.monthShifts, day, "N")
+                        if (checkCount && checkShift) {
+                            user.monthShifts[day] = isHoliday ? [day + 1, "NH"] : [day + 1, "N"]
+                            if(TDay) user.monthShifts[day + 1] = [day + 2, 'OFF']
+                            nextInsert = "ME"
+                            continue;
+                        }else nextInsert = "ME"
                     }
-                    if(remainPersonCount.E < 0 || remainPersonCount.EH < 0){
-                        user.monthShifts[day] = isHoliday ? [day + 1, "EH"] : [day + 1, "E"]
+                    if(nextInsert === "ME") {
+                        const checkCount = (shortageM && shortageE) && remainAllowedCount.CS < 0 &&
+                        userShiftsCount <= checkUser.monthMax
+                        const checkShift = checkShiftAround(user.monthShifts, day, "ME")
+                        if(checkCount && checkShift){
+                            user.monthShifts[day] = isHoliday ? [day + 1, "MEH"] : [day + 1, "ME"]
+                            nextInsert = "E"
+                            continue;
+                        }else nextInsert = "E"
                     }
-                    if(remainPersonCount.N < 0 || remainPersonCount.NH < 0 && TDay[1] === "OFF"){
-                        user.monthShifts[day] = isHoliday ? [day + 1, "NH"] : [day + 1, "N"]
+                    if(nextInsert === "E"){
+                        const checkCount = shortageE || userShiftsCount <= checkUser.monthMax &&
+                         remainAllowedCount.E < 0 
+                        const checkBefore = !YDay || YDay && !stripH(YDay[1]).includes("N")
+                        if(checkCount && checkBefore){
+                            user.monthShifts[day] = isHoliday ? [day + 1, "EH"] : [day + 1, "E"]
+                            nextInsert = "M"
+                            continue;
+                        }else nextInsert = "M"
                     }
+                    if(nextInsert === "M"){
+                        const checkCount = shortageM || userShiftsCount <= checkUser.monthMax &&
+                         remainAllowedCount.M < 0  
+                        const checkBefore = !YDay || YDay && !stripH(YDay[1]).includes("N")
+                        if(checkCount && checkBefore) {
+                            user.monthShifts[day] = isHoliday ? [day + 1, "MH"] : [day + 1, "M"]
+                            nextInsert = "N"
+                            continue;
+                        }else nextInsert = "N"
+                    }   
                 }
                 else {
                     let extraShift = false;
-                    const stripShift = stripH(shiftDay[1])
-                    switch (stripShift) {
-                        case 'M':
-                            extraShift = remainPersonCount.M > 0 || remainPersonCount.MH > 0
-                            break;
-                        case 'E':
-                            extraShift = remainPersonCount.E > 0 || remainPersonCount.EH > 0
-                            break;
-                        case 'N':
-                            extraShift = remainPersonCount.N > 0 || remainPersonCount.NH > 0
-                            break;
+                    if(shiftDay && shiftDay !== "V"){
+                        const stripShift = stripH(shiftDay[1])
+                        const surplusN = (!isHoliday && remainPersonCount.N > 0) 
+                                      || (isHoliday && remainPersonCount.NH > 0)
+                        const surplusE = (!isHoliday && remainPersonCount.E > 0) 
+                                        || (isHoliday && remainPersonCount.EH > 0)
+                        const surplusM = (!isHoliday && remainPersonCount.M > 0) 
+                                        || (isHoliday && remainPersonCount.MH > 0)
+                        switch (stripShift) {
+                            case 'M':
+                                extraShift = surplusM
+                                break;
+                            case 'E':
+                                extraShift = surplusE
+                                break;
+                            case 'N':
+                                extraShift = surplusN
+                                break;
+                            case 'MN':
+                                extraShift = surplusN && surplusM
+                                break;
+                            case 'ME':
+                                extraShift = surplusM && surplusE
+                                break;
+                        }
                     }
-                    if(extraShift){
+                    if((extraShift || !shiftDay)){
                         user.monthShifts[day] = [day + 1, "OFF"]
                     }
                 }
             }
         }
         remainLoop++;
-        getRemains(allMonthShifts, remainLoop);
+        getRemains(allMonthShifts, remainLoop)
         if(remainLoop > 1 && remainPerLoops[remainLoop] === remainPerLoops[remainLoop - 1]) break;
     } while (remainInfinite);
 
-    // const finalPersonCounts = {}
-    // for (let day = 0; day < totalDays; day++) {
-    //     const remainCounts = getRemainPersonCount(day, allMonthShifts, stdPersonCount, holidayMap)
-    //     finalPersonCounts[day + 1]  = remainCounts
-    // }
+    const finalPersonCounts = {shortage: 0, surplus: 0}
+    for (let day = 0; day < totalDays; day++) {
+        const remainCounts = getRemainPersonCount(day, allMonthShifts, stdPersonCount, holidayMap)
+        Object.values(remainCounts).forEach(value => {
+            if(value > 0) finalPersonCounts.surplus += value
+            else if(value < 0) finalPersonCounts.shortage += value
+        })
+    }
+
+    // console.log(`remainPerLoops -> `, remainPerLoops)
+    console.log(`finalPersonCounts -> `, finalPersonCounts)
     
-    console.log(`nullPerLoops -> `, nullPerLoops)
-    console.log(`remainPerLoops -> `, remainPerLoops)
-    
-    return allMonthShifts
+    return allMonthShifts;
+}
+
+module.exports = {
+    primarySchedule,
+    finalSchedule
 }

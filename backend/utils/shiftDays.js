@@ -88,7 +88,8 @@ exports.generateShiftsTable = (monthSchedule, infos, hourCount) => {
                 const nonPromotionOvertime = nonPromotionOperation - info.nonPromotionDuty
                 const promotionOvertime = promotionOperation - info.promotionDuty
                 const shiftsRow = {
-                    fullname: `${shift.user.firstName} ${shift.user.lastName}`,
+                    firstName: shift.user.firstName,
+                    lastName: shift.user.lastName,
                     post: info.post,
                     employment: info.employment,
                     experience: info.experience,

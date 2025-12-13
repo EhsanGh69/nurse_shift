@@ -10,8 +10,8 @@ const shiftsTableModel = require("./shiftsTable.model");
 const subGroupModel = require('../group/subGroup.model')
 const shiftScheduleModel = require("./shiftSchedule.model")
 const { generateShiftsTable, getHourCountDay } = require("../utils/shiftDays");
-const { applyShiftsCounts, getUserShiftCount } = require('../utils/schedule/shiftCounts')
-const { applyPersonCounts } = require('../utils/schedule/personCounts')
+const { requestedMonthShifts, scheduleSorter, convertToArray } = require('../utils/schedule/shiftProvider')
+const { primarySchedule, finalSchedule } = require('../utils/schedule/personCounts')
 const { checkShiftManagers, checkDayShiftManagers } = require('../utils/schedule/shiftManagers')
 
 const currentYear = moment(new Date()).locale("fa").format("jYYYY");
@@ -101,7 +101,43 @@ exports.getAllShiftsTables = async (req, res) => {
     if(!year && !month) return res.status(400).json({ error: "Year query is required" })
 }
 
-exports.createShiftsSchedule = async (req, res) => {
+exports.createPrimaryShiftsSchedule = async (req, res) => {
+  const userId = req.user._id;
+  const { groupId, month, year } = req.body;
+
+  if(!isValidObjectId(groupId)) return res.status(422).json({ error: "Group id is not valid" })
+  const userGroup = await groupModel.findOne({ _id: groupId, matron: userId });
+  if (!userGroup) return res.status(404).json({ error: "User group not found" });
+
+  const shiftSchedule = await shiftScheduleModel.findOne({ group: groupId, month })
+  if (!shiftSchedule) return res.status(404).json({ error: "Shifts schedule not found" });
+
+  const shiftSetting = await shiftSettingModel.findOne({ group: groupId });
+  if (!shiftSetting) return res.status(400).json({ message: "تنظیمات شیفت انجام نشده است" });
+
+  const allJobInfos = await jobInfoModel.find({ group: groupId }).lean();
+  if (!allJobInfos.length) return res.status(400).json({ message: "اطلاعات شغلی پرستاران تنظیم نشده است" });
+
+  const allShifts = await shiftModel.find({ group: groupId, month, year })
+    .populate("user", "firstName lastName").lean();
+  if(!allShifts.length) return res.status(400).json({ message: "هیچ درخواست شیفتی وجود ندارد" })
+
+  const matronStaff = []
+  allJobInfos.forEach(info => {
+    if(info.post === 1 || info.post === 2) matronStaff.push(String(info.user))
+  })
+
+  const allRequestedShifts = requestedMonthShifts(allShifts, matronStaff, year, month)
+  const sortedMonthShifts = scheduleSorter(allRequestedShifts, allJobInfos)
+  const primarySch = primarySchedule(sortedMonthShifts, shiftSetting.personCount, year, month)
+  // const finalSch = finalSchedule(primarySch, shiftSetting.personCount, year, month)
+  shiftSchedule.monthSchedule = primarySch
+  shiftSchedule.save()
+  // return res.json({ message: "Primary shifts schedule created successfully" })
+  return res.json(primarySch)
+}
+
+exports.createFinalShiftsSchedule = async (req, res) => {
     const userId = req.user._id;
     const { groupId, month, year } = req.body;
 
@@ -109,48 +145,32 @@ exports.createShiftsSchedule = async (req, res) => {
     const userGroup = await groupModel.findOne({ _id: groupId, matron: userId });
     if (!userGroup) return res.status(404).json({ error: "User group not found" });
 
-    const shiftSchedule = await shiftScheduleModel.findOne({ group: groupId })
-    if(shiftSchedule?.monthSchedule.length && shiftSchedule?.month === String(month)) 
-      return res.json({ message: "Shift schedule already created" })
-   
+    const shiftSchedule = await shiftScheduleModel.findOne({ group: groupId, month }).lean()
+    if (!shiftSchedule) return res.status(404).json({ error: "Shifts schedule not found" });
+
     const shiftSetting = await shiftSettingModel.findOne({ group: groupId });
     if (!shiftSetting) return res.status(400).json({ message: "تنظیمات شیفت انجام نشده است" });
 
+    const allShifts = await shiftModel.find({ group: groupId, month, year })
+    .populate("user", "firstName lastName").lean();
+    if(!allShifts.length) return res.status(400).json({ message: "هیچ درخواست شیفتی وجود ندارد" })
+
     const allJobInfos = await jobInfoModel.find({ group: groupId }).lean();
     if (!allJobInfos.length) return res.status(400).json({ message: "اطلاعات شغلی پرستاران تنظیم نشده است" });
-
-    // const subGroup = await subGroupModel.findOne({ group: groupId }).lean()
-    // if (!subGroup) return res.status(400).json({ message: "هیچ زیرگروهی تعیین نشده است" });
-
-    const allShifts = await shiftModel.find({ group: groupId, month, year })
-      .populate("user", "firstName lastName").lean();
-    if(!allShifts.length) return res.status(400).json({ message: "هیچ درخواست شیفتی وجود ندارد" })
 
     const matronStaff = []
     allJobInfos.forEach(info => {
       if(info.post === 1 || info.post === 2) matronStaff.push(String(info.user))
     })
-
-    const allMonthShifts = []
-    allShifts.forEach(shift => {
-        // const stdShiftsCounts = getUserShiftCount(shift.user._id.toString(), subGroup.subs)
-        // if(!stdShiftsCounts) return res.status(400).json({ message: "برای همه پرستاران زیرگروه تعیین نشده است" });
-        const isMatronStaff = matronStaff.includes(String(shift.user._id))
-        const monthShifts = applyShiftsCounts(shift.shiftDays, isMatronStaff, year, month)
-        allMonthShifts.push({ user: shift.user._id, monthShifts })
-    })
-
-    const personCountSch = applyPersonCounts(allMonthShifts, shiftSetting.personCount, year, month)
+    const allRequestedShifts = requestedMonthShifts(allShifts, matronStaff, year, month)
+    const finalSch = finalSchedule(allRequestedShifts, convertToArray(shiftSchedule.monthSchedule), 
+    shiftSetting.personCount, year, month)
     // const monthSchedule = checkShiftManagers(personCountSch, allJobInfos, year, month)
 
-    // await shiftScheduleModel.create({ group: groupId, month, monthSchedule: personCountSch })
-    await shiftScheduleModel.updateOne({ group: groupId, month }, { monthSchedule: personCountSch })
+    await shiftScheduleModel.updateOne({ group: groupId, month }, { monthSchedule: finalSch })
  
-    // shiftSchedule.monthSchedule = monthSchedule
-    // shiftSchedule.month = month
-    // shiftSchedule.save()
-    return res.status(201).json({ message: "Shift schedule updated successful" })
-    // return res.json(personCountSch)
+    // return res.status(201).json({ message: "Shift schedule updated successful" })
+    return res.json(finalSch)
 }
 
 exports.updateShiftsSchedule = async (req, res) => {

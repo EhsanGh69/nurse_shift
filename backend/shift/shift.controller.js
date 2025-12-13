@@ -7,7 +7,7 @@ const shiftSettingModel = require("./shiftSetting.model");
 const jobInfoModel = require("./jobInfo.model");
 const subGroupModel = require('../group/subGroup.model')
 const { getMonthShifts } = require("../utils/shiftDays");
-const { getUserShiftCount } = require('../utils/schedule/shiftCounts');
+const { getUserShiftCount } = require('../utils/schedule/shiftProvider');
 const { getIsHolidaysMap } = require("../utils/schedule/helpers");
 
 const currentYear = moment(new Date()).locale("fa").format("jYYYY");

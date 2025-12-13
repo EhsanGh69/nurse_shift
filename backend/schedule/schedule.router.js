@@ -13,10 +13,15 @@ router.get('/get/:groupId/:day',
     permission(['ADMIN', 'MATRON']),
     scheduleController.getShiftSchedule
 ) 
-router.post('/create',
+router.post('/create/primary',
     verifyToken,
     permission(['ADMIN', 'MATRON']),
-    scheduleController.createShiftsSchedule
+    scheduleController.createPrimaryShiftsSchedule
+)
+router.post('/create/final',
+    verifyToken,
+    permission(['ADMIN', 'MATRON']),
+    scheduleController.createFinalShiftsSchedule
 )
 router.put('/update',
     verifyToken,

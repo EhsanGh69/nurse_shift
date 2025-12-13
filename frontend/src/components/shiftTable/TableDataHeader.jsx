@@ -1,8 +1,20 @@
+import { useContext } from 'react'
 import { TableCell, TableHead, TableRow, Typography } from '@mui/material'
+import moment from "jalali-moment";
 
 import { cellRotate, textRotate } from '../../styles/tableStyles'
+import ShiftsContext from '../../context/ShiftsContext';
+
 
 export default function TableDataHeader({ monthWeekDays, monthDays }) {
+    const { shiftMonth, shiftYear, checkHoliday } = useContext(ShiftsContext)
+
+    const isHoliday = (day) => {
+        const weekDay = moment(`${shiftYear}/${shiftMonth}/${day}`, 'jYYYY/jM/jD').locale("fa").weekday()
+        if(checkHoliday(day) || weekDay === 6) return true
+        return false
+    }
+
   return (
     <TableHead>
         <TableRow>
@@ -106,8 +118,12 @@ export default function TableDataHeader({ monthWeekDays, monthDays }) {
         <TableRow>
             {monthDays.map(md => (
                 <TableCell align='center' padding='none' key={md} 
-                    sx={{ border: "1px solid #000" }}>
-                    <Typography component="span" fontSize={10} fontWeight={800} color='#000'>
+                    sx={{ 
+                        border: "1px solid #000", 
+                        backgroundColor: isHoliday(Number(md)) ? "darkred" : "inherit" 
+                    }}>
+                    <Typography component="span" fontSize={10} fontWeight={800} 
+                    color={isHoliday(Number(md)) ? "#fff" : "#000"}>
                         {md}
                     </Typography>
                 </TableCell>
@@ -116,8 +132,12 @@ export default function TableDataHeader({ monthWeekDays, monthDays }) {
 
         <TableRow>
             {monthWeekDays.map((mwd, idx) => (
-                <TableCell align='center' sx={cellRotate} padding='none' key={idx}>
-                    <Typography component="span" sx={textRotate} color='#000'>
+                <TableCell align='center' sx={{ 
+                    ...cellRotate , 
+                    backgroundColor: isHoliday(idx + 1) ? "darkred" : "inherit" }} 
+                    padding='none' key={idx}>
+                    <Typography component="span" sx={textRotate} 
+                    color={isHoliday(idx + 1) ? "#fff" : "#000"}>
                         {mwd}
                     </Typography>
                 </TableCell>

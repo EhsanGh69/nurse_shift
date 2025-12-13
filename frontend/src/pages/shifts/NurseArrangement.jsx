@@ -1,5 +1,5 @@
 import { useContext, useMemo, useState, useEffect } from "react"
-import { Box, Button, Grid, Typography } from "@mui/material";
+import { Backdrop, Box, Button, CircularProgress, Grid, Typography } from "@mui/material";
 import { EventAvailable, PermContactCalendar } from "@mui/icons-material";
 
 import ShiftsContext from '../../context/ShiftsContext';
@@ -21,20 +21,20 @@ export default function NurseArrangement() {
   const [checkedDays, setCheckedDays] = useState(selectedDays || [])
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
   const { groupId } = useShiftStore()
-  const { mutateAsync } = useCreateShiftSchedule()
+  // const { mutateAsync, isPending } = useCreateShiftSchedule()
 
-  const createShiftSchedule = async () => {
-    try {
-      await mutateAsync({ groupId, month: shiftMonth, year: shiftYear })
-    } catch (error) {
-      const msg = handleApiErrors(error);
-      setSnackbar({ open: true, message: msg, severity: 'error' })
-    }
-  }
+  // const createShiftSchedule = async () => {
+  //   try {
+  //     await mutateAsync({ groupId, month: shiftMonth, year: shiftYear })
+  //   } catch (error) {
+  //     const msg = handleApiErrors(error);
+  //     setSnackbar({ open: true, message: msg, severity: 'error' })
+  //   }
+  // }
 
-  useEffect(() => {
-    if(groupId) createShiftSchedule()
-  }, [groupId])
+  // useEffect(() => {
+  //   if(groupId) createShiftSchedule()
+  // }, [groupId])
 
   const checkHandler = (dayKey) => {
     if(!checkedDays.includes(dayKey))
@@ -55,6 +55,9 @@ export default function NurseArrangement() {
     <MainLayout title="روزهای چینش پرستاران">
       <AppHeader />
       <Grid container width="100%">
+          {/* <Backdrop open={isPending} sx={{ zIndex: (them) => them.zIndex.drawer + 1 }}>
+            <CircularProgress color="inherit" />
+          </Backdrop> */}
           <Grid size={{ xs: 12 }}>
               <Button
                   color="info"

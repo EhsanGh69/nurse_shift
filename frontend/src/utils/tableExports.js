@@ -49,11 +49,25 @@ export const pdfExport = async (monthDays=[], weekDays=[], tableData={}, counts=
         return monthWeek
     }
 
+    const getFullName = (fName="", lName="") => {
+        let fullName = ""
+        if(lName.includes(" ")){
+            const splitLName = lName.split(" ")
+            for (let index = 1; index <= splitLName.length; index++) {
+                fullName = fullName.concat(`${splitLName[splitLName.length - index]} `)
+            }
+            fullName = fullName.concat(` ${fName} `)
+        }
+        else fullName = fullName.concat(`${lName} ${fName} `)
+        return fullName
+    }
+
     const generateTableRows = () => {
         const tableRows = []
         tableData.rows.forEach((row, idx) => {
             tableRows.push([
-                `${idx + 1}`, row.fullname, row.post, row.employment, row.experience,
+                `${idx + 1}`, getFullName(row.firstName, row.lastName), row.post, 
+                row.employment, row.experience,
                 row.hourReduction, row.promotionDuty, row.nonPromotionDuty,
                 ...monthDays.map(md => row.shiftDays[md] || "-"),
                 row.nonPromotionOperation, row.promotionOperation,
@@ -172,6 +186,9 @@ export const pdfExport = async (monthDays=[], weekDays=[], tableData={}, counts=
         styles: {
             tableHeader: {
                 fillColor: '#eeeeee'
+            },
+            whiteColor: {
+                fillColor: '#ffffff'
             }
         },
         defaultStyle: {
