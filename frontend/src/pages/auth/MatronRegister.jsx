@@ -46,7 +46,7 @@ export default function MatronRegister() {
 
                 <Formik
                     initialValues={{
-                        firstName: "", lastName: "", nationalCode: "",
+                        firstName: "", lastName: "", username: "",
                         mobile: "", password: "",
                         province: "", county: "",
                         hospital: "", department: ""

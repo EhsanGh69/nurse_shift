@@ -11,7 +11,7 @@ const subGroupModel = require('../group/subGroup.model')
 const shiftScheduleModel = require("./shiftSchedule.model")
 const { generateShiftsTable, getHourCountDay } = require("../utils/shiftDays");
 const { requestedMonthShifts, scheduleSorter, convertToArray } = require('../utils/schedule/shiftProvider')
-const { primarySchedule, finalSchedule } = require('../utils/schedule/personCounts')
+const { primarySchedule, finalSchedule } = require('../utils/schedule/shiftsSchedule')
 const { checkShiftManagers, checkDayShiftManagers } = require('../utils/schedule/shiftManagers')
 
 const currentYear = moment(new Date()).locale("fa").format("jYYYY");
@@ -130,7 +130,7 @@ exports.createPrimaryShiftsSchedule = async (req, res) => {
   const allRequestedShifts = requestedMonthShifts(allShifts, matronStaff, year, month)
   const sortedMonthShifts = scheduleSorter(allRequestedShifts, allJobInfos)
   const primarySch = primarySchedule(sortedMonthShifts, shiftSetting.personCount, year, month)
-  // const finalSch = finalSchedule(primarySch, shiftSetting.personCount, year, month)
+  
   shiftSchedule.monthSchedule = primarySch
   shiftSchedule.save()
   // return res.json({ message: "Primary shifts schedule created successfully" })

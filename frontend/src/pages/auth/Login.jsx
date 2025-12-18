@@ -53,7 +53,7 @@ export default function Login() {
 
                 <Formik
                     initialValues={{
-                        nationalCode: "", password: ""
+                        username: "", password: ""
                     }}
                     validationSchema={loginSchema}
                     onSubmit={handleSubmit}
@@ -63,13 +63,13 @@ export default function Login() {
                             <TextField
                                 fullWidth
                                 variant='outlined'
-                                label="کد ملی"
-                                name='nationalCode'
-                                value={values.nationalCode}
+                                label="نام کاربری"
+                                name='username'
+                                value={values.username}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
-                                error={touched.nationalCode && Boolean(errors.nationalCode)}
-                                helperText={touched.nationalCode && errors.nationalCode}
+                                error={touched.username && Boolean(errors.username)}
+                                helperText={touched.username && errors.username}
                                 sx={{ mb: 2, ...textFieldStyle(preferDark) }}
                             />
                             <TextField

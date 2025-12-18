@@ -46,7 +46,7 @@ export default function NurseRegister() {
                 </Typography>
 
                 <Formik
-                    initialValues={{ inviteCode: "", nationalCode: "", password: "" }}
+                    initialValues={{ inviteCode: "", username: "", password: "" }}
                     validationSchema={nurseRegisterSchema}
                     onSubmit={handleSubmit}
                 >

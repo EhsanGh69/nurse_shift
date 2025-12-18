@@ -7,19 +7,19 @@ const scheduleProvider = (nurseShiftDays = {}, isMatronStaff=false, year, month)
   const schedule = Array(totalDays).fill(null)
 
   // Insert provided shifts
-  // Object.entries(nurseShiftDays).forEach(([key, days]) => {
-  //   days.forEach(day => {
-  //     schedule[day - 1] = [day, key]
-  //   })
-  // })
+  Object.entries(nurseShiftDays).forEach(([key, days]) => {
+    days.forEach(day => {
+      schedule[day - 1] = [day, key]
+    })
+  })
 
   // normalize provided shifts
-  // schedule.forEach((item, index) => {
-  //   if (item && (stripH(item[1]).includes("N") && !schedule[index + 1] && index + 2 <= totalDays))
-  //     schedule[index + 1] = [index + 2, 'OFF']
-  //   if(isMatronStaff && !item)
-  //     schedule[index] = [index + 1, 'M']
-  // })
+  schedule.forEach((item, index) => {
+    if (item && (stripH(item[1]).includes("N") && !schedule[index + 1] && index + 2 <= totalDays))
+      schedule[index + 1] = [index + 2, 'OFF']
+    if(isMatronStaff && !item)
+      schedule[index] = [index + 1, 'M']
+  })
 
   return schedule
 }

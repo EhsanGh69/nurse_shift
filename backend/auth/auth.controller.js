@@ -11,22 +11,22 @@ const { generateAccessToken, generateRefreshToken } = require('../utils/token');
 
 
 exports.nurseRegister = async (req, res) => {
-    const {password, nationalCode, inviteCode} = req.body;
+    const {password, username, inviteCode} = req.body;
 
     const foundInviteCode = await inviteCodeModel.findOne({ code: inviteCode });
     if(!foundInviteCode)
         return res.status(400).json({ message: "کد دعوت وارد شده نادرست است" })
 
-    const userExist = await userModel.findOne({ nationalCode })
+    const userExist = await userModel.findOne({ username })
     if (userExist)
-        return res.status(409).json({ message: "کاربری با کد ملی وارد شده از قبل وجود دارد" })
+        return res.status(409).json({ message: "نام کاربری وارد شده از قبل وجود دارد" })
 
     const nurse = await userModel.create({
         password,
         firstName: foundInviteCode.firstName,
         lastName: foundInviteCode.lastName,
         mobile: foundInviteCode.mobile,
-        nationalCode,
+        username,
         role: "NURSE" 
     })
 
@@ -42,11 +42,11 @@ exports.nurseRegister = async (req, res) => {
 }
 
 exports.matronRegister = async (req, res) => {
-    const { password, firstName, lastName, mobile, nationalCode, 
+    const { password, firstName, lastName, mobile, username, 
         province, county, hospital, department} = req.body;
 
     const userExist = await userModel.findOne({
-        $or: [{ mobile }, { nationalCode }]
+        $or: [{ mobile }, { username }]
     })
 
     if (userExist)
@@ -57,7 +57,7 @@ exports.matronRegister = async (req, res) => {
         firstName,
         lastName,
         mobile,
-        nationalCode,
+        username,
         role: "MATRON"
     })
 
@@ -96,10 +96,11 @@ const cookieOptions = {
 }    
 
 exports.login = async (req, res) => {
-    const { nationalCode, password } = req.body;
+    const { username, password } = req.body;
     let verifyPassword = false;
     
-    const user = await userModel.findOne({ nationalCode })
+    // const user = await userModel.findOne({ username })
+    const user = await userModel.findOne({ nationalCode: username })
 
     if (user) {
         const checkBlock = await blockUserModel.findOne({ user: user._id })
@@ -109,7 +110,7 @@ exports.login = async (req, res) => {
     }
 
     if (!user || !verifyPassword) {
-        return res.status(401).json({ message: "کد ملی یا رمز عبور اشتباه وارد شده است" })
+        return res.status(401).json({ message: "نام کاربری یا رمز عبور اشتباه وارد شده است" })
     }
     const accessToken = generateAccessToken(user._id);
     const refreshToken = generateRefreshToken(user._id);
@@ -172,7 +173,7 @@ exports.getMe = async (req, res) => {
     try {
         jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET)
         const user = await userModel.findOne({ refreshToken })
-            .select("avatar firstName lastName mobile role nationalCode")
+            .select("avatar firstName lastName mobile role username")
 
         if (!user)
             return res.status(403).json({ error: "Your access has been blocked!" })

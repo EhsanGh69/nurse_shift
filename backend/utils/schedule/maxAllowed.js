@@ -1,43 +1,44 @@
 const { stripH } = require("./helpers")
 
 const maxAllowed = [
-    {
-        // Roodbarani
-        user: "6926b295bff30de5f59c8049",
-        amounts: {N: 0, CS: 0, E: 0, M: 24},
-        monthMax: 24
-    },
-    {
-        // Barari
-        user: "6926c0e4cdb927f2c1695cbe",
-        amounts: {N: 0, CS: 0, E: 0, M: 24},
-        monthMax: 24
-    },
-    {
-        // HoseinAbad
-        user: "6926c20ecdb927f2c1695cc6",
-        amounts: {N: 6, CS: 0, E: 12, M: 0},
-        monthMax: 24
-    },
-    {
-        // Anari
-        user: "6926c29dcdb927f2c1695cd6",
-        amounts: {N: 5, CS: 4, E: 7, M: 8},
-        monthMax: 25
-    },
-    {
-        // Shaabani-Saaid
-        user: "6926c2c6cdb927f2c1695cde",
-        amounts: {N: 6, CS: 0, E: 6, M: 7},
-        monthMax: 25
-    },
-    {
-        // Mohammadi
-        user: "6926c2f2cdb927f2c1695ce6",
-        amounts: {N: 0, CS: 0, E: 0, M: 22},
-        monthMax: 22
-    },
-
+    /*
+        {
+            // Roodbarani
+            user: "6926b295bff30de5f59c8049",
+            amounts: {N: 0, CS: 0, E: 0, M: 24},
+            monthMax: 24
+        },
+        {
+            // Barari
+            user: "6926c0e4cdb927f2c1695cbe",
+            amounts: {N: 0, CS: 0, E: 0, M: 24},
+            monthMax: 24
+        },
+        {
+            // HoseinAbad
+            user: "6926c20ecdb927f2c1695cc6",
+            amounts: {N: 6, CS: 0, E: 12, M: 0},
+            monthMax: 24
+        },
+        {
+            // Anari
+            user: "6926c29dcdb927f2c1695cd6",
+            amounts: {N: 5, CS: 4, E: 7, M: 8},
+            monthMax: 25
+        },
+        {
+            // Shaabani-Saaid
+            user: "6926c2c6cdb927f2c1695cde",
+            amounts: {N: 6, CS: 0, E: 6, M: 7},
+            monthMax: 25
+        },
+        {
+            // Mohammadi
+            user: "6926c2f2cdb927f2c1695ce6",
+            amounts: {N: 0, CS: 0, E: 0, M: 22},
+            monthMax: 22
+        },
+    */
     //*-----------------------------------------------------------
 
     {
