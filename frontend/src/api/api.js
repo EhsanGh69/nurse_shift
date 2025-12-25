@@ -1,13 +1,13 @@
 import axios from "axios";
 
-import { BACKEND_URL } from "../config"
+import { API_URL } from "../config"
 
 let currentAccessToken = null
 let isRefreshing = false
 let refreshSubscribers = []
 
 const api = axios.create({
-    baseURL: BACKEND_URL,
+    baseURL: API_URL,
     withCredentials: true
 })
 
