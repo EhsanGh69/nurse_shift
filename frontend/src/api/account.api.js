@@ -11,16 +11,17 @@ export const useChangePassword = () => {
 }
 
 export const useEditAccount = () => {
+    const queryClient = useQueryClient()
     return useMutation({
         mutationFn: async (formData) => {
             await api.put('/account/edit', formData, { headers: 'multipart/form-data' })
-        }
+        },
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['currentUser'] })
     })
 }
 
 export const useRemoveAvatar = () => {
     const queryClient = useQueryClient()
-
     return useMutation({
         mutationFn: async () => {
             await api.delete('/account/avatar/remove')

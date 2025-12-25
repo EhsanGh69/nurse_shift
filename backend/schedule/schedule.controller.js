@@ -7,18 +7,20 @@ const groupModel = require("../group/group.model");
 const shiftSettingModel = require("../shift/shiftSetting.model");
 const jobInfoModel = require("../shift/jobInfo.model");
 const shiftsTableModel = require("./shiftsTable.model");
-const subGroupModel = require('../group/subGroup.model')
+const maxShiftsModel = require('../group/maxShifts.model')
 const shiftScheduleModel = require("./shiftSchedule.model")
 const { generateShiftsTable, getHourCountDay } = require("../utils/shiftDays");
 const { requestedMonthShifts, scheduleSorter, convertToArray } = require('../utils/schedule/shiftProvider')
 const { primarySchedule, finalSchedule } = require('../utils/schedule/shiftsSchedule')
-const { checkShiftManagers, checkDayShiftManagers } = require('../utils/schedule/shiftManagers')
+const { generateMaxAllowed } = require('../utils/schedule/maxAllowed')
+const { daysInJalaliMonth } = require('../utils/schedule/helpers')
 
 const currentYear = moment(new Date()).locale("fa").format("jYYYY");
 const currentMonth = moment(new Date()).locale("fa").format("jMM");
-const shiftMonth = Number(currentMonth) + 1 > 12 ? 1 : Number(currentMonth) + 1
-const shiftYear = shiftMonth > 12 ? Number(currentYear) + 1 : Number(currentYear)
-
+// const shiftMonth = Number(currentMonth) + 1 > 12 ? 1 : Number(currentMonth) + 1
+// const shiftYear = shiftMonth > 12 ? Number(currentYear) + 1 : Number(currentYear)
+const shiftMonth = Number(currentMonth)
+const shiftYear = Number(currentYear)
 
 exports.refreshShiftsTables = async (req, res) => {
   const userId = req.user._id;
@@ -42,10 +44,10 @@ exports.refreshShiftsTables = async (req, res) => {
       if (!shiftSetting)
         return res.status(400).json({ message: "برای دریافت جدول شیفت ها تنظیمات شیفت لازم است" });
 
-      const shiftSchedule = await shiftScheduleModel.findOne({ group: groupId })
+      const shiftSchedule = await shiftScheduleModel.findOne({ group: groupId, month })
         .populate("monthSchedule.user", "firstName lastName").lean();
-      if(!shiftSchedule)
-        return res.status(400).json({ message: "هیچ شیفتی برای ماه مورد نظر وجود ندارد" })
+      if(!shiftSchedule || shiftSchedule.monthSchedule.length !== userGroup.members.length + 1) 
+      return res.status(400).json({ message: "درخواست شیفت های پرستاران اعمال نشده است" })
 
       const shiftsTableRows = generateShiftsTable(shiftSchedule.monthSchedule, allJobInfos, shiftSetting.hourCount)
 
@@ -58,7 +60,7 @@ exports.refreshShiftsTables = async (req, res) => {
       }else {
         shiftsTable.rows = orderBy(shiftsTableRows, ['experience'], ['desc'])
         shiftsTable.totalHourDay = getHourCountDay(shiftSchedule.monthSchedule, shiftSetting.hourCount)
-        shiftsTable.save()
+        await shiftsTable.save()
       }
   }
   res.json({ message: "Shifts tables refreshed successfully" })
@@ -109,18 +111,30 @@ exports.createPrimaryShiftsSchedule = async (req, res) => {
   const userGroup = await groupModel.findOne({ _id: groupId, matron: userId });
   if (!userGroup) return res.status(404).json({ error: "User group not found" });
 
-  const shiftSchedule = await shiftScheduleModel.findOne({ group: groupId, month })
+  const shiftSchedule = await shiftScheduleModel.findOne({ group: groupId })
   if (!shiftSchedule) return res.status(404).json({ error: "Shifts schedule not found" });
 
   const shiftSetting = await shiftSettingModel.findOne({ group: groupId });
   if (!shiftSetting) return res.status(400).json({ message: "تنظیمات شیفت انجام نشده است" });
 
   const allJobInfos = await jobInfoModel.find({ group: groupId }).lean();
-  if (!allJobInfos.length) return res.status(400).json({ message: "اطلاعات شغلی پرستاران تنظیم نشده است" });
+  if (!allJobInfos.length) return res.status(400).json({ message: "اطلاعات شغلی هیچ پرستاری تنظیم نشده است" });
+  if(allJobInfos.length !== userGroup.members.length + 1) 
+    return res.status(400).json({ message: "اطلاعات شغلی همه پرستاران تنظیم نشده است" })
 
-  const allShifts = await shiftModel.find({ group: groupId, month, year })
+  const maxShifts = await maxShiftsModel.findOne({ group: groupId }).lean()
+  if(maxShifts.members.length !== userGroup.members.length) 
+    return res.status(400).json({ message: "حداکثر مجاز شیفت پرستاران تنظیم نشده است" });
+
+  const allShifts = await shiftModel.find({ group: groupId, month, year, temporal: false, expired: false })
     .populate("user", "firstName lastName").lean();
   if(!allShifts.length) return res.status(400).json({ message: "هیچ درخواست شیفتی وجود ندارد" })
+  if(allShifts.length !== userGroup.members.length + 1) 
+    return res.status(400).json({ message: "همه پرستاران درخواست شیفت های خود را ارسال نکرده اند" })
+  if(allShifts.some(userShifts => !userShifts.confirm)) 
+    return res.status(400).json({ message: "همه درخواست شیفت های پرستاران تایید نشده اند" })
+
+  const maxAllowed = generateMaxAllowed(maxShifts.members)
 
   const matronStaff = []
   allJobInfos.forEach(info => {
@@ -129,12 +143,13 @@ exports.createPrimaryShiftsSchedule = async (req, res) => {
 
   const allRequestedShifts = requestedMonthShifts(allShifts, matronStaff, year, month)
   const sortedMonthShifts = scheduleSorter(allRequestedShifts, allJobInfos)
-  const primarySch = primarySchedule(sortedMonthShifts, shiftSetting.personCount, year, month)
+  const primarySch = primarySchedule(sortedMonthShifts, 
+    { stdPersonCount: shiftSetting.personCount, maxAllowed }, { year, month })
   
   shiftSchedule.monthSchedule = primarySch
-  shiftSchedule.save()
-  // return res.json({ message: "Primary shifts schedule created successfully" })
-  return res.json(primarySch)
+  shiftSchedule.month = month
+  await shiftSchedule.save()
+  return res.json({ message: "Primary shifts schedule created successfully" })
 }
 
 exports.createFinalShiftsSchedule = async (req, res) => {
@@ -146,31 +161,49 @@ exports.createFinalShiftsSchedule = async (req, res) => {
     if (!userGroup) return res.status(404).json({ error: "User group not found" });
 
     const shiftSchedule = await shiftScheduleModel.findOne({ group: groupId, month }).lean()
-    if (!shiftSchedule) return res.status(404).json({ error: "Shifts schedule not found" });
+    if(!shiftSchedule) return res.status(404).json({ error: "Shift schedule not found" })
 
     const shiftSetting = await shiftSettingModel.findOne({ group: groupId });
     if (!shiftSetting) return res.status(400).json({ message: "تنظیمات شیفت انجام نشده است" });
-
-    const allShifts = await shiftModel.find({ group: groupId, month, year })
-    .populate("user", "firstName lastName").lean();
-    if(!allShifts.length) return res.status(400).json({ message: "هیچ درخواست شیفتی وجود ندارد" })
-
+    
     const allJobInfos = await jobInfoModel.find({ group: groupId }).lean();
     if (!allJobInfos.length) return res.status(400).json({ message: "اطلاعات شغلی پرستاران تنظیم نشده است" });
+    
+    const maxShifts = await maxShiftsModel.findOne({ group: groupId }).lean()
+    if(maxShifts.members.length !== userGroup.members.length) 
+      return res.status(400).json({ message: "حداکثر مجاز شیفت پرستاران تنظیم نشده است" });
+    
+    const allShifts = await shiftModel.find({ group: groupId, month, year, temporal: false, expired: false })
+    .populate("user", "firstName lastName").lean();
 
+    const maxAllowed = generateMaxAllowed(maxShifts.members)
     const matronStaff = []
     allJobInfos.forEach(info => {
       if(info.post === 1 || info.post === 2) matronStaff.push(String(info.user))
     })
     const allRequestedShifts = requestedMonthShifts(allShifts, matronStaff, year, month)
-    const finalSch = finalSchedule(allRequestedShifts, convertToArray(shiftSchedule.monthSchedule), 
-    shiftSetting.personCount, year, month)
-    // const monthSchedule = checkShiftManagers(personCountSch, allJobInfos, year, month)
+    const { allMonthShifts: finalSch, finalPersonCounts } = finalSchedule(
+      {requestedShifts: allRequestedShifts, allMonthShifts: convertToArray(shiftSchedule.monthSchedule)}, 
+      { stdPersonCount: shiftSetting.personCount, maxAllowed }, { year, month })
 
     await shiftScheduleModel.updateOne({ group: groupId, month }, { monthSchedule: finalSch })
  
-    // return res.status(201).json({ message: "Shift schedule updated successful" })
-    return res.json(finalSch)
+    return res.json({ shortage: finalPersonCounts.shortage, surplus: finalPersonCounts.surplus })
+}
+
+exports.checkShiftsSchedule = async (req, res) => {
+  const userId = req.user._id;
+  const { groupId, month } = req.params;
+
+  
+  if(!isValidObjectId(groupId)) return res.status(422).json({ error: "Group id is not valid" })
+    const userGroup = await groupModel.findOne({ _id: groupId, matron: userId });
+  if (!userGroup) return res.status(404).json({ error: "User group not found" });
+  
+  let executable = false
+  const shiftSchedule = await shiftScheduleModel.findOne({ group: groupId, month }).lean()
+  if(shiftSchedule && shiftSchedule.monthSchedule.length === userGroup.members.length + 1) executable = true
+  res.json({ executable })
 }
 
 exports.updateShiftsSchedule = async (req, res) => {
@@ -197,7 +230,7 @@ exports.updateShiftsSchedule = async (req, res) => {
   ? monthSchedule[schIndex].monthShifts[shiftDay - 1][1] = shiftType
   : monthSchedule[schIndex].monthShifts[shiftDay - 1] = { 0: shiftDay, 1: shiftType}
   shiftSchedule.monthSchedule = monthSchedule
-  shiftSchedule.save()
+  await shiftSchedule.save()
 
   res.status(200).json({ message: "Shift schedule updated successfully" })
       
@@ -217,9 +250,6 @@ exports.getShiftSchedule = async (req, res) => {
   const allJobInfos = await jobInfoModel.find({ group: groupId }).lean();
   if (!allJobInfos.length) return res.status(400).json({ message: "اطلاعات شغلی پرستاران تنظیم نشده است" });
 
-  const subGroup = await subGroupModel.findOne({ group: groupId }).lean()
-  if (!subGroup) return res.status(400).json({ message: "هیچ زیرگروهی تعیین نشده است" });
-
   const shiftSchedule = await shiftScheduleModel.findOne({ group: groupId })
   .populate("monthSchedule.user", "firstName lastName")
   .lean()
@@ -236,7 +266,21 @@ exports.getShiftSchedule = async (req, res) => {
     })
   })
 
-  const nonShiftManagers = checkDayShiftManagers(shiftDaySchedule, allJobInfos)
+  const allShifts = await shiftModel.find({ group: groupId, month: String(shiftMonth), year: String(shiftYear), 
+    temporal: false, expired: false }).lean();
 
-  res.json({ shiftDaySchedule, nonShiftManagers })
+    const requestedDays = {}
+    for (let day = 1; day <= daysInJalaliMonth(shiftYear, shiftMonth); day++) { requestedDays[day] = {} }
+    if(allShifts.length){
+        for (const user of allShifts) {
+          const userShifts = { ...user.shiftDays }
+          for (let day = 1; day <= daysInJalaliMonth(shiftYear, shiftMonth); day++) {
+            for (const shift in userShifts) {
+              requestedDays[day][shift] = []
+              if (userShifts[shift].includes(day)) requestedDays[day][shift].push(user.user)
+            }
+          }
+        }
+    }
+  res.json({ shiftDaySchedule, allRequests: requestedDays })
 }

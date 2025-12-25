@@ -18,7 +18,7 @@ export const useLogout = () => {
 
     return useMutation({
         mutationFn: async () => await logout(),
-        onSuccess: () => queryClient.removeQueries({queryKey: ['currentUser']})
+        onSuccess: () => queryClient.clear()
     })
 }
 
@@ -31,13 +31,15 @@ export const useRegister = () => {
 }
 
 export const useCurrentUser = () => {
+    const hasToken = !!localStorage.getItem("refreshToken")
     return useQuery({
         queryKey: ['currentUser'],
         queryFn: async () => {
+            if(!hasToken) return null
             const { data } = await api.get('/auth/me')
             return data
         },
         retry: 1,
-        enabled: !!localStorage.getItem("refreshToken")
+        enabled: true
     })
 }

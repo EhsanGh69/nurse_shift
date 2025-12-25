@@ -2,9 +2,9 @@ const settingModel = require("./setting.model");
 
 
 exports.getSettings = async (req, res) => {
-    const userId = req.user.id
+    const userId = req.user._id
     
-    let settings = await settingModel.findOne({ user: userId }).select("-__v -_id")
+    let settings = await settingModel.findOne({ user: userId }).select("-__v")
     
     if(!settings) settings = await settingModel.create({ user: userId })
 
@@ -12,7 +12,7 @@ exports.getSettings = async (req, res) => {
 }
 
 exports.changeSettings = async (req, res) => {
-    const userId = req.user.id
+    const userId = req.user._id
     const { fontFamily, fontSize, themeMode } = req.body
 
     await settingModel.findOneAndUpdate({ user: userId }, {
@@ -23,7 +23,7 @@ exports.changeSettings = async (req, res) => {
 }
 
 exports.changeTheme = async (req, res) => {
-    const userId = req.user.id
+    const userId = req.user._id
 
     const settings = await settingModel.findOne({ user: userId })
 

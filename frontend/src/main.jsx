@@ -4,9 +4,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import axios from 'axios'
 
 import App from './App.jsx'
+import { BACKEND_URL } from './config.js'
 import './index.css'
 
-axios.defaults.baseURL = 'http://127.0.0.1:4000'
+axios.defaults.baseURL = BACKEND_URL
 axios.defaults.withCredentials = true
 
 const queryClient = new QueryClient();

@@ -5,13 +5,13 @@ const groupModel = require('../group/group.model');
 const blockUserModel = require("../user/blockUser.model");
 const inviteCodeModel = require("../group/inviteCode.model");
 const settingModel = require("../setting/setting.model");
-const subGroupModel = require("../group/subGroup.model");
+const maxShiftsModel = require("../group/maxShifts.model");
 const shiftScheduleModel = require("../schedule/shiftSchedule.model")
 const { generateAccessToken, generateRefreshToken } = require('../utils/token');
 
 
 exports.nurseRegister = async (req, res) => {
-    const {password, username, inviteCode} = req.body;
+    const {username, password, inviteCode} = req.body;
 
     const foundInviteCode = await inviteCodeModel.findOne({ code: inviteCode });
     if(!foundInviteCode)
@@ -42,7 +42,7 @@ exports.nurseRegister = async (req, res) => {
 }
 
 exports.matronRegister = async (req, res) => {
-    const { password, firstName, lastName, mobile, username, 
+    const { firstName, lastName, mobile, username, password,
         province, county, hospital, department} = req.body;
 
     const userExist = await userModel.findOne({
@@ -64,7 +64,7 @@ exports.matronRegister = async (req, res) => {
     const group = await groupModel.create({ matron: matron._id, province, county, hospital, department })
 
     await settingModel.create({ user: matron._id })
-    await subGroupModel.create({ group: group._id })
+    await maxShiftsModel.create({ group: group._id })
     await shiftScheduleModel.create({ group: group._id })
 
     res.status(201).json({ message: 'You registered successfully' })
@@ -90,7 +90,7 @@ exports.resetPassword = async (req, res) => {
 
 const cookieOptions = {
     httpOnly: true,
-    secure: true,
+    secure: process.env.NODE_ENV === "production",
     sameSite: 'none',
     path: '/'
 }    
@@ -99,8 +99,7 @@ exports.login = async (req, res) => {
     const { username, password } = req.body;
     let verifyPassword = false;
     
-    // const user = await userModel.findOne({ username })
-    const user = await userModel.findOne({ nationalCode: username })
+    const user = await userModel.findOne({ username })
 
     if (user) {
         const checkBlock = await blockUserModel.findOne({ user: user._id })

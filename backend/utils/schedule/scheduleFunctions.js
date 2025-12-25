@@ -1,5 +1,4 @@
 const { stripH } = require("./helpers")
-const { maxAllowed } = require("./maxAllowed")
 
 const getRemainPersonCount = (dayIndex, allMonthShifts, stdPersonCount, holidayMap) => {
     const providedCount = { M: 0, E: 0, N: 0, MH: 0, EH: 0, NH: 0 }
@@ -31,7 +30,7 @@ const getRemainPersonCount = (dayIndex, allMonthShifts, stdPersonCount, holidayM
     return getRemainCount(providedCount, dayIndex);
 }
 
-const getRequestedDays = (allMonthShifts=[]) => {
+const getRequestedDays = (allMonthShifts=[], maxAllowed) => {
     const requestedDays = {}
     for (const user of allMonthShifts) {
         const checkUser = maxAllowed.find(userMax => userMax.user === String(user.user))

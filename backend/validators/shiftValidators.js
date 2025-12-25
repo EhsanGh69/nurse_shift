@@ -51,7 +51,6 @@ exports.createShiftSchema = Joi.object({
             ])
         )
     ).required().custom((value, helpers) => keysValidator(value, shiftDaysKeys, helpers)),
-    favCS: Joi.string().pattern(/^(ME|MN|EN|NM|NME|MEN)$/).allow(""),
     month: Joi.string().required(),
     year: Joi.string().required(),
     description: Joi.string().allow("")

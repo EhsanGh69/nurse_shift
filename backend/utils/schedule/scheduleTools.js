@@ -3,15 +3,15 @@ const { getRemainAllowedCount, getMonthCount } = require("./maxAllowed")
 const { getRequestedDays, insertNChecker, checkShiftAround } 
 = require("./scheduleFunctions")
 
-const daysAndRequests = (year, month, requestedShifts) => {
+const daysAndRequests = (year, month, requestedShifts, maxAllowed) => {
     const totalDays = daysInJalaliMonth(year, month)
     const holidayMap = getIsHolidaysMap(year, month)
-    const requestedDays = getRequestedDays(requestedShifts)
+    const requestedDays = getRequestedDays(requestedShifts, maxAllowed)
     return { totalDays, holidayMap, requestedDays }
 }
 
-const shiftDayRemains = (user, day, year, month) => {
-    let remainAllowedCount = getRemainAllowedCount(user.user, user.monthShifts);
+const shiftDayRemains = (user, allowedCount, day, year, month) => {
+    let remainAllowedCount = getRemainAllowedCount(user.monthShifts, allowedCount);
     const userShiftsCount = getMonthCount(user.monthShifts)
     const isHoliday = getIsHolidaysMap(year, month)[day]
     const YDay = user.monthShifts[day - 1]
@@ -47,8 +47,9 @@ const personsStatus = (shiftType, isHoliday, remainPersonCount, statusType="") =
 
 const insertShiftController = (shiftType="", user={}, date={}, shiftCount={}, boolOpt="") => {
     const { day, year, month } = date
-    const { remainPersonCount, monthMax } = shiftCount
-    const { remainAllowedCount, userShiftsCount, isHoliday, YDay, TDay } = shiftDayRemains(user, day, year, month)
+    const { remainPersonCount, monthMax, allowedCount } = shiftCount
+    const { remainAllowedCount, userShiftsCount, isHoliday, YDay, TDay } = 
+    shiftDayRemains(user, allowedCount, day, year, month)
     const notNBefore = !YDay || YDay && !stripH(YDay[1]).includes("N")
 
     let insertResult = false
@@ -138,5 +139,6 @@ const removeShiftController = (shiftDay, isHoliday, remainPersonCount) => {
 module.exports = {
     daysAndRequests,
     insertShiftController,
-    removeShiftController
+    removeShiftController,
+    shiftDayRemains
 }

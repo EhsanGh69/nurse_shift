@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { Box, Grid, Typography } from '@mui/material';
 import { Link } from 'react-router-dom';
-import { ListAlt, CalendarMonth, TableChart, EventNote, SwitchAccount, Groups3, ReduceCapacity } from '@mui/icons-material';
+import { ListAlt, CalendarMonth, TableChart, EventNote, SwitchAccount, SettingsEthernetSharp, ReduceCapacity } from '@mui/icons-material';
 
 import { clickBox } from '../../styles/globalStyles';
 import MainLayout from '../../mui/MainLayout';
@@ -12,7 +12,7 @@ export default function ShiftsManagement() {
     const items = useMemo(() => [
         { title: 'تنظیمات شیفت', icon: <ListAlt fontSize='large' />, route: '/shifts/matron/settings' },
         { title: 'اطلاعات پرستاران', icon: <SwitchAccount fontSize='large' />, route: '/shifts/matron/infos' },
-        { title: 'زیر گروه ها', icon: <Groups3 fontSize='large' />, route: '/shifts/matron/subgroups' },
+        { title: 'حداکثر شیفت ها', icon: <SettingsEthernetSharp fontSize='large' />, route: '/shifts/matron/manage/max' },
         { title: 'شیفت های پرستاران', icon: <EventNote fontSize='large' />, route: '/shifts/matron/manage' },
         { title: 'چینش پرستاران', icon: <ReduceCapacity fontSize='large' />, route: '/shifts/matron/arrange' },
         { title: 'آرشیو جداول', icon: <TableChart fontSize='large' />, route: '/shifts/matron/tables' },

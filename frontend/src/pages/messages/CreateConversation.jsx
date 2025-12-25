@@ -8,11 +8,14 @@ import MainLayout from '../../mui/MainLayout';
 import AppHeader from '../../components/AppHeader';
 import ContactsList from '../../components/message/ContactsList';
 import MessageInput from '../../components/message/MessageInput';
+import SnackAlert from '../../components/SnackAlert';
+import handleApiErrors from '../../utils/apiErrors';
 
 
 export default function CreateConversation() {
     const [open, setOpen] = useState(false)
     const [text, setText] = useState("")
+    const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
     const [contactMobile, setContactMobile] = useState("")
     const [selectedContact, setSelectedContact] = useState(null)
     const [contacts, setContacts] = useState(null)
@@ -29,11 +32,16 @@ export default function CreateConversation() {
 
     const handleSendMsg = async () => {
         try {
-            if (text)
+            if (text) {
                 await mutateAsync({ content: text, mobile: contactMobile })
+                setSnackbar({ open: true, message: 'گروه جدید با موفقیت ایجاد شد', severity: 'success' })
+                setTimeout(() => navigate(`/messages/conversations`), 500)
+            }
         } 
-        catch (error) {}
-        finally{ navigate(`/messages/conversations/${contactMobile}`) }
+        catch (error) {
+            const msg = handleApiErrors(error);
+            setSnackbar({ open: true, message: msg, severity: 'error' })
+        }
     }
 
     useEffect(() => {
@@ -117,6 +125,7 @@ export default function CreateConversation() {
                         text={text} setText={setText}
                     />
                 </Grid>
+                <SnackAlert snackbar={snackbar} setSnackbar={setSnackbar} />
             </Grid>
         </MainLayout>
     )

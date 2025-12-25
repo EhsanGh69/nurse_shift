@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext } from 'react'
-import { Backdrop, Button, CircularProgress, Grid, Typography, Paper } from '@mui/material'
+import { Backdrop, Button, CircularProgress, Grid, Typography, Paper, Box } from '@mui/material'
 import { useTheme } from "@mui/material/styles";
-import { EventNote, Warning, LockOutline, LockOpen } from '@mui/icons-material'
+import { EventNote, Warning, LockOutline, LockOpen, Check, Remove, Clear } from '@mui/icons-material'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 
 import MainLayout from '../../mui/MainLayout'
@@ -23,6 +23,7 @@ export default function NurseDayShifts() {
     const [nurseShifts, setNurseShifts] = useState(null)
     const [selectedShift, setSelectedShift] = useState({ shiftId: '', shiftDay: '', shiftUser: '' })
     const [temporalModalOpen, setTemporalModalOpen] = useState(false)
+    const [modalType, setModalType] = useState("")
     const [editModalOpen, setEditModalOpen] = useState(false)
     const [rejectModalOpen, setRejectModalOpen] = useState(false)
     const { groupId, groupTitle } = useShiftStore()
@@ -32,12 +33,14 @@ export default function NurseDayShifts() {
     const navigate = useNavigate()
 
     useEffect(() => {
-        if(!isLoading && data){
+        if (!isLoading && data) {
             const shiftData = data.find(item => item.shiftId === shiftId)
-            if(!!shiftData) setNurseShifts(shiftData)
+            if (!!shiftData) setNurseShifts(shiftData)
             else navigate('/shifts/matron/manage')
         }
     }, [data, isLoading])
+
+    useEffect(() => { console.log(nurseShifts) }, [nurseShifts])
 
     const handleSelectShift = (dayShift) => {
         setSelectedShift({
@@ -62,9 +65,9 @@ export default function NurseDayShifts() {
                         LinkComponent={Link}
                         size="large"
                         to="/shifts/matron/manage"
-                        >
-                            <EventNote sx={{ mr: 1 }} />
-                            <Typography variant="h6">بازگشت به شیفت های پرستاران</Typography>
+                    >
+                        <EventNote sx={{ mr: 1 }} />
+                        <Typography variant="h6">بازگشت به شیفت های پرستاران</Typography>
                     </Button>
                 </Grid>
 
@@ -85,7 +88,7 @@ export default function NurseDayShifts() {
 
                 {nurseShifts && (
                     <>
-                        {nurseShifts.temporal && (
+                        {(nurseShifts.temporal || nurseShifts.confirm) && (
                             <Grid size={{ xs: 12 }} mt={1}>
                                 <Paper
                                     elevation={3}
@@ -93,13 +96,28 @@ export default function NurseDayShifts() {
                                 >
                                     <Typography
                                         variant='h6'
-                                        color='error'
+                                        color={nurseShifts.temporal ? 'error' : 'success'}
                                         sx={{ display: 'flex', alignItems: 'center' }}>
-                                            <Warning fontSize='large'/>
-                                            <span>
+                                        {nurseShifts.temporal && (
+                                            <span style={{ display: "flex", alignItems: "center" }}>
+                                                <Warning fontSize='large' />
                                                 <b>توجه : </b>
-                                                ویرایش پرستار فعال می باشد. امکان رد یا تغییر شیفت وجود ندارد.   
+                                                <span>
+                                                    ویرایش پرستار فعال می باشد.
+                                                    با ارسال مجدد درخواست ها توسط پرستار امکان اعمال تغییرات را خواهید داشت.
+                                                    در صورت نیاز ویرایش پرستار را غیرفعال کنید.
+                                                </span>
                                             </span>
+                                        )}
+                                        {nurseShifts.confirm && (
+                                            <span style={{ display: "flex", alignItems: "center" }}>
+                                                <Check fontSize='large' />
+                                                <span>
+                                                    درخواست های پرستار مورد تایید قرار گرفته است.
+                                                    جهت اعمال تغییرات باید تایید را لغو کنید.
+                                                </span>
+                                            </span>
+                                        )}
                                     </Typography>
                                 </Paper>
                             </Grid>
@@ -130,43 +148,78 @@ export default function NurseDayShifts() {
                 )}
 
                 <Grid size={{ xs: 12 }}>
-                    <Button 
-                        color={nurseShifts?.temporal ? "warning" : "secondary"}
-                        variant="contained"
-                        sx={{ mt: 2, fontSize: "1.3rem" }}
-                        size="large"
-                        onClick={() => setTemporalModalOpen(true)}
-                    >
-                        {nurseShifts?.temporal 
-                            ? (
-                                <span style={{ display: "flex", alignItems: "center" }}> 
-                                    <LockOpen />
-                                    <span>غیرفعال سازی ویرایش پرستار</span>
-                                </span>
-                            )
-                            : (
-                                <span style={{ display: "flex", alignItems: "center" }}> 
-                                    <LockOutline />
-                                    <span>فعال سازی ویرایش پرستار</span>
-                                </span>
-                            )
-                        }
-                    </Button>
+                    <Box display="flex" alignItems="center">
+                        {!nurseShifts?.confirm && (
+                            <Button
+                                color={nurseShifts?.temporal ? "warning" : "secondary"}
+                                variant="contained"
+                                sx={{ mt: 2, fontSize: "1.3rem" }}
+                                size="large"
+                                onClick={() => {
+                                    setModalType("temporal")
+                                    setTemporalModalOpen(true)
+                                }}
+                            >
+                                {nurseShifts?.temporal
+                                    ? (
+                                        <span style={{ display: "flex", alignItems: "center" }}>
+                                            <LockOpen sx={{ mr: 1 }} />
+                                            <span>غیرفعال سازی ویرایش پرستار</span>
+                                        </span>
+                                    )
+                                    : (
+                                        <span style={{ display: "flex", alignItems: "center" }}>
+                                            <LockOutline sx={{ mr: 1 }} />
+                                            <span>فعال سازی ویرایش پرستار</span>
+                                        </span>
+                                    )
+                                }
+                            </Button>
+                        )}
+
+                        {!nurseShifts?.temporal && (
+                            <Button
+                                variant="contained" size="large"
+                                color={nurseShifts?.confirm ? 'error' : 'success'}
+                                sx={{ mt: 2, fontSize: "1.3rem", ml: 1 }}
+                                onClick={() => {
+                                    setModalType("confirm")
+                                    setTemporalModalOpen(true)
+                                }}
+                            >
+                                {nurseShifts?.confirm
+                                    ? (
+                                        <span style={{ display: "flex", alignItems: "center" }}>
+                                            <Clear sx={{ mr: 1 }} />
+                                            <span>لغو تایید درخواست ها</span>
+                                        </span>
+                                    )
+                                    : (
+                                        <span style={{ display: "flex", alignItems: "center" }}>
+                                            <Check sx={{ mr: 1 }} />
+                                            <span>تایید درخواست ها</span>
+                                        </span>
+                                    )
+                                }
+                            </Button>
+                        )}
+                    </Box>
                 </Grid>
             </Grid>
-            <ChangeTemporalModal 
+            <ChangeTemporalModal
                 open={temporalModalOpen}
                 closeHandler={() => setTemporalModalOpen(false)}
                 shiftId={shiftId}
-                temporal={nurseShifts?.temporal}
+                status={modalType === "temporal" ? nurseShifts?.temporal : nurseShifts?.confirm}
+                modalType={modalType}
                 setSnackbar={setSnackbar}
             />
-            <RejectModal 
+            <RejectModal
                 open={rejectModalOpen}
                 closeHandler={() => setRejectModalOpen(false)}
                 selectedShift={selectedShift}
             />
-            <EditShiftModal 
+            <EditShiftModal
                 open={editModalOpen}
                 setEditModalOpen={setEditModalOpen}
                 setSnackbar={setSnackbar}

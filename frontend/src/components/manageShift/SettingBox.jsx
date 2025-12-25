@@ -40,16 +40,22 @@ export default function SettingBox({
                             }}
                         >
                             <Typography sx={{ fontWeight: 'bold', color: "#726d6dff" }}>
-                                {shift}
+                                {shift.includes("NP") && `بدون ارتقاء -  ${shift.slice(-1)}`}
+                                {!shift.includes("NP") && shift.includes("P") && `با ارتقاء -  ${shift.slice(-1)}`}
+                                {!shift.includes("NP") && !shift.includes("P") && shift}
                             </Typography>
                             <Divider orientation='vertical' flexItem
                                 sx={{ backgroundColor: "#000" }} />
                             <Input
-                                type='number'
-                                inputProps={{ min: 1, max: limitCount }}
-                                sx={{ color: "#000" }}
+                                type='text'
+                                sx={{ color: "#000", width: 50 }}
                                 value={inputValue[shift]}
-                                onChange={(e) => handleChangeCount(shift, Number(e.target.value))}
+                                onChange={(e) => handleChangeCount(shift, e.target.value)}
+                                onBlur={() => {
+                                    const num = parseFloat(inputValue[shift])
+                                    if(isNaN(num)) handleChangeCount(shift, 0)
+                                    else handleChangeCount(shift, e.target.value)
+                                }}
                             />
                         </Box>
                     ))}

@@ -20,7 +20,7 @@ export default function ConversationDetail() {
     const boxRef = useRef()
 
     useEffect(() => {
-        if (data) {
+        if (!isLoading && data) {
             const foundConversation = data.find(item => item.contact.mobile === mobile)
             if (foundConversation)
                 setConversation(foundConversation)

@@ -37,7 +37,7 @@ exports.responseMessage = async (req, res) => {
     })
     if (!contact || !group)
         return res.status(404).json({ error: "User not found" })
-    
+
     const { content } = req.body;
 
     await messageModel.create({ from: user._id, to: contact._id, content })
@@ -51,11 +51,11 @@ exports.userConversations = async (req, res) => {
         $or: [{ from: user._id }, { to: user._id }]
     }).lean()
 
-    if(!messages.length) return res.json(messages)
+    if (!messages.length) return res.json(messages)
 
-    const groups = await groupModel.find({ 
+    const groups = await groupModel.find({
         $or: [{ members: { $all: [user._id] } }, { matron: user._id }]
-     })
+    })
         .select("members matron")
         .populate("members", "firstName lastName mobile")
         .populate("matron", "firstName lastName mobile").lean()
@@ -64,7 +64,7 @@ exports.userConversations = async (req, res) => {
     const allContacts = []
     groups.map(group => {
         const groupContact = [...group.members, group.matron]
-        .filter(member => member._id.toString() !== user._id.toString())
+            .filter(member => member._id.toString() !== user._id.toString())
         allContacts.push(...groupContact)
     })
     const contactIds = allContacts.map(member => member._id.toString())
@@ -82,7 +82,7 @@ exports.userConversations = async (req, res) => {
             conversationMap[contactId].push({
                 id: message._id,
                 content: message.content,
-                createdAt: moment(message.createdAt).locale('fa').format('jYYYY/jMM/jDD - HH:mm'), 
+                createdAt: moment(message.createdAt).locale('fa').format('jYYYY/jMM/jDD - HH:mm'),
                 fromSelf,
                 seen: message.seen
             })
@@ -93,17 +93,21 @@ exports.userConversations = async (req, res) => {
         conversationMap[contactId].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
     }
 
-    const conversations = contactIds.map(contactId => {
+    const conversations = []
+    contactIds.map(contactId => {
         const userContact = allContacts.find(m => m._id.toString() === contactId)
-        return {
-            contact: {
-                id: userContact._id,
-                firstName: userContact.firstName,
-                lastName: userContact.lastName,
-                mobile: userContact.mobile
-            },
-            messages: conversationMap[contactId] || []
+        if (conversationMap[contactId]) {
+            conversations.push({
+                contact: {
+                    id: userContact._id,
+                    firstName: userContact.firstName,
+                    lastName: userContact.lastName,
+                    mobile: userContact.mobile
+                },
+                messages: conversationMap[contactId]
+            })
         }
+
     })
 
     res.json(conversations)
@@ -114,7 +118,7 @@ exports.seenMessages = async (req, res) => {
     const user = req.user;
 
     await messageModel.updateMany(
-        { _id: { $in: ids },  to: user.id },
+        { _id: { $in: ids }, to: user.id },
         { $set: { seen: true } }
     )
 
@@ -124,9 +128,9 @@ exports.seenMessages = async (req, res) => {
 exports.getUserContacts = async (req, res) => {
     const user = req.user;
 
-    const groups = await groupModel.find({ 
+    const groups = await groupModel.find({
         $or: [{ members: { $all: [user._id] } }, { matron: user._id }]
-     })
+    })
         .select("members matron")
         .populate("members", "firstName lastName mobile avatar")
         .populate("matron", "firstName lastName mobile avatar").lean()
@@ -135,7 +139,7 @@ exports.getUserContacts = async (req, res) => {
     const allContacts = []
     groups.map(group => {
         const groupContact = [...group.members, group.matron]
-        .filter(member => member._id.toString() !== user._id.toString())
+            .filter(member => member._id.toString() !== user._id.toString())
         allContacts.push(...groupContact)
     })
 

@@ -52,14 +52,39 @@ export const useShiftSchedule = (groupId, day) => {
     })
 }
 
-export const useCreateShiftSchedule = () => {
+export const useCreatePrimarySchedule = () => {
     const queryClient = useQueryClient()
 
     return useMutation({
         mutationFn: async (data) => {
-            await api.post(`/schedule/create`, data)
+            await api.post(`/schedule/create/primary`, data)
         },
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['shiftSchedule'] })
+    })
+}
+
+export const useCreateFinalSchedule = () => {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: async (data) => {
+            const { data: scheduleData } = await api.post(`/schedule/create/final`, data)
+            return scheduleData
+        },
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['shiftSchedule'] })
+    })
+}
+
+export const useCheckSchedule = (groupId, month) => {
+    return useQuery({
+        queryKey: ['checkSchedule', groupId, month],
+        queryFn: async () => {
+            const { data } = await api.get(`/schedule/check/${groupId}/${month}`)
+            return data
+        },
+        retry: 0,
+        staleTime: 0,
+        enabled: !!groupId
     })
 }
 

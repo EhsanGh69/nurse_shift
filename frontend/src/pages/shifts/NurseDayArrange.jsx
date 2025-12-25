@@ -1,9 +1,10 @@
 import { useState, useEffect, useContext } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { 
-    Alert, Backdrop, Button, CircularProgress, Grid, Paper, Typography, useTheme, useMediaQuery, Drawer 
+    Alert, Backdrop, Button, CircularProgress, Grid, Paper, Typography, useMediaQuery, Drawer 
 } from '@mui/material';
-import { EventBusy, EventNote, PersonOff } from '@mui/icons-material';
+import { EventBusy, EventNote } from '@mui/icons-material';
+import { useTheme } from "@mui/material/styles";
 import moment from "jalali-moment";
 
 import { useShiftSchedule } from "../../api/shiftSchedule.api";
@@ -25,7 +26,7 @@ export default function NurseDayArrange() {
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
     const [drawerOpen, setDrawerOpen] = useState(false)
     const [nurseSchedule, setNurseSchedule] = useState(null)
-    const [needManagers, setNeedManagers] = useState(null)
+    const [requestedShifts, setRequestedShifts] = useState(null)
     const [editModalOpen, setEditModalOpen] = useState(false)
     const [selectedNurse, setSelectedNurse] = useState({ nurseId: '', nurseName: '', shiftDay: '', shiftType: '' })
     const { groupId, groupTitle } = useShiftStore()
@@ -39,7 +40,7 @@ export default function NurseDayArrange() {
             navigate('/404', { state: { backTo: "/shifts/matron/arrange" } })
         else if(!isLoading && data) {
             setNurseSchedule(data.shiftDaySchedule)
-            setNeedManagers(data.nonShiftManagers)
+            setRequestedShifts(data.allRequests)
         }
     }, [isLoading, data, isError, error])
 
@@ -97,7 +98,6 @@ export default function NurseDayArrange() {
                 {(nurseSchedule && !!Object.keys(nurseSchedule).length)
                     ? (
                         <>
-                        
                             <Grid 
                                 width="100%"
                                 display="flex" justifyContent="space-between"
@@ -140,37 +140,16 @@ export default function NurseDayArrange() {
                                 </Paper>
                             </Grid>
 
-                            {(!!needManagers && !!needManagers.length) && (
-                                <Alert color="warning" severity="warning" icon={<PersonOff fontSize="large" />}
-                                    sx={{ width: "100%", mt: 2 }}>
-                                    <Typography variant="h6">
-                                        {needManagers.length > 1
-                                            ? (
-                                                <span>
-                                                    برای شیفت های 
-                                                    {needManagers[0]} و {needManagers[1]} 
-                                                    مسئول شیفت وجود ندارد
-                                                </span>
-                                            )
-                                            : (
-                                                <span>
-                                                    برای شیفت {" "}
-                                                    {needManagers[0]} {" "}
-                                                    مسئول شیفت وجود ندارد
-                                                </span>
-                                            )
-                                        }
-                                    </Typography>
-                                </Alert>
+                            {requestedShifts && (
+                                <Grid size={{ xs: 12 }}>
+                                    <ShiftArrangeBox
+                                        shiftsSchedule={nurseSchedule}
+                                        handleSelectNurse={handleSelectNurse}
+                                        setEditModalOpen={setEditModalOpen}
+                                        requestedShifts={requestedShifts[day]}
+                                    />
+                                </Grid>
                             )}
-
-                            <Grid size={{ xs: 12 }}>
-                                <ShiftArrangeBox
-                                    shiftsSchedule={nurseSchedule}
-                                    handleSelectNurse={handleSelectNurse}
-                                    setEditModalOpen={setEditModalOpen}
-                                />
-                            </Grid>
                         </>
                     )
                     : (

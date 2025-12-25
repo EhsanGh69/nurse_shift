@@ -1,7 +1,8 @@
 import { Avatar, Box, Typography } from '@mui/material';
 import { Phone } from '@mui/icons-material';
+import { BACKEND_URL } from "../../config"
 
-export default function GroupMember({ member }) {
+export default function GroupMember({ member, inviteCode }) {
     return (
         <Box
             sx={{
@@ -16,7 +17,7 @@ export default function GroupMember({ member }) {
         >
             <Avatar
                 alt={`${member?.firstName} ${member?.lastName}`}
-                src={member?.avatar && `http://127.0.0.1:4000${member?.avatar}`}
+                src={member?.avatar && `${BACKEND_URL}${member?.avatar}`}
                 sx={{ width: 50, height: 50, mr: 1 }}
             />
             <Typography variant='body1'
@@ -25,12 +26,18 @@ export default function GroupMember({ member }) {
             </Typography>
             <Typography variant='body2'
                 sx={{
-                    color: 'whitesmoke', pl: 1, fontSize: 18,
+                    color: 'whitesmoke', px: 1, fontSize: 18,
                     display: 'flex', alignItems: 'center'
                 }}>
                 <Phone />
                 {member?.mobile}
             </Typography>
+            {inviteCode && (
+                <Typography variant='body1'
+                    sx={{ color: '#fff', borderLeft: 1, pl: 1 }}>
+                    <span>کد دعوت : </span> <span>{inviteCode}</span>
+                </Typography>
+            )}
         </Box>
 
     )

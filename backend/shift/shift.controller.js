@@ -5,16 +5,16 @@ const shiftModel = require("./shift.model");
 const groupModel = require("../group/group.model");
 const shiftSettingModel = require("./shiftSetting.model");
 const jobInfoModel = require("./jobInfo.model");
-const subGroupModel = require('../group/subGroup.model')
 const { getMonthShifts } = require("../utils/shiftDays");
-const { getUserShiftCount } = require('../utils/schedule/shiftProvider');
 const { getIsHolidaysMap } = require("../utils/schedule/helpers");
 
 const currentYear = moment(new Date()).locale("fa").format("jYYYY");
 const currentMonth = moment(new Date()).locale("fa").format("jMM");
 const currentDay = moment(new Date()).locale("fa").format("jDD");
-const shiftMonth = Number(currentMonth) + 1 > 12 ? 1 : Number(currentMonth) + 1
-const shiftYear = shiftMonth > 12 ? Number(currentYear) + 1 : Number(currentYear)
+// const shiftMonth = Number(currentMonth) + 1 > 12 ? 1 : Number(currentMonth) + 1
+// const shiftYear = shiftMonth > 12 ? Number(currentYear) + 1 : Number(currentYear)
+const shiftMonth = Number(currentMonth)
+const shiftYear = Number(currentYear)
 
 
 exports.saveShift = async (req, res) => {
@@ -47,7 +47,7 @@ exports.saveShift = async (req, res) => {
 
 exports.createShift = async (req, res) => {
   const userId = req.user._id;
-  const { groupId, shiftDays, month, year, description, favCS } = req.body;
+  const { groupId, shiftDays, month, year, description } = req.body;
 
   if(!isValidObjectId(groupId)) return res.status(422).json({ error: "Group id is not valid" })
   const userGroup = await groupModel.findOne({ _id: groupId,
@@ -58,28 +58,19 @@ exports.createShift = async (req, res) => {
   const shiftSetting = await shiftSettingModel.findOne({ group: groupId });
   if (!shiftSetting) return res.status(400).json({ message: "ارسال شیفت امکان پذیر نمی باشد" });
 
-  const subGroup = await subGroupModel.findOne({ group: groupId }).lean()
-  if (!subGroup || !getUserShiftCount(userId.toString(), subGroup.subs)) 
-    return res.status(400).json({ message: "ارسال شیفت امکان پذیر نمی باشد" });
-
-  if (Number(currentMonth) >= Number(month) || Number(currentDay) > shiftSetting.dayLimit)
-    return res.status(400).json({ message: "مهلت ارسال شیفت به پایان رسیده است" });
-
-  const userShiftCount = getUserShiftCount(userId.toString(), subGroup.subs)
-
-  if(userShiftCount.CS[0] >= 0 && userShiftCount.CS[1] > 1 && !favCS)
-    return res.status(400).json({ message: "انتخاب شیفت ترکیبی مورد علاقه الزامی می باشد" });
+  // if (Number(currentMonth) >= Number(month) || Number(currentDay) > shiftSetting.dayLimit)
+  //   return res.status(400).json({ message: "مهلت ارسال شیفت به پایان رسیده است" });
   
   const shiftExist = await shiftModel.findOne({ user: userId, group: groupId, month, year })
   if(shiftExist && !shiftExist.temporal)
     return res.status(409).json({ message: "شیفت برای این گروه قبلا ارسال شده است" });
   else if(shiftExist && shiftExist.temporal) {
-    await shiftExist.updateOne({ shiftDays, description, favCS, temporal: false })
+    await shiftExist.updateOne({ shiftDays, description, temporal: false })
     return res.json({ message: "Your shift created successfully" })
   }
   else if(!shiftExist) {
     await shiftModel.create({ user: userId, group: groupId, shiftDays,
-      month, year, description, favCS, temporal: false
+      month, year, description, temporal: false
     });
     return res.status(201).json({ message: "Shift created successfully" });
   }
@@ -144,7 +135,7 @@ exports.getRequestedShifts = async (req, res) => {
   res.json(getMonthShifts(groupShifts));
 };
 
-exports.changeShiftsTemporal = async (req, res) => {
+exports.changeShiftsTemporalConfirm = async (req, res) => {
   const userId = req.user._id;
   const { shiftId, groupId } = req.body;
 
@@ -156,11 +147,17 @@ exports.changeShiftsTemporal = async (req, res) => {
 
   const userShift = await shiftModel.findById(shiftId)
   if (!userShift) return res.status(404).json({ error: "User shift not found" });
-
-  userShift.temporal = !userShift.temporal
-  userShift.save()
-
-  res.json({ message: "Shift temporal changed successfully" });
+  let message = ""
+  if(req.path.includes("temporal")) {
+    userShift.temporal = !userShift.temporal
+    message = "Shift temporal changed successfully"
+  }
+  else if(req.path.includes("confirm")) {
+    userShift.confirm = !userShift.confirm
+    message = "Shift confirm changed successfully"
+  }
+  await userShift.save()
+  res.json({ message });
 };
 
 exports.getUserShifts = async (req, res) => {
@@ -236,13 +233,13 @@ exports.checkShiftExpiration = async (req, res) => {
   const userId = req.user._id;
   const { id } = req.params;
 
-  if(!isValidObjectId(id))
-    return res.status(422).json({ error: "Shift id is not valid" })
+  if(!isValidObjectId(id)) return res.status(422).json({ error: "Shift id is not valid" })
 
   const userShift = await shiftModel.findOne({ _id: id, user: userId })
   if(!userShift) return res.status(404).json({ error: "User shift not found" })
 
-  if(Number(currentMonth) >= Number(userShift.month)){
+  // if(Number(currentMonth) >= Number(userShift.month)){
+  if(Number(currentMonth) > Number(userShift.month)){
     userShift.expired = true
     await userShift.save()
   }

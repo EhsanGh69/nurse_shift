@@ -117,7 +117,7 @@ export default function ShiftSettings() {
                                     variant='h6'
                                     color='warning'
                                     sx={{ textTransform: 'uppercase', fontWeight: 'bold' }}>
-                                    M: صبح | E: عصر | N: شب | H: تعطیل | NP: بدون ارتقاء | P: با ارتقاء
+                                    M: صبح | E: عصر | N: شب | H: تعطیل | V: مرخصی
                                 </Typography>
                             </Paper>
                         </Grid>

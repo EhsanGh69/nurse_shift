@@ -19,6 +19,13 @@ export default function ShiftsCountBox({ shiftDaySchedule }) {
         if(!isLoading && data) setSettingCount(data.personCount)
     }, [data, isLoading])
 
+    const generateCountColor = (shCount, stdCount) => {
+        let countColor = "success"
+        if(shCount - stdCount > 0) countColor = "warning"
+        else if(shCount - stdCount < 0) countColor = "error"
+        return countColor
+    }
+
 
     return (
         <>
@@ -48,8 +55,10 @@ export default function ShiftsCountBox({ shiftDaySchedule }) {
                                 />
                                 <Typography 
                                     variant="h5" mt={isDownMd ? 0 : 1}
-                                    color={getShiftTypeCounts(shiftDaySchedule)[shiftType] !== 
-                                        settingCount[shiftType] ? "error" : "success"} 
+                                    color={
+                                        generateCountColor(getShiftTypeCounts(shiftDaySchedule)[shiftType],
+                                        settingCount[shiftType])
+                                    } 
                                 >
                                     {getShiftTypeCounts(shiftDaySchedule)[shiftType]}
                                 </Typography>

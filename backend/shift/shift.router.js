@@ -35,7 +35,12 @@ router.get('/requests/:groupId/:year/:month',
 router.put('/temporal',
     verifyToken,
     permission(['ADMIN', 'MATRON']),
-    shiftController.changeShiftsTemporal
+    shiftController.changeShiftsTemporalConfirm
+)
+router.put('/confirm',
+    verifyToken,
+    permission(['ADMIN', 'MATRON']),
+    shiftController.changeShiftsTemporalConfirm
 )
 router.get('/day_limit/:groupId',
     verifyToken,

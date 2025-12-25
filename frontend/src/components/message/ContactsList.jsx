@@ -4,6 +4,7 @@ import {
     Dialog, DialogTitle, DialogContent, TextField, List, ListItemButton, 
     ListItemText, Avatar, ListItemIcon, Typography
 } from "@mui/material";
+import { BACKEND_URL } from "../../config";
 
 
 export default function ContactsList({ open, setOpen, handleSelect, contacts }) {
@@ -40,7 +41,7 @@ export default function ContactsList({ open, setOpen, handleSelect, contacts }) 
                                 <ListItemIcon>
                                     <Avatar
                                         alt={contact.firstName}
-                                        src={contact.avatar && `http://127.0.0.1:4000${contact.avatar}`}
+                                        src={contact.avatar && `${BACKEND_URL}${contact.avatar}`}
                                     />
                                 </ListItemIcon>
                                 <ListItemText

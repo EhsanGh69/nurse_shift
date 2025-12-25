@@ -14,14 +14,14 @@ import { GlobalContext } from '../context/GlobalContext';
 
 export default function ChangeSettings() {
     const navigate = useNavigate()
+    const { getData } = useContext(GlobalContext)
+    const user = getData("userData")
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
     const [settings, setSettings] = useState(null)
     const { mutateAsync, isPending } = useChangeSettings()
-    const { isLoading, data } = useCurrentSettings()
-    const { getData } = useContext(GlobalContext)
-    const user = getData("userData")
+    const { isLoading, data } = useCurrentSettings(user?._id)
 
-    const handleSubmit = async (values, { setSubmitting, resetForm }) => {
+    const handleSubmit = async (values, { setSubmitting }) => {
         try {
             await mutateAsync(values)
             setSnackbar({ open: true, message: 'تغییرات با موفقیت ذخیره شد', severity: 'success' })
@@ -29,7 +29,6 @@ export default function ChangeSettings() {
                 setTimeout(() => navigate('/matron'), 500)
             if (user?.role === 'NURSE')
                 setTimeout(() => navigate('/nurse'), 500)
-            resetForm()
         } catch (error) {
             const msg = handleApiErrors(error);
             setSnackbar({ open: true, message: msg, severity: 'error' })
@@ -37,7 +36,7 @@ export default function ChangeSettings() {
             setSubmitting(false)
         }
     }
-
+    
     useEffect(() => {
         if (!isLoading && data) setSettings(data)
     }, [isLoading, data])
@@ -48,7 +47,7 @@ export default function ChangeSettings() {
             <Backdrop open={isLoading} sx={{ zIndex: (them) => them.zIndex.drawer + 1 }}>
                 <CircularProgress color="inherit" />
             </Backdrop>
-            {settings &&
+            {settings && settings?.user === user?._id &&
                 (
                     <Formik
                         initialValues={{

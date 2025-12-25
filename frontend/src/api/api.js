@@ -1,11 +1,13 @@
 import axios from "axios";
 
+import { BACKEND_URL } from "../config"
+
 let currentAccessToken = null
 let isRefreshing = false
 let refreshSubscribers = []
 
 const api = axios.create({
-    baseURL: "http://127.0.0.1:4000",
+    baseURL: BACKEND_URL,
     withCredentials: true
 })
 
@@ -53,7 +55,6 @@ api.interceptors.response.use(
 
             return new Promise((resolve) => {
                 addSubscriber(() => {
-                    // originalRequest.headers.Authorization = `Bearer ${token}`
                     resolve(api(originalRequest))
                 })
             })
@@ -64,15 +65,15 @@ api.interceptors.response.use(
 )
 
 export const logout = async () => {
-  try {
-    await api.post("/auth/logout");
-  } catch (err) {
-    console.error("Logout request failed:", err);
-  } finally {
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("shift-storage");
-    currentAccessToken = null; // ریست کردن توکن فعلی
-  }
+    try {
+        await api.post("/auth/logout");
+    } catch (err) {
+        console.error("Logout request failed:", err);
+    } finally {
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("shift-storage");
+        currentAccessToken = null;
+    }
 };
 
 export default api;

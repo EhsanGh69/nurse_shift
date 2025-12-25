@@ -30,14 +30,25 @@ function NotMember({ text }) {
 
 export default function GroupMembersList({ group }) {
     const [invitees, setInvitees] = useState([])
+    const [inviteCodes, setInviteCodes] = useState([])
     const theme = useTheme()
     const isMobile = useMediaQuery(theme.breakpoints.down('lg'))
     const { isLoading, data } = useGroupInvitees(group._id)
 
     useEffect(() => {
-        if (!isLoading && data)
-            setInvitees(data)
+        if (!isLoading && data) {
+            setInvitees(data.invitees)
+            setInviteCodes(data.inviteCodes)
+        }
     }, [isLoading, data])
+
+    const getUserInviteCode = (mobile) => {
+        let inviteCode = ""
+        if(inviteCodes?.length){
+            inviteCode = inviteCodes.find(item => item.mobile === mobile).code
+        }
+        return inviteCode
+    }
 
     return (
         <>
@@ -64,7 +75,9 @@ export default function GroupMembersList({ group }) {
                                 <Box sx={membersAccordionBox}>
                                     {invitees.length
                                         ? invitees.map(member => (
-                                            <GroupMember member={member} key={member.mobile} />
+                                            <GroupMember 
+                                                key={member.mobile}
+                                                member={member}  inviteCode={getUserInviteCode(member.mobile)} />
                                         ))
                                         : <NotMember text="دعوت شده ایی وجود ندارد" />
                                     }
@@ -119,7 +132,8 @@ export default function GroupMembersList({ group }) {
                             }}>
                                 {invitees.length
                                     ? invitees.map(member => (
-                                        <GroupMember member={member} key={member.mobile} />
+                                        <GroupMember member={member} key={member.mobile} 
+                                        inviteCode={getUserInviteCode(member.mobile)}/>
                                     ))
                                     : <NotMember text="دعوت شده ایی وجود ندارد" />
                                 }

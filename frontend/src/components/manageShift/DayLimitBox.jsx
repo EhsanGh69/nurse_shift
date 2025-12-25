@@ -34,11 +34,16 @@ export default function DayLimitBox({ dayLimit, handleDayLimit }) {
                     }}
                 >
                     <Input
-                        type='number'
+                        type='text'
                         inputProps={{ min: 1, max: 30 }}
-                        sx={{ color: "#000" }}
+                        sx={{ color: "#000", width: 50 }}
                         value={dayLimit}
-                        onChange={(e) => handleDayLimit(Number(e.target.value))}
+                        onChange={(e) => {
+                            if(isNaN(e.target.value))
+                                handleDayLimit(0)
+                            else
+                                handleDayLimit(Number(e.target.value))
+                        }}
                     />
                 </Box>
                 <Typography

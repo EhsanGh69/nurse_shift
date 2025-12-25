@@ -35,4 +35,5 @@ export default function NurseHome() {
             </Grid>
         </MainLayout>
     )
+
 }

@@ -23,6 +23,11 @@ router.post('/create/final',
     permission(['ADMIN', 'MATRON']),
     scheduleController.createFinalShiftsSchedule
 )
+router.get('/check/:groupId/:month',
+    verifyToken,
+    permission(['ADMIN', 'MATRON']),
+    scheduleController.checkShiftsSchedule
+) 
 router.put('/update',
     verifyToken,
     permission(['ADMIN', 'MATRON']),

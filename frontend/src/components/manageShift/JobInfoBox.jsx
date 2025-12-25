@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { 
-    Avatar, Box, Divider, Grid, Input, Paper, Typography, Button, TextField, MenuItem, Checkbox, FormControlLabel
+    Avatar, Box, Divider, Grid, Input, Paper, Typography, Button, TextField, MenuItem, Checkbox
 } from '@mui/material';
 import { useTheme } from "@mui/material/styles";
 import { textFieldStyle } from '../../styles/globalStyles';
 import { postTitles, employTitles } from '../../constants/shifts';
 import { Check, Clear } from '@mui/icons-material';
+import { BACKEND_URL } from "../../config"
 
 
 export default function JobInfoBox({ 
@@ -30,7 +31,7 @@ export default function JobInfoBox({
                 <Box display="flex" alignItems="center">
                     <Avatar
                         alt={member.firstName}
-                        src={member.avatar && `http://127.0.0.1:4000${member.avatar}`}
+                        src={member.avatar && `${BACKEND_URL}${member.avatar}`}
                         sx={{ 
                             width: 50, height: 50, mr: 1,
                             backgroundColor: isDark ? '#9e9b9bff' : null
@@ -50,6 +51,7 @@ export default function JobInfoBox({
                         padding: 2,
                         marginTop: 2,
                         display: 'flex',
+                        alignItems: "flex-start",
                         flexWrap: 'wrap',
                         gap: 2
                     }}
@@ -59,9 +61,9 @@ export default function JobInfoBox({
                             sx={{
                                 border: '1px solid #cfaeaeff',
                                 borderRadius: 2,
-                                padding: 1.5,
+                                padding: isEdit ? 0.5 : 1.3,
                                 backgroundColor: '#f0f8ff',
-                                display: 'flex',
+                                display: field.name === "shiftManager" ? 'none' : 'flex',
                                 alignItems: 'center',
                                 gap: 0.5
                             }}
@@ -82,7 +84,10 @@ export default function JobInfoBox({
                                     sx={{
                                             ...textFieldStyle(isDark),
                                             display: isEdit ? 'inherit' : 'none',
-                                            p: 0
+                                            '& .MuiSelect-select': {
+                                                padding: '10px 10px',
+                                                minHeight: '30px',
+                                            }
                                         }}
                                 >
                                 {postTitles.map((pTitle, index) => (
@@ -100,7 +105,14 @@ export default function JobInfoBox({
                                     name='employment'
                                     value={nurseInfos[field.name]}
                                     onChange={(e) => handleChangeInfos(field.name, Number(e.target.value))}
-                                    sx={{...textFieldStyle(isDark), display: isEdit ? 'inherit' : 'none'}}
+                                    sx={{
+                                        ...textFieldStyle(isDark), 
+                                        display: isEdit ? 'inherit' : 'none',
+                                        '& .MuiSelect-select': {
+                                            padding: '10px 10px',
+                                            minHeight: '30px',
+                                        }
+                                    }}
                                 >
                                     {employTitles.map((eTitle, index) => (
                                         <MenuItem key={index} value={index + 1}>
@@ -117,7 +129,8 @@ export default function JobInfoBox({
                                     inputProps={{ min: 1 }}
                                     sx={{ 
                                         color: "#000", width: 50, ml: 1,
-                                        display: isEdit ? 'inherit' : 'none' 
+                                        display: isEdit ? 'inherit' : 'none',
+                                        padding: '7px 7px', minHeight: '25px'
                                     }}
                                     value={nurseInfos[field.name]}
                                     onChange={(e) => {

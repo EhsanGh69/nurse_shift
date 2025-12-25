@@ -51,7 +51,6 @@ export default function NursesInfos() {
             await mutateAsync({ userId, groupId, ...nurseInfos[userId], shiftManager: shiftManagers[userId] })
             setSnackbar({ open: true, message: 'تغییرات با موفقیت ذخیره شد', severity: 'success' })
         } catch (error) {
-            console.log(error)
             if(error instanceof Yup.ValidationError){
                 setSnackbar({ open: true, message: "مقدار وارد شده نامعتبر می باشد", severity: 'error' })
             }else {
@@ -132,7 +131,7 @@ export default function NursesInfos() {
                 {groupId && (
                     <>
                         <Backdrop open={infosLoading} sx={{ zIndex: (them) => them.zIndex.drawer + 1 }}>
-                            <CircularProgress color="inherit" />
+                            <CircularProgress color="warning" />
                         </Backdrop>
                         <Grid size={{ xs: 12 }}>
                             <Typography

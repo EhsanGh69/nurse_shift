@@ -27,6 +27,7 @@ export default function Login() {
             setSnackbar({ open: true, message: "با موفقیت وارد شدید", severity: 'success' })
             setTimeout(async () => {
                 await queryClient.refetchQueries({ queryKey: ['currentUser'] })
+                await queryClient.resetQueries({ queryKey: ['currentSettings'] })
                 if (result.role === 'NURSE') navigate('/nurse')
                 else navigate('/matron')
             }, 500)

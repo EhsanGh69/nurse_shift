@@ -1,10 +1,14 @@
+import { lazy } from "react"
+
+import LazyWrapper from "../../components/LazyWrapper";
 import PrivateRoute from "../PrivateRoute";
-import NurseHome from "./NurseHome";
+
+const NurseHome = lazy(() => import("./NurseHome"))
 
 const nurseRoutes = [{
     path: "/nurse", element: <PrivateRoute />, children:
         [
-            { path: "", element: <NurseHome /> }
+            { path: "", element: <LazyWrapper><NurseHome /></LazyWrapper> }
         ]
 }]
 

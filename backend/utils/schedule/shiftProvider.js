@@ -62,14 +62,3 @@ exports.convertToArray = (allMonthShifts=[]) => {
   })
   return convertedSchedule
 }
-
-exports.getUserShiftCount = (userId, subs = []) => {
-  if (!subs.length) return false
-  let userSub = null
-  subs.forEach(sub => {
-    const foundUser = sub.members.some(member => member.user.toString() === userId)
-    if (foundUser) userSub = sub
-  })
-  if (!userSub) return false
-  return userSub.shiftCount
-}

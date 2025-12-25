@@ -27,10 +27,6 @@ const shiftSchema = new mongoose.Schema({
         type: String,
         default: ""
     },
-    favCS: {
-        type: String,
-        default: ""
-    },
     rejects: {
         type: [String],
         default: []
@@ -42,6 +38,10 @@ const shiftSchema = new mongoose.Schema({
     temporal: {
         type: Boolean,
         default: true
+    },
+    confirm: {
+        type: Boolean,
+        default: false
     }
 }, { timestamps: true }) 
 

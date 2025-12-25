@@ -110,3 +110,14 @@ export const useChangeTemporal = () => {
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['nursesShifts'] })
     })
 }
+
+export const useChangeConfirm = () => {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: async (data) => {
+            await api.put('/shifts/confirm', data)
+        },
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['nursesShifts'] })
+    })
+}

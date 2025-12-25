@@ -84,9 +84,12 @@ export default function ShiftDataBox({
                         color: "info.main",
                         bgcolor: "#dcd7d7ff"
                       }}
-                      onClick={(e) => handleMenuOpen(e, dayShift)}
+                      onClick={(e) => {
+                        if(!nurseShifts.temporal && !nurseShifts.confirm)
+                          handleMenuOpen(e, dayShift)
+                      }}
                   >
-                    {nurseShifts.temporal 
+                    {nurseShifts.temporal || nurseShifts.confirm
                       ? <LockIcon sx={{ fontSize: 28 }} /> 
                       : <MenuIcon sx={{ fontSize: 28 }} />
                     }
@@ -94,7 +97,7 @@ export default function ShiftDataBox({
 
                   <Menu
                       anchorEl={anchorEl}
-                      open={nurseShifts.temporal ? false : menuOpen}
+                      open={nurseShifts.temporal || nurseShifts.confirm ? false : menuOpen}
                       onClose={handleMenuClose}
                       anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
                       transformOrigin={{ vertical: 'top', horizontal: 'center' }}

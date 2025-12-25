@@ -2,10 +2,12 @@ import moment from "jalali-moment";
 
 const generateMonthGrid = () => {
     const today = moment()
-    const currentYear = today.jYear()
-    const currentMonth = today.jMonth() + 1
-    const shiftMonth = currentMonth === 12 ? 1 : currentMonth + 1
-    const shiftYear = currentMonth === 12 ? currentYear + 1 : currentYear
+    // const currentYear = today.jYear()
+    // const currentMonth = today.jMonth() + 1
+    // const shiftMonth = currentMonth === 12 ? 1 : currentMonth + 1
+    // const shiftYear = currentMonth === 12 ? currentYear + 1 : currentYear
+    const shiftYear = today.jYear()
+    const shiftMonth = today.jMonth() + 1
 
     const startDay = moment(`${shiftYear}/${shiftMonth}/1`, 'jYYYY/jM/jD').locale("fa").weekday()
     const daysInMonth = moment(`${shiftYear}/${shiftMonth}`, 'jYYYY/jM').locale("fa").daysInMonth()

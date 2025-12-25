@@ -6,6 +6,7 @@ exports.getMonthShifts = (shifts) => {
         const shiftId = shift._id;
         const description = shift.description
         const temporal = shift.temporal
+        const confirm = shift.confirm
         const fullname = `${shift.user.firstName} ${shift.user.lastName}`;
         const totalDays = daysInJalaliMonth(Number(shift.year), Number(shift.month))
         const monthShifts = Array(totalDays).fill(null)
@@ -16,7 +17,7 @@ exports.getMonthShifts = (shifts) => {
             });
         });
         result.push({ 
-            shiftId, fullname, monthShifts: monthShifts.filter(item => item), description, temporal
+            shiftId, fullname, monthShifts: monthShifts.filter(item => item), description, temporal, confirm
         });
     });
 
